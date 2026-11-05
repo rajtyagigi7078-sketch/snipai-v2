@@ -1,7 +1,7 @@
 (() => {
   const offerEndsAt = "2026-11-12T09:47:22.456439+00:00";
-  function updateOfferCountdown() { const node=document.getElementById("offerCountdown");if(!node)return;const remaining=new Date(offerEndsAt).getTime()-Date.now();if(remaining<=0){node.textContent="Offer ended";document.querySelectorAll(".regular-price").forEach(x=>x.remove());return}const days=Math.floor(remaining/86400000),hours=Math.floor(remaining/3600000)%24,minutes=Math.floor(remaining/60000)%60;node.textContent=`${days}d ${hours}h ${minutes}m left`;node.title=`Ends ${new Date(offerEndsAt).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})} IST`; }
-  updateOfferCountdown();setInterval(updateOfferCountdown,30000);
+  function updateOfferCountdown() { const node=document.getElementById("offerCountdown");if(!node)return;const remaining=new Date(offerEndsAt).getTime()-Date.now();if(remaining<=0){const banner=node.closest(".offer-banner");if(banner)banner.textContent="Diwali offer ended · Snip AI ₹300 · Capsnip ₹450";document.querySelectorAll(".regular-price").forEach(x=>x.remove());return}const days=Math.floor(remaining/86400000),hours=Math.floor(remaining/3600000)%24,minutes=Math.floor(remaining/60000)%60;node.textContent=`${days}d ${hours}h ${minutes}m left`;node.title=`Ends ${new Date(offerEndsAt).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})} IST`; }
+  updateOfferCountdown();setInterval(updateOfferCountdown,30000);const untilExpiry=Date.parse(offerEndsAt)-Date.now();if(untilExpiry>0)setTimeout(()=>location.reload(),untilExpiry+250);
   const config = window.SNIP_STORE_CONFIG || {};
   const SUPABASE_URL = String(config.supabaseUrl || "").replace(/\/$/, "");
   const PUBLISHABLE_KEY = String(config.publishableKey || "");
@@ -42,7 +42,7 @@
     const body = document.createElement("div"); body.className = "product-card-body";
     const row = document.createElement("div"); row.className = "card-title-row";
     const group = document.createElement("div"); group.className = "card-title-group";
-    const icon = document.createElement("span"); icon.className = `card-icon ${item.slug}`; icon.textContent = item.icon || item.name.slice(0,1); group.append(icon);
+    const icon = document.createElement("span"); icon.className = `card-icon ${item.slug}`; const mark=document.createElement("img");mark.src=item.slug==="capsnip"?"assets/capsnip-logo.svg":"assets/snipai-logo.png";mark.alt="";icon.append(mark); group.append(icon);
     const title = document.createElement("h3"); title.textContent = item.name; group.append(title);
     const price = document.createElement("strong"); price.className = "price-tag"; price.textContent = money(item.price_inr); const regular=document.createElement("del");regular.className="regular-price";regular.textContent=money(item.slug==="snip-ai"?300:450);if(offerActive())price.prepend(regular); row.append(group,price);
     const desc = document.createElement("p"); desc.textContent = item.short_description || item.description || "A focused desktop app from Snip Store.";
@@ -77,7 +77,7 @@
     const gallery = byId("screenshotGallery"); if (!gallery) return;
     const local = product.slug === "capsnip" ? ["assets/capsnip-editor-real.png","assets/capsnip-home-real.png","assets/capsnip-export-real.png"] : ["assets/snipai-01-video-import.png","assets/snipai-02-clip-setup.png","assets/snipai-04-generated-clips.png","assets/snipai-03-generation-progress.png"];
     const remote = Array.isArray(product.screenshots) ? product.screenshots : (Array.isArray(product.screenshot_urls) ? product.screenshot_urls : []);
-    const images = [...remote,...local].filter(Boolean).slice(0,3);
+    const images = product.slug==="capsnip"?["assets/latest-4.png","assets/latest-5.png","assets/latest-6.png"]:["assets/latest-1.png","assets/latest-2.png","assets/latest-3.png"];
     gallery.replaceChildren(...images.map((src,index) => {
       const figure=document.createElement("figure"),img=document.createElement("img"),caption=document.createElement("figcaption");
       const labels=product.slug==="capsnip"?["Caption templates in the editor","Project and clip workspace","MP4 export options"]:["Import a video","Choose clip settings","Review generated clips","Follow generation progress"];
@@ -95,8 +95,9 @@
     const product=normalizeProduct(catalog.find(item=>item.slug===slug)||localProduct||{});
     if(!product){byId("productName").textContent="App not found";return}
     selectedProduct=product;
+    if(!offerActive()){const label=document.querySelector(".product-price-line > span");if(label)label.textContent="one-time · lifetime access"}
     document.title=`${product.name} — Snip Store`;
-    const logo=byId("productLogo"); logo.textContent=product.icon||product.name.slice(0,1);logo.classList.toggle("snipai",product.slug==="snip-ai");
+    const logo=byId("productLogo"); logo.replaceChildren();const mark=document.createElement("img");mark.src=product.slug==="capsnip"?"assets/capsnip-logo.svg":"assets/snipai-logo.png";mark.alt=`${product.name} logo`;logo.append(mark);logo.classList.toggle("snipai",product.slug==="snip-ai");
     byId("productName").textContent=product.name;
     byId("productShort").textContent=product.short_description||"Windows desktop · lifetime access";
     byId("productDescription").textContent=product.description||product.short_description||"A useful local desktop tool.";
@@ -120,6 +121,7 @@
   async function startCheckout() {
     const email=byId("buyerEmail"),phone=byId("buyerPhone"),button=byId("payButton"),error=byId("checkoutError");
     if(!selectedProduct||!email?.reportValidity()||!phone?.reportValidity())return;
+    if(!offerActive()&&selectedProduct.price_inr!==normalizeProduct(selectedProduct).price_inr){selectedProduct=normalizeProduct(selectedProduct);byId("checkoutPrice").textContent=money(selectedProduct.price_inr);error.textContent=`The Diwali offer has ended. The price is now ${money(selectedProduct.price_inr)}. Review it, then continue.`;return}
     button.disabled=true;button.textContent="Preparing secure checkout…";error.textContent="";
     try {
       const data=await callFunction("store-create-order",{product_slug:selectedProduct.slug,email:email.value.trim(),phone:phone.value.replace(/\D/g,"")});
