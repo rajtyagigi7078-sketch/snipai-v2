@@ -22,6 +22,7 @@
     if (!SUPABASE_URL || !PUBLISHABLE_KEY) throw new Error("Snip Store is still being connected. Please try again shortly.");
     const response = await fetch(functionsUrl(name), {
       method,
+      signal: AbortSignal.timeout(15000),
       headers: { apikey:PUBLISHABLE_KEY, Authorization:`Bearer ${PUBLISHABLE_KEY}`, "Content-Type":"application/json" },
       ...(payload ? { body:JSON.stringify(payload) } : {})
     });
@@ -80,7 +81,7 @@
     const images = product.slug==="capsnip"?["assets/latest-4.png","assets/latest-5.png","assets/latest-6.png"]:["assets/latest-1.png","assets/latest-2.png","assets/latest-3.png"];
     gallery.replaceChildren(...images.map((src,index) => {
       const figure=document.createElement("figure"),img=document.createElement("img"),caption=document.createElement("figcaption");
-      const labels=product.slug==="capsnip"?["Caption templates in the editor","Project and clip workspace","MP4 export options"]:["Import a video","Choose clip settings","Review generated clips","Follow generation progress"];
+      const labels=product.slug==="capsnip"?["Caption positioning in the editor","Your creative workspace","Browse 68 caption styles"]:["Review generated clips","Choose clip settings","Start a new clipping project"];
       img.src=src;img.alt=`${product.name} ${labels[index]||"app screen"}`;img.loading="lazy";caption.textContent=labels[index]||`${product.name} app screen`;
       figure.append(img,caption);return figure;
     }));
