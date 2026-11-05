@@ -38,7 +38,7 @@
     const visual = document.createElement("div"); visual.className = "product-card-visual";
     const badge = document.createElement("span"); badge.className = "product-badge"; badge.textContent = "WINDOWS · LOCAL-FIRST"; visual.append(badge);
     const frame = document.createElement("div"); frame.className = "mock-frame real-shot-frame";
-    const screenshots = item.screenshots || item.screenshot_urls || [];
+    const screenshots = fallbackCatalog.find(product=>product.slug===item.slug)?.screenshots || item.screenshots || item.screenshot_urls || [];
     const image = document.createElement("img"); image.src = screenshots[0] || (item.slug === "capsnip" ? "assets/capsnip-editor-real.png" : "assets/snipai-04-generated-clips.png"); image.alt = `Real ${item.name} app screen`; image.loading = "lazy"; frame.append(image); visual.append(frame);
     const body = document.createElement("div"); body.className = "product-card-body";
     const row = document.createElement("div"); row.className = "card-title-row";
@@ -105,7 +105,7 @@
     byId("productPrice").textContent=money(product.price_inr);const regular=document.createElement("del");regular.className="regular-price";regular.textContent=money(product.slug==="snip-ai"?300:450);if(offerActive())byId("productPrice").prepend(regular);byId("factPrice").textContent=`${money(product.price_inr)} once`;
     byId("purchasePrice").textContent=money(product.price_inr);byId("checkoutPrice").textContent=money(product.price_inr);byId("checkoutProduct").textContent=product.name;
     byId("detailsBlurb").textContent=product.details||product.description||product.short_description||"A focused desktop app that runs locally on your computer.";
-    const mainScreenshot=byId("mainScreenshot"),productShots=Array.isArray(product.screenshots)?product.screenshots:(Array.isArray(product.screenshot_urls)?product.screenshot_urls:[]);mainScreenshot.src=productShots[0]||(product.slug==="capsnip"?"assets/capsnip-editor.svg":"assets/snipai-workspace.svg");mainScreenshot.alt=`${product.name} desktop workspace preview`;
+    const mainScreenshot=byId("mainScreenshot"),productShots=Array.isArray(product.screenshots)?product.screenshots:(Array.isArray(product.screenshot_urls)?product.screenshot_urls:[]);mainScreenshot.src=localProduct?.screenshots?.[0]||productShots[0]||(product.slug==="capsnip"?"assets/capsnip-editor.svg":"assets/snipai-workspace.svg");mainScreenshot.alt=`${product.name} desktop workspace preview`;
     const buttons=[byId("buyButton"),byId("buyButtonBottom")].filter(Boolean);
     const available=typeof product.download_url==="string"&&/^https:\/\//i.test(product.download_url);
     buttons.forEach((button,index)=>{button.disabled=!available;if(!available){button.textContent="Windows installer coming soon";button.setAttribute("aria-describedby","productAvailability")}else button.addEventListener("click",()=>openCheckout(product));if(index===1&&available)button.textContent="Download & Get Key ↗"});
