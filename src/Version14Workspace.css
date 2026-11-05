@@ -1,0 +1,286 @@
+/* v1.4 generation workspace: compact controls with a readable caption gallery. */
+main.main-content:has(> .auto-clipping-workspace) { display: flex !important; flex-direction: column !important; align-items: center !important; }
+main.main-content:has(.auto-clipping-workspace) > .topbar,
+main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace {
+  width: min(100%, 1080px) !important;
+  max-width: 1080px !important;
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+main.main-content > header.topbar,
+main.main-content > section.auto-clipping-workspace {
+  width: min(100%, 1080px) !important;
+  max-width: 1080px !important;
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+main.main-content > section.auto-clipping-workspace { flex: 0 0 auto !important; }
+main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { padding: 0 18px 18px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .options-grid {
+  display: grid !important;
+  grid-template-columns: minmax(220px, .72fr) minmax(0, 1.28fr) !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .options-grid > .option-card {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: clamp(340px, 49vh, 510px) !important;
+  overflow: hidden !important;
+  grid-row: 1 !important;
+}
+.auto-clipping-workspace.video-loaded > .drop-zone {
+  width: 100% !important;
+  min-height: 58px !important;
+  padding: 8px 15px !important;
+}
+.auto-clipping-workspace.video-loaded > .drop-zone .upload-note { display: none !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .options-grid > .option-card:first-child { grid-column: 1 !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .options-grid > .caption-card {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-carousel {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: auto !important;
+  padding: 2px 8px 4px 2px !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-track {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) 24px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 7px !important;
+  gap: 2px !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-preview {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 8px !important;
+  background: rgba(0,0,0,.72) !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-preview > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .caption-theme-preview-video {
+  display: block !important;
+  object-fit: contain !important;
+  background: #000 !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .caption-theme-preview-loading {
+  background: #000 !important;
+  color: #f2f2f2 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .caption-engine-preview {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: rgba(0,0,0,.72) !important;
+}
+.caption-preview-fallback { position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; gap:.2em; padding:8px; color:#f4f4f4; background:#000; font-size:clamp(12px,1vw,18px); font-weight:900; letter-spacing:-.045em; white-space:nowrap; }
+.caption-preview-fallback b { color:#f4f4f4; }
+.caption-preview-fallback b:first-child { color:#ffd400; }
+.caption-preview-fallback.theme-highlight-box b:nth-child(3) { padding:.06em .16em; color:#fff; background:#0d817d; border-radius:3px; }
+.caption-preview-fallback.theme-violet-pill b:nth-child(3) { padding:.06em .16em; background:#7544d9; border-radius:5px; }
+.caption-preview-fallback.theme-dual-line, .caption-preview-fallback.theme-yellow-stack { flex-wrap:wrap; white-space:normal; text-align:center; }
+.caption-theme-preview-video { position:relative; z-index:1; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .caption-preview-sample {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .2em !important;
+  max-width: calc(100% - 20px) !important;
+  transform: none !important;
+  font-family: inherit !important;
+  font-size: clamp(14px, 1.1vw, 19px) !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-options { display:grid !important; grid-template-columns:repeat(2, minmax(0, 112px)) !important; justify-content:start !important; gap:9px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button { width:112px !important; height:112px !important; min-height:112px !important; flex:none !important; justify-content:center !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-preview { width:60px !important; height:60px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-1-1 span { width:38px !important; height:38px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-16-9 span { width:46px !important; height:26px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .caption-preview-word {
+  display: inline-block !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-footer {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  align-self: center !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-selector { margin-top: 10px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .generation-controls-footer {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, 1fr) max-content !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-top: 10px !important;
+  padding: 9px 12px !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 14px !important;
+  background: #050505 !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-selector { display: contents !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-header { grid-column: 1 !important; margin: 0 !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-header span,
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-value,
+.main-content:has(.auto-clipping-workspace.video-loaded) .generate-row .generation-info { display: none !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-options { grid-column: 2 !important; justify-content: flex-start !important; flex-wrap: nowrap !important; gap: 5px !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .generate-row { display: contents !important; }
+.main-content:has(.auto-clipping-workspace.video-loaded) .generate-button { grid-column: 3 !important; min-width: 160px !important; min-height: 40px !important; }
+
+/* Keep clip title and the adjacent open action on one aligned baseline. */
+.clip-card-footer { align-items: start !important; }
+.clip-card-footer-content { display: grid !important; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto; gap: 6px !important; }
+.clip-card-footer-meta { min-height: 26px; justify-content: center; }
+.clip-folder-button { grid-column: 2 !important; grid-row: 1 !important; align-self: start !important; }
+
+/* Warm processing indicator and restrained connected-node glow. */
+.processing-panel { background-image: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,.12), transparent 58%) !important; }
+.processing-progress-fill { background: linear-gradient(90deg,#b96b00,#ffb52e,#f59e0b) !important; background-size: 220% 100% !important; animation: snipAmberFlow 1.8s linear infinite !important; }
+.processing-current-icon { color: #ffae19 !important; background: radial-gradient(circle,rgba(245,158,11,.24),rgba(245,158,11,.06) 70%) !important; box-shadow: 0 0 16px rgba(245,158,11,.22), inset 0 0 0 1px rgba(245,158,11,.2) !important; }
+.processing-stage.active .stage-icon { color: #ffae19 !important; border-color: rgba(245,158,11,.72) !important; animation: snipAmberPulse 1.8s ease-in-out infinite !important; }
+.processing-stage.completed .stage-icon { color: #f59e0b !important; border-color: rgba(245,158,11,.5) !important; }
+.processing-stage.active .stage-line { background: linear-gradient(90deg,rgba(245,158,11,.8),#35302a) !important; }
+@keyframes snipAmberFlow { to { background-position: 220% 0; } }
+@keyframes snipAmberPulse { 0%,100% { box-shadow: 0 0 2px rgba(245,158,11,.12); } 50% { box-shadow: 0 0 12px rgba(245,158,11,.34); } }
+@media (max-width: 850px) {
+  main.main-content:has(.auto-clipping-workspace) > .topbar,
+  main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { width: 100% !important; max-width: none !important; padding-left: 14px !important; padding-right: 14px !important; }
+  main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { padding-bottom: 16px !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .options-grid { grid-template-columns: minmax(0,1fr) !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .options-grid > .option-card { grid-column: 1 !important; grid-row: auto !important; height: auto !important; min-height: 320px !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .generation-controls-footer { grid-template-columns: minmax(0,1fr) !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-header,
+  .main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-options,
+  .main-content:has(.auto-clipping-workspace.video-loaded) .generate-button { grid-column: 1 !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-options { flex-wrap: wrap !important; }
+  .main-content:has(.auto-clipping-workspace.video-loaded) .generate-button { justify-self: end !important; }
+}
+
+@media (min-width: 851px) and (max-width: 1100px) {
+  .main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Make the current choices immediately visible against the black cards. */
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button.selected,
+.main-content:has(.auto-clipping-workspace.video-loaded) .remotion-create-template-card.selected {
+  border: 2px solid #F59E0B !important;
+  background-color: rgba(245,158,11,.09) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,190,65,.3), 0 0 16px rgba(245,158,11,.28) !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button.selected .format-preview {
+  border-color: rgba(255,190,65,.72) !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-button.active {
+  border: 2px solid #ffc04a !important;
+  background: #F59E0B !important;
+  color: #090909 !important;
+  box-shadow: 0 0 0 2px rgba(245,158,11,.25), 0 0 14px rgba(245,158,11,.42) !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-trigger:hover,
+.main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-trigger:focus-visible,
+.main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-picker.is-open .audio-language-trigger {
+  border: 2px solid #F59E0B !important;
+  box-shadow: 0 0 0 2px rgba(245,158,11,.18), 0 0 13px rgba(245,158,11,.28) !important;
+}
+
+/* Keep the results gallery to four compact clips per row. */
+.gallery-view .gallery-grid {
+  width: min(100%, 860px) !important;
+  max-width: 860px !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.gallery-view .clip-preview { aspect-ratio: 9 / 16 !important; }
+.gallery-view .clip-preview video { object-fit: contain !important; }
+@media (max-width: 1000px) {
+  .gallery-view .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 680px) {
+  .gallery-view .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 540px) {
+  .main-content:has(.auto-clipping-workspace.video-loaded) .remotion-caption-card .remotion-create-template-track { grid-template-columns: minmax(0,1fr) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .processing-progress-fill, .processing-stage.active .stage-icon { animation: none !important; }
+}
+
+/* Match the marked, easy-to-read frame guides inside the compact selectors. */
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-preview {
+  width: 80px !important;
+  height: 72px !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-1-1 span {
+  width: 48px !important;
+  height: 48px !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-16-9 span {
+  width: 68px !important;
+  height: 38px !important;
+}
+
+/* The selectable tiles themselves follow the chosen frame ratio. */
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-options {
+  grid-template-columns: 86px 112px !important;
+  align-items: center !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button {
+  width: 86px !important;
+  height: 86px !important;
+  min-height: 0 !important;
+  padding: 6px !important;
+  flex: none !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button:nth-child(2) {
+  width: 112px !important;
+  height: 63px !important;
+  min-height: 0 !important;
+  align-self: center !important;
+}
+.main-content:has(.auto-clipping-workspace.video-loaded) .format-button .format-preview {
+  width: 1px !important;
+  height: 1px !important;
+  border: 0 !important;
+  overflow: visible !important;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Diwali creator offer",
+  "ends_at": "2026-11-12T09:47:22.456439+00:00",
+  "regular_prices": {
+    "snip-ai": 300,
+    "capsnip": 450
+  },
+  "offer_prices": {
+    "snip-ai": 100,
+    "capsnip": 250
+  }
+}
