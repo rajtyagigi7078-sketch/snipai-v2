@@ -187,7 +187,7 @@ export default function LicenseActivationScreen({
             disabled={loading}
           >
             <KeyRound size={15} />
-            Don't have a key? Get Lifetime Access — ₹100
+            Don't have a key? Get Lifetime Access
           </button>
         </form>
 

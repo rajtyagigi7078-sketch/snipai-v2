@@ -21,6 +21,7 @@ function createMediaBackend(options) {
   let activeChild = null;
   let activeOperation = false;
   let cancelled = false;
+  let runtimeReady = null;
   const runtimeRoot = () => {
     const candidates = [options.runtimeRoot, process.env.SNIP_AI_RUNTIME_ROOT, app.isPackaged && path.join(resourcesPath, 'windows-runtime'), path.join(rootDir, 'windows-runtime')].filter(Boolean);
     const result = candidates.find(p => fs.existsSync(path.join(p, 'python', 'python.exe')) && fs.existsSync(path.join(p, 'pipeline', 'pipeline_runner.py')));
@@ -51,6 +52,24 @@ function createMediaBackend(options) {
       onChild: (child, previous) => { if (track && child) activeChild = child; else if (activeChild === previous) activeChild = null; },
     });
   }
+  async function ensureRuntime(force = false) {
+    if (force) runtimeReady = null;
+    if (!runtimeReady) runtimeReady = (async () => {
+      const rt = runtime();
+      for (const name of ['python/msvcp140.dll','python/vcruntime140.dll','python/vcruntime140_1.dll','node/msvcp140.dll','pipeline/runtime_check.py']) {
+        if (!fs.existsSync(path.join(rt.root,name))) throw new Error(`Bundled file is missing: ${name}`);
+      }
+      const logDir=path.join(app.getPath('userData'),'diagnostics');
+      await fsp.mkdir(logDir,{recursive:true});
+      const result=await run(rt.python,[path.join(rt.pipeline,'runtime_check.py'),'--runtime',rt.root,'--output',path.join(logDir,'runtime-check.json')],{env:environment(rt),timeout:120000,track:activeOperation,logPath:path.join(logDir,'runtime-check.log')});
+      const line=result.stdout.split(/\r?\n/).find(line=>line.startsWith('SNIP_RUNTIME_CHECK:'));
+      const report=line && JSON.parse(line.slice('SNIP_RUNTIME_CHECK:'.length));
+      if(!report?.ok)throw new Error('Bundled runtime checks did not complete.');
+      return report;
+    })();
+    try { return await runtimeReady; }
+    catch(error) { runtimeReady=null; if(cancelled)throw new Error('Processing cancelled.'); throw new Error(`RUNTIME_DEPENDENCY: Snip AI could not start its bundled engines. Use Repair runtime below; if a bundled file was removed, reinstall the latest Snip AI.\n${error.message}`); }
+  }
   async function probe(value) {
     const target = await file(value);
     const rt = runtime();
@@ -75,6 +94,7 @@ function createMediaBackend(options) {
     return null;
   }
   async function createClips(args) {
+    await ensureRuntime();
     const input = await file(args.inputPath, ['.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v']);
     if (!['1:1', '16:9', '9:16'].includes(args.format)) throw new Error('Choose a supported video frame.');
     if (!['english', 'hinglish'].includes(args.audioLanguage)) throw new Error('Choose English or Hinglish.');
@@ -289,6 +309,7 @@ function createMediaBackend(options) {
       case 'create_clips': return exclusive(() => createClips(args));
       case 'download_youtube': return exclusive(() => downloadYoutube(args));
       case 'cancel_processing': return cancel();
+      case 'check_runtime': return ensureRuntime(true);
       case 'read_clip_editor': return exclusive(() => clipEditorData(args.path));
       case 'render_clip_edit': return exclusive(() => renderClipEdit(args));
       case 'probe_video': return probe(args.path || args.inputPath);

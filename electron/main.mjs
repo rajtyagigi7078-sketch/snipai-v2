@@ -3,6 +3,7 @@ import { join, resolve, extname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { spawn } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -51,6 +52,18 @@ app.whenReady().then(async()=>{
   powerMonitor.on('resume',()=>{systemSuspended=false;log('System resumed; media deadlines resumed.');});
   backend = mediaModule.createMediaBackend({runtimeRoot,userData:app.getPath('userData'),downloads:app.getPath('downloads'),isSuspended:()=>systemSuspended,send:(event,payload)=>{if(win&&!win.isDestroyed())win.webContents.send(event,payload);}});
   ipcMain.handle('snipai:invoke',async(_event,command,args)=>{
+    if(command==='repair_runtime'){
+      const installer=join(runtimeRoot,'prerequisites','VC_redist.x64.exe');
+      if(!existsSync(installer))throw new Error('The bundled repair installer is missing. Reinstall the latest Snip AI.');
+      const literal=installer.replaceAll("'","''");
+      const script=`$ErrorActionPreference='Stop'; $file='${literal}'; $signature=Get-AuthenticodeSignature -LiteralPath $file; if($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation'){throw 'Microsoft signature verification failed'}; $p=Start-Process -FilePath $file -ArgumentList '/install','/passive','/norestart' -Verb RunAs -WindowStyle Hidden -Wait -PassThru; if($p.ExitCode -notin @(0,3010,1638)){throw ('Runtime setup failed: '+$p.ExitCode)}`;
+      await new Promise((resolve,reject)=>{
+        const child=spawn(join(process.env.SystemRoot||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe'),['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(script,'utf16le').toString('base64')],{windowsHide:true,stdio:['ignore','ignore','pipe']});
+        let detail='';child.stderr.on('data',b=>{detail=(detail+b.toString()).slice(-2000)});
+        child.once('error',reject);child.once('close',code=>code===0?resolve():reject(new Error('Runtime repair was cancelled or failed. '+detail)));
+      });
+      return backend.invoke('check_runtime',{});
+    }
     if(command==='legacy_license_candidate'){
       const candidate=await require('./license-migration.cjs').readLegacyLicenseCandidate();
       return candidate?{deviceId:candidate.deviceId,keyLast4:candidate.keyLast4}:null;

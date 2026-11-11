@@ -1,7 +1,7 @@
 {
   "name": "clipper",
   "private": true,
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Snip AI local video clipping and caption editor",
   "author": "Snip Store",
   "type": "module",
@@ -81,7 +81,8 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "runAfterFinish": false
+      "runAfterFinish": false,
+      "include": "build/installer.nsh"
     },
     "win": {
       "icon": "src-tauri/icons/icon.ico",

@@ -5,6 +5,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from native_runtime import configure_native_runtime
+configure_native_runtime()
+
 from hindi_romanize import romanize_hinglish
 
 

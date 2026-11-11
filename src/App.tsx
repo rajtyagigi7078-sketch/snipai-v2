@@ -1,3 +1,4 @@
+import GenerationError from "./GenerationError";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
@@ -1913,13 +1914,7 @@ function App() {
               </div>
 
               {errorMessage && videoPath && (
-                <div className="processing-error">
-                  <strong>
-                    {errorMessage.includes("voice") || errorMessage.includes("words could") ? "We couldn't find clear speech" : "Couldn't finish this generation"}
-                  </strong>
-                  <span>{errorMessage}</span>
-                  <button type="button" className="error-pick-video" onClick={resetVideo}><Upload size={15}/>Choose another video</button>
-                </div>
+                <GenerationError key={errorMessage} message={errorMessage} onPickVideo={resetVideo}/>
               )}
 
               <div className="generation-controls-footer">
