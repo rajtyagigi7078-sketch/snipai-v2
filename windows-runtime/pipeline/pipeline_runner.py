@@ -9,6 +9,7 @@ import sys
 import time
 
 from hardware_profile import get_or_detect
+from transcript_workspace import prepare_transcript, save_transcript_cache
 
 
 # ============================================================
@@ -608,10 +609,7 @@ def get_video_duration(
 def transcript_path_for(
     video_path,
 ):
-
-    return video_path.with_suffix(
-        ".transcript.json"
-    )
+    return WORK_DIR / "transcript.json"
 
 
 def validate_transcript(
@@ -679,6 +677,13 @@ def validate_transcript(
     print(
         f"Duration: {duration:.3f}s"
     )
+
+    # Do not send an empty ASR result into the story analyzer.
+    if not any(segment.get("text", "").strip() for segment in data.get("segments", [])):
+        status = data.get("transcription_status", "no_words")
+        if status == "no_speech":
+            fail("ASR_NO_SPEECH: No clear spoken voice was detected. Choose a video with clear English or Hindi-English dialogue. Singing, music and 8D audio may not be recognized.")
+        fail("ASR_NO_WORDS: Voice was detected, but no reliable words could be transcribed. Check the selected audio language or try a clearer spoken video.")
 
 
 # ============================================================
@@ -912,7 +917,7 @@ def run_story_event_map(
             "cannot identify reliable moments from it yet."
         )
         fail(
-            "No clip moments were found. The story analyzer received "
+            "ASR_NO_MOMENTS: No clip moments were found. The story analyzer received "
             f"{word_count} timed words from {duration_text} of video and produced "
             "zero candidates. This usually means the audio has very little clear speech "
             f"or does not match the selected {selected_language} language.\n"
@@ -1044,6 +1049,7 @@ def prepare_generation_selector(
 
     runtime_header = (
         "import sys\n"
+        f"sys.path.insert(0, {str(PIPELINE_DIR)!r})\n"
         f"sys.argv = "
         f"[sys.argv[0], "
         f"\"{int(requested_clips)}\"]\n"
@@ -1445,15 +1451,14 @@ def main():
     # 1. Whisper
     # --------------------------------------------------------
 
-    transcript_path = (
-        transcript_path_for(
-            video_path
-        )
+    transcript_path, transcript_cache = prepare_transcript(
+        video_path, audio_language, WORK_DIR,
+        Path(os.environ.get("SNIP_AI_TRANSCRIPT_CACHE_DIR", str(HOME_DIR / ".snip-ai" / "transcript-cache"))),
     )
 
     # Keep Whisper's output and the pipeline's validator on the same path.
     # The app process can inherit SNIP_AI_TRANSCRIPT_PATH from unrelated
-    # benchmark/manual runs; explicitly pin it to this source video's cache.
+    # benchmark/manual runs; explicitly pin it to this job's local transcript.
     PROCESS_ENV["SNIP_AI_TRANSCRIPT_PATH"] = str(
         transcript_path
     )
@@ -1477,6 +1482,7 @@ def main():
         video_path,
         duration,
     )
+    save_transcript_cache(transcript_path, transcript_cache)
 
     # --------------------------------------------------------
     # 2. Story Event Map V3

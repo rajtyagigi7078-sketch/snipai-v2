@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openUrl } from "./lib/desktop";
 import {
   ArrowRight,
   CheckCircle2,
@@ -107,7 +107,7 @@ export default function LicenseActivationScreen({
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">S</div>
+          <div className="auth-logo"><img src="./snip-logo-mark.png" alt="Snip AI" style={{width:"100%",height:"100%",objectFit:"contain",borderRadius:16}} /></div>
 
           <div>
             <strong>

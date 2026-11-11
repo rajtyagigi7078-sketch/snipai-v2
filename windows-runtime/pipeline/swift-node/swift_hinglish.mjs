@@ -9,7 +9,16 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 env.allowLocalModels = true;
 env.allowRemoteModels = false;
-env.localModelPath = path.join(scriptDir, "node_modules", "@huggingface", "transformers", ".cache");
+// ONNX Runtime's Windows loader can reject model paths longer than MAX_PATH.
+// Packaged models live at a short runtime/models path instead of inside the
+// deeply nested node_modules cache; the old cache remains a dev fallback.
+const shortModelRoot = process.env.SNIP_AI_SWIFT_MODEL_ROOT || (process.env.SNIP_AI_RUNTIME_ROOT && path.join(process.env.SNIP_AI_RUNTIME_ROOT, "models"));
+env.localModelPath = shortModelRoot && fs.existsSync(path.join(shortModelRoot, "ishaan-g"))
+  ? shortModelRoot
+  : path.join(scriptDir, "node_modules", "@huggingface", "transformers", ".cache");
+// All model files are already bundled; do not return a cached response whose
+// path points back into the older, deeply nested cache directory.
+env.useFSCache = false;
 
 const [video, output, speechRegionsPath] = process.argv.slice(2);
 if (!video || !output || !speechRegionsPath) {

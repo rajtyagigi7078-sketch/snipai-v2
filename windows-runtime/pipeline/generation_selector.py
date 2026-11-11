@@ -1,6 +1,8 @@
 import json
 import sys
+import os
 from pathlib import Path
+from clip_duration import fit_moments, requested_duration
 
 
 # ============================================================
@@ -662,6 +664,11 @@ def main():
         return
 
     history = load_history()
+    target_duration = requested_duration(os.environ.get("SNIP_AI_CLIP_DURATION_SECONDS"))
+    if target_duration is not None:
+        transcript = load_json(Path(os.environ["SNIP_AI_TRANSCRIPT_PATH"]))
+        moments = fit_moments(moments, target_duration, transcript)
+        print(f"Requested clip length: {target_duration:g}s (applied before selection)")
 
     generation_number = (
         next_generation_number(
@@ -833,6 +840,8 @@ def main():
             generation_clips
         ),
         "requested_count": CLIPS_PER_GENERATION,
+        "requested_clip_duration": target_duration,
+        "transcript": os.environ.get("SNIP_AI_TRANSCRIPT_PATH"),
         "recycled_pool": recycled,
         "clips": generation_clips,
     }

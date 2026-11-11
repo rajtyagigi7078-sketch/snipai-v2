@@ -1,13 +1,21 @@
 {
   "name": "clipper",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.2.9",
+  "description": "Snip AI local video clipping and caption editor",
+  "author": "Snip Store",
   "type": "module",
+  "main": "electron/main.mjs",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node node_modules/typescript/bin/tsc && node node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "electron:dev": "cross-env SNIPAI_DEV_SERVER_URL=http://localhost:1420 electron electron/main.mjs",
+    "electron:preview": "electron electron/main.mjs",
+    "electron:build": "npm run build && node scripts/prepare-electron-builder.cjs && cross-env ELECTRON_BUILDER_COMPRESSION_LEVEL=3 node node_modules/electron-builder/out/cli/cli.js --win",
+    "electron:release": "npm run build && node scripts/prepare-electron-builder.cjs && cross-env ELECTRON_BUILDER_COMPRESSION_LEVEL=3 node node_modules/electron-builder/out/cli/cli.js --win --config electron-builder.signed.cjs",
+    "electron:unpacked": "npm run build && node node_modules/electron-builder/out/cli/cli.js --win --dir"
   },
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.7",
@@ -28,8 +36,59 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^6.0.2",
+    "cross-env": "^10.1.0",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.0.12",
     "supabase": "^2.119.0",
     "typescript": "~6.0.3",
     "vite": "^8.0.16"
+  },
+  "build": {
+    "appId": "com.snipai.desktop",
+    "productName": "Snip AI",
+    "directories": {
+      "output": "../../snipai-electron-release"
+    },
+    "electronDist": ".build/electron-runtime",
+    "electronVersion": "45.0.0",
+    "npmRebuild": false,
+    "asarUnpack": [
+      "dist/assets/capsnip-typography/**/*"
+    ],
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "!dist/win-unpacked/**/*",
+      "!dist/asar-app-new/**/*",
+      "!node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".build/windows-runtime",
+        "to": "windows-runtime",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/tests/**",
+          "!**/test/**"
+        ]
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "runAfterFinish": false
+    },
+    "win": {
+      "icon": "src-tauri/icons/icon.ico",
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "Snip-AI-${version}-Setup.${ext}"
+    }
   }
 }

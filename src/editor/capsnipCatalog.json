@@ -1,0 +1,4903 @@
+[
+  {
+    "id": "spotlight-caps",
+    "name": "Spotlight Caps",
+    "category": "subtitle",
+    "accent": "#B6FF00",
+    "layout": "focus",
+    "font": "Anton, Impact, sans-serif",
+    "size": 112,
+    "motion": "pop",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Kinetic Typography",
+    "animation": "pop",
+    "grouping": "word",
+    "palette": "mint",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:spotlight-caps",
+    "baseColor": "#F8F7FF",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/Anton-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "YAAR PUBLISH",
+    "pattern": {
+      "name": "Spotlight Caps",
+      "referenceVideo": "VID_20261023_053140_930.mp4",
+      "layout": "phrase-lower",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.68
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "active-word",
+      "referenceCueCount": 16,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 16
+        }
+      ]
+    }
+  },
+  {
+    "id": "stacked-editorial",
+    "name": "Stacked Editorial",
+    "category": "subtitle",
+    "accent": "#00E5FF",
+    "layout": "stack",
+    "font": "Bodoni Moda, Georgia, serif",
+    "size": 76,
+    "motion": "stagger",
+    "anchor": "left",
+    "prototype": "stacked",
+    "typographyCategory": "Stacked Typography",
+    "animation": "side-stagger",
+    "grouping": "stack",
+    "palette": "white-gray",
+    "casing": "upper",
+    "weight": 800,
+    "italic": false,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:stacked-editorial",
+    "baseColor": "#E9FCFF",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/BodoniModa[opsz,wght].ttf",
+    "fontWeightRange": "100 900",
+    "fontStyle": "normal",
+    "sample": "JO INTENT KAR RAHA",
+    "pattern": {
+      "name": "Stacked Editorial",
+      "referenceVideo": "VID_20261023_103501_307.mp4",
+      "layout": "side-word-stack",
+      "anchor": {
+        "x": 0.18,
+        "y": 0.48
+      },
+      "maxWordsPerRow": 1,
+      "emphasis": "current-word",
+      "referenceCueCount": 5,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "clean-midline",
+    "name": "Clean Midline",
+    "category": "subtitle",
+    "accent": "#FF2FB3",
+    "layout": "line",
+    "font": "Aldrich, sans-serif",
+    "size": 58,
+    "motion": "fade",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Highlight Typography",
+    "animation": "word-swap",
+    "grouping": "word",
+    "palette": "cyan",
+    "casing": "sentence",
+    "weight": 700,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:clean-midline",
+    "baseColor": "#FFF0FA",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/Aldrich-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "FEATURE KAAFI",
+    "pattern": {
+      "name": "Clean Midline",
+      "referenceVideo": "VID_20261023_103951_321.mp4",
+      "layout": "single-line",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.52
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "active-word",
+      "referenceCueCount": 18,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        }
+      ]
+    }
+  },
+  {
+    "id": "red-italic",
+    "name": "Red Italic",
+    "category": "subtitle",
+    "accent": "#9D4EDD",
+    "layout": "line",
+    "font": "Righteous, sans-serif",
+    "size": 72,
+    "motion": "rise",
+    "anchor": "lower",
+    "italic": true,
+    "typographyCategory": "Highlight Typography",
+    "animation": "phrase-cut",
+    "grouping": "word",
+    "palette": "red",
+    "casing": "sentence",
+    "weight": 800,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:red-italic",
+    "baseColor": "#F3EDFF",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/Righteous-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "YEH BILKUL SAHI",
+    "pattern": {
+      "name": "Red Italic",
+      "referenceVideo": "VID_20261023_104006_935.mp4",
+      "layout": "two-line-phrase",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.7
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase-lead",
+      "referenceCueCount": 33,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 32
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 33
+        }
+      ]
+    }
+  },
+  {
+    "id": "orange-condensed",
+    "name": "Orange Condensed",
+    "category": "subtitle",
+    "accent": "#00E676",
+    "layout": "focus",
+    "font": "Bowlby One SC, Impact, sans-serif",
+    "size": 118,
+    "motion": "pop",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Kinetic Typography",
+    "animation": "orange-bounce",
+    "grouping": "word",
+    "palette": "orange",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:orange-condensed",
+    "baseColor": "#F2FFF9",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/BowlbyOneSC-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "KYA BAAT HAI",
+    "pattern": {
+      "name": "Orange Condensed",
+      "referenceVideo": "VID_20261023_104057_764.mp4",
+      "layout": "keyword-support",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.7
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "largest-word",
+      "referenceCueCount": 8,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "clean-white-focus",
+    "name": "Clean White Focus",
+    "category": "subtitle",
+    "accent": "#FF5B35",
+    "layout": "line",
+    "font": "Oswald, sans-serif",
+    "size": 66,
+    "motion": "fade",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Highlight Typography",
+    "animation": "active-scale",
+    "grouping": "word",
+    "palette": "cyan",
+    "casing": "sentence",
+    "weight": 800,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:clean-white-focus",
+    "baseColor": "#FFF8F0",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/Oswald[wght].ttf",
+    "fontWeightRange": "200 700",
+    "fontStyle": "normal",
+    "sample": "CAPTION AB READY",
+    "pattern": {
+      "name": "Clean White Focus",
+      "referenceVideo": "VID_20261023_104126_608.mp4",
+      "layout": "focus-word-support",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.57
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "active-word",
+      "referenceCueCount": 13,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 13
+        }
+      ]
+    }
+  },
+  {
+    "id": "serif-hook",
+    "name": "Serif Hook",
+    "category": "display",
+    "accent": "#FFD400",
+    "layout": "line",
+    "font": "Bodoni Moda, Georgia, serif",
+    "size": 76,
+    "motion": "rise",
+    "anchor": "center",
+    "italic": true,
+    "typographyCategory": "Editorial Typography",
+    "animation": "serif-rise",
+    "grouping": "phrase",
+    "palette": "cream",
+    "casing": "title",
+    "weight": 700,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:serif-hook",
+    "baseColor": "#F8FBFF",
+    "colorFamily": "Neon",
+    "fontFile": "fonts/BodoniModa-Italic[opsz,wght].ttf",
+    "fontWeightRange": "100 900",
+    "fontStyle": "italic",
+    "sample": "A NEW STORY",
+    "pattern": {
+      "name": "Serif Hook",
+      "referenceVideo": "VID_20261023_104145_146.mp4",
+      "layout": "two-line-editorial",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.58
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase-lead",
+      "referenceCueCount": 59,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 32
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 33
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 34
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 35
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 36
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 37
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 38
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 39
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 40
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 41
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 42
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 43
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 44
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 45
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 46
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 47
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 48
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 49
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 50
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 51
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 52
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 53
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 54
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 55
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 56
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 57
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 58
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 59
+        }
+      ]
+    }
+  },
+  {
+    "id": "kinetic-word-stack",
+    "name": "Kinetic Word Stack",
+    "category": "subtitle",
+    "accent": "#D77A98",
+    "layout": "stack",
+    "font": "Anton, Impact, sans-serif",
+    "size": 82,
+    "motion": "stagger",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Kinetic Typography",
+    "animation": "stack-pop",
+    "grouping": "word",
+    "palette": "rainbow",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": "Monoton",
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:kinetic-word-stack",
+    "baseColor": "#FFF4F7",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/Anton-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "SAY IT LOUD",
+    "pattern": {
+      "name": "Kinetic Word Stack",
+      "referenceVideo": "VID_20261023_104149_399.mp4",
+      "layout": "display-word-position-cycle",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "maxWordsPerRow": 2,
+      "emphasis": "active-word",
+      "referenceCueCount": 5,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            2,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            2,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            2,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "red-statement",
+    "name": "Red Statement",
+    "category": "subtitle",
+    "accent": "#4F9D7A",
+    "layout": "line",
+    "font": "League Gothic, Impact, sans-serif",
+    "size": 76,
+    "motion": "pop",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Highlight Typography",
+    "animation": "red-flash",
+    "grouping": "word",
+    "palette": "red",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:red-statement",
+    "baseColor": "#F0FFF7",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/LeagueGothic[wdth].ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "THIS IS THE MOMENT",
+    "pattern": {
+      "name": "Red Statement",
+      "referenceVideo": "VID_20261023_104229_730.mp4",
+      "layout": "phrase-lower",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.68
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "active-word",
+      "referenceCueCount": 15,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 15
+        }
+      ]
+    }
+  },
+  {
+    "id": "handwritten-whisper",
+    "name": "Handwritten Whisper",
+    "category": "subtitle",
+    "accent": "#7094C8",
+    "layout": "line",
+    "font": "Rock Salt, cursive",
+    "size": 62,
+    "motion": "fade",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Handwritten Typography",
+    "animation": "soft-fade",
+    "grouping": "phrase",
+    "palette": "white",
+    "casing": "sentence",
+    "weight": 400,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:handwritten-whisper",
+    "baseColor": "#F2F7FF",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/RockSalt-Regular.ttf",
+    "fontWeightRange": "400",
+    "fontStyle": "normal",
+    "sample": "JUST ONE THING",
+    "pattern": {
+      "name": "Handwritten Whisper",
+      "referenceVideo": "VID_20261023_104239_096.mp4",
+      "layout": "micro-lower-third",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.88
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase",
+      "referenceCueCount": 32,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 32
+        }
+      ]
+    }
+  },
+  {
+    "id": "yellow-script",
+    "name": "Yellow Script",
+    "category": "subtitle",
+    "accent": "#B68A2D",
+    "layout": "line",
+    "font": "Moo Lah Lah, cursive",
+    "size": 74,
+    "motion": "rise",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Handwritten Typography",
+    "animation": "script-fade",
+    "grouping": "phrase",
+    "palette": "yellow",
+    "casing": "sentence",
+    "weight": 400,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:yellow-script",
+    "baseColor": "#FFF9E9",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/MooLahLah-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "MAKE IT COUNT",
+    "pattern": {
+      "name": "Yellow Script",
+      "referenceVideo": "VID_20261023_104246_020.mp4",
+      "layout": "script-side-phrase",
+      "anchor": {
+        "x": 0.72,
+        "y": 0.54
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase",
+      "referenceCueCount": 58,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 32
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 33
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 34
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 35
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 36
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 37
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 38
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 39
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 40
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 41
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 42
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 43
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 44
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 45
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 46
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 47
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 48
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 49
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 50
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 51
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 52
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 53
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 54
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 55
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 56
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 57
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 58
+        }
+      ]
+    }
+  },
+  {
+    "id": "big-yellow-keyword",
+    "name": "Big Yellow Keyword",
+    "category": "subtitle",
+    "accent": "#C77953",
+    "layout": "focus",
+    "font": "Boldonse, Impact, sans-serif",
+    "size": 126,
+    "motion": "pop",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Kinetic Typography",
+    "animation": "keyword-stomp",
+    "grouping": "word",
+    "palette": "yellow",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:big-yellow-keyword",
+    "baseColor": "#FFF3E8",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/Boldonse-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "REVIEW KARKE",
+    "pattern": {
+      "name": "Big Yellow Keyword",
+      "referenceVideo": "VID_20261023_111732_203.mp4",
+      "layout": "keyword-support",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.72
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "largest-word",
+      "referenceCueCount": 16,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 16
+        }
+      ]
+    }
+  },
+  {
+    "id": "red-pop-phrase",
+    "name": "Red Pop Phrase",
+    "category": "subtitle",
+    "accent": "#9273C5",
+    "layout": "stack",
+    "font": "Plaster, Impact, sans-serif",
+    "size": 84,
+    "motion": "pop",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Highlight Typography",
+    "animation": "pink-pop",
+    "grouping": "word",
+    "palette": "pink",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:red-pop-phrase",
+    "baseColor": "#F7F2FF",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/Plaster-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "BILKUL READY",
+    "pattern": {
+      "name": "Red Pop Phrase",
+      "referenceVideo": "VID_20261023_111737_770.mp4",
+      "layout": "two-line-phrase",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.7
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "active-word",
+      "referenceCueCount": 10,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            2,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            2,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "handwritten-white-caps",
+    "name": "Handwritten White Caps",
+    "category": "subtitle",
+    "accent": "#4E9B8A",
+    "layout": "line",
+    "font": "Barriecito, cursive",
+    "size": 78,
+    "motion": "slide",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Handwritten Typography",
+    "animation": "marker-wipe",
+    "grouping": "phrase",
+    "palette": "white",
+    "casing": "upper",
+    "weight": 500,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:handwritten-white-caps",
+    "baseColor": "#EFFFFA",
+    "colorFamily": "Pastel",
+    "fontFile": "fonts/Barriecito-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "KEEP MOVING",
+    "pattern": {
+      "name": "Handwritten White Caps",
+      "referenceVideo": "VID_20261023_111828_495.mp4",
+      "layout": "phrase-lower",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase",
+      "referenceCueCount": 49,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 32
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 33
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 34
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 35
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 36
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 37
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 38
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 39
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 40
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 41
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 42
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 43
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 44
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 45
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 46
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 47
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 48
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 49
+        }
+      ]
+    }
+  },
+  {
+    "id": "soft-italic-caps",
+    "name": "Soft Italic Caps",
+    "category": "subtitle",
+    "accent": "#D32F2F",
+    "layout": "line",
+    "font": "Over the Rainbow, cursive",
+    "size": 70,
+    "motion": "fade",
+    "anchor": "lower",
+    "italic": true,
+    "typographyCategory": "Handwritten Typography",
+    "animation": "soft-italic-dissolve",
+    "grouping": "phrase",
+    "palette": "white",
+    "casing": "upper",
+    "weight": 400,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:soft-italic-caps",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/OvertheRainbow.ttf",
+    "fontWeightRange": "400",
+    "fontStyle": "normal",
+    "sample": "STAY WITH ME",
+    "pattern": {
+      "name": "Soft Italic Caps",
+      "referenceVideo": "VID_20261023_111831_665.mp4",
+      "layout": "phrase-lower",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.8
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase",
+      "referenceCueCount": 10,
+      "countBasis": "visual-estimate fallback; reference transcript unavailable",
+      "sequence": [
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "mint-pop",
+    "name": "Mint Pop",
+    "category": "subtitle",
+    "accent": "#1565C0",
+    "layout": "focus",
+    "font": "Vina Sans, sans-serif",
+    "size": 132,
+    "motion": "pop",
+    "anchor": "lower",
+    "prototype": "mint",
+    "typographyCategory": "Kinetic Typography",
+    "animation": "mint-spring",
+    "grouping": "word",
+    "palette": "mint",
+    "casing": "upper",
+    "weight": 900,
+    "italic": false,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "pop",
+    "key": "capsnip:mint-pop",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/VinaSans-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "BADA DUKH HO RHA",
+    "pattern": {
+      "name": "Mint Pop",
+      "referenceVideo": "VID_20261023_113038_750.mp4",
+      "layout": "keyword-support",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.7
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "largest-word",
+      "referenceCueCount": 4,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            2,
+            1,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "white-stack-highlight",
+    "name": "White Stack Highlight",
+    "category": "subtitle",
+    "accent": "#2E7D32",
+    "layout": "stack",
+    "font": "Bowlby One SC, sans-serif",
+    "size": 82,
+    "motion": "stagger",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Stacked Typography",
+    "animation": "stack-focus",
+    "grouping": "stack",
+    "palette": "cyan",
+    "casing": "upper",
+    "weight": 900,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:white-stack-highlight",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/BowlbyOneSC-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "CAPTION BILKUL READY",
+    "pattern": {
+      "name": "White Stack Highlight",
+      "referenceVideo": "VID_20261023_113046_752.mp4",
+      "layout": "three-row-focus",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.66
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "active-word",
+      "referenceCueCount": 18,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            2,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            2,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            2,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            1,
+            2,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            1,
+            3,
+            1
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        }
+      ]
+    }
+  },
+  {
+    "id": "minimal-vertical-white",
+    "name": "Minimal Vertical White",
+    "category": "subtitle",
+    "accent": "#B8860B",
+    "layout": "line",
+    "font": "Silkscreen, monospace",
+    "size": 56,
+    "motion": "fade",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Stacked Typography",
+    "animation": "minimal-cut",
+    "grouping": "stack",
+    "palette": "white",
+    "casing": "upper",
+    "weight": 700,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:minimal-vertical-white",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/Silkscreen-Bold.ttf",
+    "fontWeightRange": "700 900",
+    "fontStyle": "normal",
+    "sample": "JUST LISTEN",
+    "pattern": {
+      "name": "Minimal Vertical White",
+      "referenceVideo": "VID_20261023_113112_856.mp4",
+      "layout": "compact-highlight-line",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.58
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "active-word",
+      "referenceCueCount": 28,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 2,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 1,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 1,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 2,
+          "beat": 28
+        }
+      ]
+    }
+  },
+  {
+    "id": "rounded-portrait-subtitle",
+    "name": "Rounded Portrait Subtitle",
+    "category": "subtitle",
+    "accent": "#6A1B9A",
+    "layout": "line",
+    "font": "Mouse Memoirs, sans-serif",
+    "size": 70,
+    "motion": "rise",
+    "anchor": "lower",
+    "italic": false,
+    "typographyCategory": "Stacked Typography",
+    "animation": "rounded-rise",
+    "grouping": "stack",
+    "palette": "white",
+    "casing": "sentence",
+    "weight": 700,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:rounded-portrait-subtitle",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/MouseMemoirs-Regular.ttf",
+    "fontWeightRange": "400 900",
+    "fontStyle": "normal",
+    "sample": "HELLO THERE",
+    "pattern": {
+      "name": "Rounded Portrait Subtitle",
+      "referenceVideo": "VID_20261023_113114_833.mp4",
+      "layout": "side-phrase-stack",
+      "anchor": {
+        "x": 0.22,
+        "y": 0.68
+      },
+      "maxWordsPerRow": 3,
+      "emphasis": "active-word",
+      "referenceCueCount": 10,
+      "countBasis": "visual-estimate fallback; reference transcript unavailable",
+      "sequence": [
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            1,
+            1,
+            1
+          ],
+          "focusWordIndex": 1,
+          "beat": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "grunge-serif-lead",
+    "name": "Grunge Serif Lead",
+    "category": "display",
+    "accent": "#E65100",
+    "layout": "line",
+    "font": "Special Elite, serif",
+    "size": 92,
+    "motion": "rise",
+    "anchor": "center",
+    "italic": false,
+    "typographyCategory": "Editorial Typography",
+    "animation": "texture-rise",
+    "grouping": "phrase",
+    "palette": "cream",
+    "casing": "upper",
+    "weight": 400,
+    "middleWordFont": null,
+    "source": "CAPSNIP-REFERENCE-AUDIT.md",
+    "sfx": "tick",
+    "key": "capsnip:grunge-serif-lead",
+    "baseColor": "#FFFFFF",
+    "colorFamily": "Basic",
+    "fontFile": "fonts/SpecialElite-Regular.ttf",
+    "fontWeightRange": "400",
+    "fontStyle": "normal",
+    "sample": "THE LONG ROAD",
+    "pattern": {
+      "name": "Grunge Serif Lead",
+      "referenceVideo": "VID_20261023_113327_999.mp4",
+      "layout": "phrase-editorial",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.54
+      },
+      "maxWordsPerRow": 4,
+      "emphasis": "phrase-lead",
+      "referenceCueCount": 57,
+      "countBasis": "reference word timestamps segmented with Capsnip cue rules",
+      "sequence": [
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 1
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 2
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 3
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 4
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 5
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 6
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 7
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 8
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 9
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 10
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 11
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 12
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 13
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 14
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 15
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 16
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 17
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 18
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 19
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 20
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 21
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 22
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 23
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 24
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 25
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 26
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 27
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 28
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 29
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 30
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 31
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 32
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 33
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 34
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 35
+        },
+        {
+          "sourceWordCount": 2,
+          "rowWordCounts": [
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 36
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 37
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 38
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 39
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 40
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 41
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 42
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 43
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 44
+        },
+        {
+          "sourceWordCount": 1,
+          "rowWordCounts": [
+            1
+          ],
+          "focusWordIndex": 0,
+          "beat": 45
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 46
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 47
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 48
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 49
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 50
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 51
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 52
+        },
+        {
+          "sourceWordCount": 4,
+          "rowWordCounts": [
+            4
+          ],
+          "focusWordIndex": 0,
+          "beat": 53
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 54
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 55
+        },
+        {
+          "sourceWordCount": 5,
+          "rowWordCounts": [
+            3,
+            2
+          ],
+          "focusWordIndex": 0,
+          "beat": 56
+        },
+        {
+          "sourceWordCount": 3,
+          "rowWordCounts": [
+            3
+          ],
+          "focusWordIndex": 0,
+          "beat": 57
+        }
+      ]
+    }
+  }
+]

@@ -28,22 +28,28 @@ import {
   Sparkles,
   Upload,
   WandSparkles,
+  ImagePlus,
+  Type,
   X,
 } from "lucide-react";
 
-import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { openPath } from "@tauri-apps/plugin-opener";
-import { open } from "@tauri-apps/plugin-dialog";
+import { convertFileSrc, invoke, listen, openPath, open } from "./lib/desktop";
 
 import LicenseActivation from "./LicenseActivation";
+import ClipEditor from "./editor/ClipEditor";
+import DeviceLogout from "./DeviceLogout";
+import { pipelineStageFromLine, generationErrorMessage, captionBatchProgress, type CaptionBatchProgress } from "./lib/pipelineStatus";
+import RenderProgress from './RenderProgress';
+import GenerationComplete from './GenerationComplete';
+import ReportIssueButton from './ReportIssueButton';
+import { CAPSNIP_TYPOGRAPHY_THEMES } from "./editor/capsnipTypography";
 import "./NextTheme.css";
 import "./Redesign.css";
 import "./Version14Workspace.css";
 
 const CaptionThemePreview = lazy(() => import("./CaptionThemePreview"));
 
-type Format = "1:1" | "16:9";
+type Format = "1:1" | "16:9" | "9:16";
 
 const CAPTION_STYLES = [
   { name: "pop", label: "Pop", description: "Word-by-word pop with a quick scale-up." },
@@ -61,6 +67,7 @@ const CAPTION_STYLES = [
   { name: "dual-line", label: "Dual-Line Lyric", description: "A bold gold line followed by the next line in a softer contrasting style." },
   { name: "bold-karaoke", label: "Reel Karaoke", description: "Compact uppercase captions; the yellow active word fades in without popping." },
   { name: "soft-lyric", label: "Soft Lyric", description: "Smaller centered lyrics with a gentle fade and no bouncing." },
+  ...CAPSNIP_TYPOGRAPHY_THEMES,
 ] as const;
 
 type CaptionThemeName =
@@ -70,7 +77,7 @@ function isCaptionThemeName(value: string): value is CaptionThemeName {
   return CAPTION_STYLES.some((item) => item.name === value);
 }
 
-function AudioLanguagePicker({
+export function AudioLanguagePicker({
   value,
   onChange,
 }: {
@@ -141,23 +148,23 @@ const processingStages = [
     icon: FileVideo,
   },
   {
-    title: "Analyzing content",
-    description: "Preparing the source video",
+    title: "Transcribing audio",
+    description: "Listening to your audio and turning speech into words.",
     icon: WandSparkles,
   },
   {
     title: "Finding best moments",
-    description: "Selecting initial clip positions",
+    description: "Finding complete ideas and moments worth sharing.",
     icon: Sparkles,
   },
   {
     title: "Creating clips",
-    description: "Rendering your clips with FFmpeg",
+    description: "Cutting and framing your selected moments.",
     icon: Scissors,
   },
   {
     title: "Applying captions",
-    description: "Preparing your selected caption style",
+    description: "Adding your caption style, text and logo.",
     icon: Captions,
   },
   {
@@ -197,7 +204,7 @@ function LocalVideoPreview({
     setError("");
     setBlobUrl("");
     try {
-      // Stream from Tauri's asset protocol directly. Fetching the entire clip
+      // Stream from the desktop media protocol directly. Fetching the entire clip
       // as a Blob failed for some local output paths and duplicated memory use.
       setBlobUrl(convertFileSrc(path));
       setLoading(false);
@@ -404,16 +411,11 @@ function HistoryPage({
   );
 }
 
-function SettingsPage({
+export function SettingsPage({
   defaultFormat,
   setDefaultFormat,
   defaultClipCount,
   setDefaultClipCount,
-  welcomeTitle,
-  setWelcomeTitle,
-  welcomeSubtitle,
-  setWelcomeSubtitle,
-  onPreviewWelcome,
   hardwareProfile,
   hardwareProfileLoading,
   hardwareProfileError,
@@ -424,11 +426,6 @@ function SettingsPage({
   setDefaultFormat: (value: Format) => void;
   defaultClipCount: number;
   setDefaultClipCount: (value: number) => void;
-  welcomeTitle: string;
-  setWelcomeTitle: (value: string) => void;
-  welcomeSubtitle: string;
-  setWelcomeSubtitle: (value: string) => void;
-  onPreviewWelcome: () => void;
   hardwareProfile: HardwareProfile | null;
   hardwareProfileLoading: boolean;
   hardwareProfileError: string;
@@ -451,7 +448,7 @@ function SettingsPage({
           <div className="settings-card-title"><div className="settings-card-icon"><Film size={17} /></div><div><strong>Generation defaults</strong><span>Starting values for Create.</span></div></div>
           <label className="settings-label">Default video format</label>
           <div className="settings-choice-row">
-            {(["1:1", "16:9"] as Format[]).map((item) => <button type="button" key={item} className={`settings-choice ${defaultFormat === item ? "selected" : ""}`} onClick={() => setDefaultFormat(item)}>{item}</button>)}
+            {(["1:1", "16:9", "9:16"] as Format[]).map((item) => <button type="button" key={item} className={`settings-choice ${defaultFormat === item ? "selected" : ""}`} onClick={() => setDefaultFormat(item)}>{item}</button>)}
           </div>
 
           <label className="settings-label">Default clip count <strong>{defaultClipCount}</strong></label>
@@ -483,26 +480,9 @@ function SettingsPage({
           </button>
         </div>
 
-        <div className="settings-card welcome-settings-card">
-          <div className="settings-card-title"><div className="settings-card-icon"><Sparkles size={17} /></div><div><strong>Welcome message</strong><span>The app opens straight into video selection. Preview your message here.</span></div></div>
-
-          <label className="settings-label">Main message</label>
-          <input className="welcome-settings-input" value={welcomeTitle} maxLength={42} onChange={(event) => setWelcomeTitle(event.target.value)} placeholder="Welcome to Snip AI" />
-
-          <label className="settings-label">Today's plan line</label>
-          <input className="welcome-settings-input" value={welcomeSubtitle} maxLength={70} onChange={(event) => setWelcomeSubtitle(event.target.value)} placeholder="Ready to create your next clips?" />
-
-          <div className="welcome-settings-preview">
-            <span>PREVIEW</span>
-            <strong>{welcomeTitle || "Welcome to Snip AI"}</strong>
-            <p>{welcomeSubtitle || "Ready to create your next clips?"}</p>
-          </div>
-          <button type="button" className="hardware-redetect-button" onClick={onPreviewWelcome}><Play size={14} />Preview welcome screen</button>
-        </div>
-
         <div className="settings-card">
           <div className="settings-card-title"><div className="settings-card-icon"><FolderOpen size={17} /></div><div><strong>Storage</strong><span>Where Snip AI keeps generated files.</span></div></div>
-          <div className="storage-path-box"><span>Generated clips</span><strong>~/Downloads/Snip AI Clips</strong><small>Output location is managed by the local Tauri backend.</small></div>
+          <div className="storage-path-box"><span>Generated clips</span><strong>~/Downloads/Snip AI Clips</strong><small>Output location is managed by the local desktop app.</small></div>
           <div className="storage-path-box"><span>Downloaded YouTube videos</span><strong>~/Downloads/Snip AI Downloads</strong><small>Downloaded source videos stay on this computer.</small></div>
         </div>
       </div>
@@ -515,6 +495,11 @@ function SettingsPage({
 }
 
 function App() {
+  const [editingClip, setEditingClip] = useState<string | null>(null);
+  const [editorDirty, setEditorDirty] = useState(false);
+  const [editorBusy, setEditorBusy] = useState(false);
+  const [autoScreenText, setAutoScreenText] = useState(false);
+  const [generationLogo, setGenerationLogo] = useState("");
   const [hardwareProfile, setHardwareProfile] = useState<HardwareProfile | null>(null);
   const [hardwareProfileLoading, setHardwareProfileLoading] = useState(true);
   const [hardwareProfileError, setHardwareProfileError] = useState("");
@@ -539,7 +524,8 @@ function App() {
   const [format, setFormat] = useState<Format>(() => {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-      return raw && ["9:16", "16:9"].includes(JSON.parse(raw).defaultFormat) ? "16:9" : "1:1";
+      const saved = raw ? JSON.parse(raw).defaultFormat : "1:1";
+      return ["1:1", "16:9", "9:16"].includes(saved) ? saved as Format : "1:1";
     } catch {
       return "1:1";
     }
@@ -626,8 +612,19 @@ function App() {
   });
   const [processingProgress, setProcessingProgress] =
     useState(0);
+  const [clipDurationSeconds, setClipDurationSeconds] = useState(0);
   const [processingStage, setProcessingStage] = useState(0);
   const [processingDetail, setProcessingDetail] = useState("");
+  const [captionBatch, setCaptionBatch] = useState<CaptionBatchProgress | null>(null);
+  const processingStarted = useRef(0);
+  const [estimatedSeconds, setEstimatedSeconds] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  useEffect(() => {
+    if (!isProcessing) return;
+    const timer = window.setInterval(() => setElapsedSeconds(Math.floor((Date.now() - processingStarted.current) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [isProcessing]);
+  const timeLabel = (seconds: number) => seconds < 60 ? `${Math.ceil(seconds)} sec` : `${Math.floor(seconds / 60)} min ${Math.ceil(seconds % 60)} sec`;
 
   const [processingComplete, setProcessingComplete] =
     useState(false);
@@ -640,6 +637,7 @@ function App() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [showGallery, setShowGallery] = useState(false);
+  useEffect(() => { setEditingClip(showGallery ? outputPaths[0] ?? null : null); setEditorDirty(false); }, [showGallery]);
   const [outputKind, setOutputKind] = useState<"clips" | "caption">("clips");
   const activeProcessingStages = processingStages;
   const [playingClip, setPlayingClip] = useState<number | null>(
@@ -658,7 +656,8 @@ function App() {
   const [defaultFormat, setDefaultFormat] = useState<Format>(() => {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-      return raw && ["9:16", "16:9"].includes(JSON.parse(raw).defaultFormat) ? "16:9" : "1:1";
+      const saved = raw ? JSON.parse(raw).defaultFormat : "1:1";
+      return ["1:1", "16:9", "9:16"].includes(saved) ? saved as Format : "1:1";
     } catch {
       return "1:1";
     }
@@ -699,17 +698,19 @@ function App() {
     void listen<string>("pipeline-progress", (event) => {
       const message = event.payload.trim();
       if (!message) return;
-      setProcessingDetail(message);
-      const normalized = message.toLowerCase();
-      if (normalized.includes("whisper") || normalized.includes("transcrib") || normalized.includes("swift")) {
-        setProcessingStage(1);
-      } else if (normalized.includes("moment") || normalized.includes("analyz")) {
-        setProcessingStage(2);
-      } else if (normalized.includes("render") || normalized.includes("clip")) {
-        setProcessingStage(3);
-      } else if (normalized.includes("caption")) {
-        setProcessingStage(4);
+      const batch = captionBatchProgress(message);
+      if (batch) {
+        setCaptionBatch(batch);
+        setProcessingStage(previous => Math.max(previous, 4));
+        setProcessingProgress(previous => Math.max(previous, Math.round(batch.percent)));
+        setProcessingDetail(`Applying captions · ${batch.completed} of ${batch.total} clips ready · Clip ${batch.current}: ${Math.round(batch.fraction * 100)}%`);
+        if (batch.etaSeconds !== null) setEstimatedSeconds((Date.now()-processingStarted.current)/1000 + batch.etaSeconds);
+        return;
       }
+      const renderFrame = message.match(/^\[RENDER_PROGRESS\].*clip_(\d+).*frame=(\d+)/);
+      setProcessingDetail(renderFrame ? `Applying captions to clip ${Number(renderFrame[1])} · ${Number(renderFrame[2])} frames rendered` : message);
+      const stage = pipelineStageFromLine(message);
+      if(stage !== null){setProcessingStage(previous=>Math.max(previous,stage));setProcessingProgress(previous=>Math.max(previous,[0,10,40,60,75,95][stage]));}
     }).then((stop) => { unlisten = stop; });
     return () => unlisten?.();
   }, []);
@@ -863,8 +864,9 @@ function App() {
       path?: string;
     };
 
-    if (tauriFile.path) {
-      selectVideo(tauriFile.path);
+    const nativePath = window.snipaiDesktop?.filePath(file) || tauriFile.path;
+    if (nativePath) {
+      selectVideo(nativePath);
       return;
     }
 
@@ -982,10 +984,14 @@ function App() {
   cancelRequestedRef.current = false;
   setIsCanceling(false);
   setProcessingDetail("");
+  setCaptionBatch(null);
   setProcessingComplete(false);
   setOutputPaths([]);
   setShowGallery(false);
   setPlayingClip(null);
+  processingStarted.current = Date.now();
+  setElapsedSeconds(0);
+  setEstimatedSeconds(null);
   setIsProcessing(true);
 
   try {
@@ -996,28 +1002,12 @@ function App() {
     setIsProcessing(true);
 
     setProcessingStage(0);
-    setProcessingProgress(8);
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 300),
-    );
-
-    setProcessingStage(1);
-    setProcessingProgress(20);
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 300),
-    );
-
-    setProcessingStage(2);
-    setProcessingProgress(35);
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 300),
-    );
-
-    setProcessingStage(3);
-    setProcessingProgress(50);
+    setProcessingProgress(0);
+    const info = await invoke<{duration: number}>("probe_video", { path: selectedInputPath });
+    let rate = 0.65;
+    try { const stored = Number(localStorage.getItem(`snip-ai.seconds-per-source-second:${audioLanguage}`)); if (stored > 0 && stored < 100) rate = stored; } catch { /* use initial CPU estimate */ }
+    const estimate = Math.max(15, info.duration * rate + requestedClips * 8);
+    setEstimatedSeconds(estimate);
 
     const result = await invoke<GeneratedClipsResult>(
       "create_clips",
@@ -1025,10 +1015,13 @@ function App() {
         inputPath: selectedInputPath,
         format,
         requestedClips,
+        clipDurationSeconds: clipDurationSeconds || null,
         captionTemplate: template,
         differentCaptions,
         audioLanguage,
         captionOverrides: "{}",
+        autoScreenText,
+        logoPath: generationLogo || null,
       },
     );
 
@@ -1037,26 +1030,14 @@ function App() {
         "The pipeline finished without generating any valid clips.",
       );
     }
+    try { localStorage.setItem(`snip-ai.seconds-per-source-second:${audioLanguage}`, String(Math.max(0.05, ((Date.now() - processingStarted.current) / 1000 - requestedClips * 8) / info.duration))); } catch { /* storage may be full */ }
 
     setOutputKind("clips");
     setOutputPaths(result.paths);
     setSelectedClips(new Set(result.paths.map((_, index) => index)));
     setOutputSocialCaptions(result.social_captions ?? []);
 
-    setProcessingStage(4);
-    setProcessingProgress(82);
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 400),
-    );
-
     setProcessingStage(5);
-    setProcessingProgress(96);
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 400),
-    );
-
     setProcessingProgress(100);
 
     setHistoryRecords((previous) => [
@@ -1076,10 +1057,6 @@ function App() {
           item.paths.join("|") !== result.paths.join("|"),
       ),
     ].slice(0, 30));
-
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500),
-    );
 
     setIsProcessing(false);
     setProcessingComplete(true);
@@ -1105,7 +1082,7 @@ function App() {
           ? error.message
           : "Something went wrong while generating the clips.";
 
-    setErrorMessage(message);
+    setErrorMessage(generationErrorMessage(message));
     setIsProcessing(false);
     setProcessingProgress(0);
     setProcessingStage(0);
@@ -1197,6 +1174,7 @@ function App() {
   };
 
   const exportSelectedClips = async () => {
+    if(editorDirty || editorBusy) { window.alert("Save Changes in the editor before exporting."); return; }
     const selectedPaths = outputPaths.filter((_, index) =>
       selectedClips.has(index),
     );
@@ -1258,7 +1236,7 @@ function App() {
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-mark">
-            <img src="/snip-logo-mark.png" alt="" />
+            <img src={`${import.meta.env.BASE_URL}snip-logo-mark.png`} alt="" />
           </div>
 
           <span className="brand-wordmark">Snip <b>AI</b></span>
@@ -1280,11 +1258,13 @@ function App() {
         </div>
 
         <div className="sidebar-bottom">
+          <div className="sidebar-license-tag"><ShieldCheck size={14}/><span>Lifetime workspace</span></div>
+          <ReportIssueButton onError={setErrorMessage}/>
           <button type="button" className={`nav-item ${workspacePage === "settings" ? "active" : ""}`} onClick={() => navigateTo("settings")}>
             <Settings size={18} />
             <span>Settings</span>
           </button>
-
+          <DeviceLogout disabled={isProcessing || isDownloading || editorBusy || editorDirty}/>
         </div>
       </aside>
 
@@ -1319,7 +1299,7 @@ function App() {
                   onClick={exportSelectedClips}
                   disabled={
                     selectedClips.size === 0 ||
-                    isExporting
+                    isExporting || editorDirty || editorBusy
                   }
                 >
                   {isExporting ? (
@@ -1384,7 +1364,11 @@ function App() {
               </div>
             </header>
 
-            <div className="gallery-grid">
+            <div className={`preview-edit-workspace ${editingClip ? 'is-editing' : 'is-overview'}`}>
+            <nav className="preview-clip-selector" aria-label="Choose clip to edit"><div className="preview-list-heading">YOUR CLIPS <span>{outputPaths.length}</span></div>{outputPaths.map((path,index) => <div className={`preview-clip-item ${editingClip === path ? 'selected' : ''}`} key={path}><button disabled={editorBusy} aria-current={editingClip === path ? 'true' : undefined} onClick={() => { if(editorDirty && !window.confirm("Discard unsaved changes and switch clips?")) return; setEditingClip(path); setEditorDirty(false); }}><b>{String(index+1).padStart(2,'0')}</b><span><strong>Clip {index+1}</strong><small>{outputSocialCaptions[index] || 'Preview & edit'}</small></span></button><input type="checkbox" aria-label={`Include clip ${index+1} in export`} checked={selectedClips.has(index)} disabled={isExporting || editorBusy} onChange={() => toggleClipSelection(index)}/></div>)}</nav>
+            {editingClip && <ClipEditor embedded path={editingClip} theme={template} onDirtyChange={setEditorDirty} onBusyChange={setEditorBusy} onClose={() => { if(!editorDirty || window.confirm("Discard unsaved changes?")){setEditingClip(null);setEditorDirty(false);} }} onSaved={(nextPath) => { const previous = editingClip; setOutputPaths(current => current.map(path => path === previous ? nextPath : path)); setHistoryRecords(current => current.map(record => ({ ...record, paths: record.paths.map(path => path === previous ? nextPath : path) }))); setEditingClip(nextPath); setEditorDirty(false); }} />}
+            {editorDirty && <p className="preview-unsaved" role="status">Unsaved changes — Save Changes before exporting.</p>}
+            <div className="gallery-grid" style={editingClip ? {display:"none"} : undefined}>
               {outputPaths.map(
                 (path, index) => {
                   return (
@@ -1468,6 +1452,7 @@ function App() {
 
                           <div className="clip-card-footer-meta">
                             <span>{selectedTemplate.name}</span>
+                            <button type="button" className="snip-editor-launch" onClick={() => setEditingClip(path)}>Edit clip</button>
                           </div>
                         </div>
 
@@ -1489,6 +1474,7 @@ function App() {
               )}
             </div>
 
+            </div>
             <div className="gallery-export-bar">
               <div className="gallery-export-info">
                 <div className="gallery-export-icon">
@@ -1530,7 +1516,7 @@ function App() {
                   onClick={exportSelectedClips}
                   disabled={
                     selectedClips.size === 0 ||
-                    isExporting
+                    isExporting || editorDirty || editorBusy
                   }
                 >
                   {isExporting ? (
@@ -1558,27 +1544,25 @@ function App() {
           <>
             <header className="topbar">
               <div>
-                <p className="eyebrow">
-                  AUTO CLIPPING
-                </p>
+                <p className="eyebrow creator-pill"><Sparkles size={13}/> {videoPath ? "YOUR CREATIVE STUDIO" : "YOUR NEXT POST STARTS HERE"}</p>
 
                 <h1>
-                  {videoPath ? "Set up your clips." : "Paste a link. Make clips worth sharing."}
+                  {videoPath ? "Make it yours." : <>Long video.<br/><span className="hero-accent">Short-form magic.</span></>}
                 </h1>
 
                 <p className="subtitle">
                   {videoPath
                     ? "Choose a frame and caption style, then create short clips from your video."
-                    : "Snip AI finds shareable moments in your video. Paste a YouTube link or upload an MP4 to get started."}
+                    : "Find the moments worth posting. Add your video, choose your look, and let Snip AI create the clips."}
                 </p>
               </div>
 
               <div className="topbar-actions">
                 <button
                   className="icon-button"
-                  aria-label="notifications"
+                  aria-label="Open recent projects"
+                  onClick={()=>navigateTo('history')}
                 >
-                  <span className="notification-dot" />
                   <Clock3 size={18} />
                 </button>
 
@@ -1731,9 +1715,9 @@ function App() {
                       maxWidth: "430px",
                       margin: "14px auto 0",
                       padding: "12px 14px",
-                      border: "1px solid rgba(245, 158, 11, 0.22)",
+                      border: "1px solid rgba(181, 157, 244, 0.22)",
                       borderRadius: "10px",
-                      background: "rgba(245, 158, 11, 0.04)",
+                      background: "rgba(181, 157, 244, 0.04)",
                       textAlign: "left",
                       boxSizing: "border-box",
                     }}
@@ -1752,6 +1736,7 @@ function App() {
                       </div>
                     )}
                     <div
+                      className="download-stage-row"
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -1768,6 +1753,7 @@ function App() {
                     </div>
 
                     <div
+                      className="download-progress-track"
                       style={{
                         marginTop: "9px",
                         height: "4px",
@@ -1785,6 +1771,7 @@ function App() {
                     </div>
 
                     <span
+                      className="download-transfer-info"
                       style={{
                         display: "block",
                         marginTop: "7px",
@@ -1793,6 +1780,9 @@ function App() {
                       }}
                     >
                       {downloadProgress.percent != null ? `${Math.round(downloadProgress.percent)}% complete` : "Preparing download · video transfer has not started yet"}
+                      <span style={{display:"block", marginTop:8, fontSize:13, color:"#bdacf7"}} role="status">
+                        {downloadProgress.percent === 100 ? "Finalizing video and audio…" : downloadProgress.eta && !["NA", "N/A", "UNKNOWN"].includes(downloadProgress.eta.toUpperCase()) ? `Estimated remaining: ${downloadProgress.eta}` : "Estimated remaining: calculating…"}
+                      </span>
                       {downloadProgress.downloadedBytes > 0 && (
                         <span style={{ display: "block", marginTop: "5px", fontSize: "10px", color: "rgba(255,255,255,0.58)" }}>
                           {(downloadProgress.downloadedBytes / 1048576).toFixed(1)} MB
@@ -1825,7 +1815,7 @@ function App() {
                     <div className="flow-motion-trail"><i /><i /><i /></div>
                     <ArrowRight className="flow-arrow flow-arrow-last" size={26} strokeWidth={2.1} />
                     <div className="flow-earn-card"><BadgeDollarSign size={27} strokeWidth={2.1} /><b>10 CLIPS</b><span>MORE CHANCES TO EARN</span></div>
-                    <span className="flow-sparkle flow-sparkle-one">âœ¦</span><span className="flow-sparkle flow-sparkle-two">âœ¦</span>
+                    <Sparkles className="flow-sparkle flow-sparkle-one" size={16}/><Sparkles className="flow-sparkle flow-sparkle-two" size={13}/>
                   </div>
                   <strong>1 video. 10 clips. More chances to earn.</strong>
                   <span>Turn one upload into shareable moments for your social channels.</span>
@@ -1849,7 +1839,7 @@ function App() {
 
                   <div className="format-options">
                     {(
-                      ["1:1", "16:9"] as Format[]
+                      ["1:1", "16:9", "9:16"] as Format[]
                     ).map((item) => (
                       <button
                         key={item}
@@ -1873,12 +1863,14 @@ function App() {
                           <span />
                         </div>
 
-                        <span>{item}</span>
+                        <span>{item === "9:16" ? "9:16 · Fill" : item}</span>
                         {format === item && <Check className="format-selected-check" size={14} strokeWidth={2.7} aria-label="Selected" />}
                       </button>
                     ))}
                   </div>
                   <AudioLanguagePicker value={audioLanguage} onChange={setAudioLanguage} />
+                  <label className="clip-length-picker"><span>Clip length <small>For each clip</small></span><select aria-label="Clip length" value={[0,15,30,45,60,90].includes(clipDurationSeconds) ? clipDurationSeconds : 'custom'} disabled={isProcessing} onChange={event=>setClipDurationSeconds(event.target.value === 'custom' ? 20 : Number(event.target.value))}><option value="0">Auto · natural moments</option>{[15,30,45,60,90].map(seconds=><option key={seconds} value={seconds}>{seconds} seconds</option>)}<option value="custom">Custom length…</option></select>{![0,15,30,45,60,90].includes(clipDurationSeconds) && <input type="number" aria-label="Custom clip length in seconds" min="10" max="120" step="1" value={clipDurationSeconds} onChange={event=>setClipDurationSeconds(Number(event.target.value))}/>}<p>{clipDurationSeconds ? `AI selects moments for ${clipDurationSeconds}-second clips.` : 'AI chooses the best start and end for each moment.'}</p></label>
+                  <div className="generation-overlays"><div className="generation-addon"><div className="addon-title"><Type size={17}/><span>On-screen text</span><input aria-label="Auto on-screen text" type="checkbox" role="switch" checked={autoScreenText} disabled={isProcessing} onChange={event=>setAutoScreenText(event.target.checked)} /></div><p>Auto heading for each clip.</p></div><div className="generation-addon"><div className="addon-title"><ImagePlus size={17}/><span>Add logo</span></div><button type="button" disabled={isProcessing} onClick={async()=>{try{const path=await open({filters:[{name:"Logo image",extensions:["png","jpg","jpeg","webp"]}]});if(typeof path==="string")setGenerationLogo(path);}catch(reason){setErrorMessage(String(reason));}}}>{generationLogo ? "Replace image" : "+ Add file"}</button>{generationLogo && <div className="generation-logo-file"><img src={convertFileSrc(generationLogo)} alt="Selected logo"/><span>{generationLogo.split(/[\\/]/).pop()}</span><button type="button" aria-label="Remove selected logo" onClick={()=>setGenerationLogo("")}><X size={12}/></button></div>}</div></div><p className="generation-edit-note">Fine-tune both in the Preview editor.</p>
                   <div className={`generation-hardware-status ${hardwareProfileError ? "has-error" : ""}`} role="status" aria-live="polite">
                     <Cpu size={15} />
                     <div>
@@ -1923,9 +1915,10 @@ function App() {
               {errorMessage && videoPath && (
                 <div className="processing-error">
                   <strong>
-                    Processing failed
+                    {errorMessage.includes("voice") || errorMessage.includes("words could") ? "We couldn't find clear speech" : "Couldn't finish this generation"}
                   </strong>
                   <span>{errorMessage}</span>
+                  <button type="button" className="error-pick-video" onClick={resetVideo}><Upload size={15}/>Choose another video</button>
                 </div>
               )}
 
@@ -2030,11 +2023,6 @@ function App() {
             setDefaultFormat={setDefaultFormat}
             defaultClipCount={defaultClipCount}
             setDefaultClipCount={setDefaultClipCount}
-            welcomeTitle={welcomeTitle}
-            setWelcomeTitle={setWelcomeTitle}
-            welcomeSubtitle={welcomeSubtitle}
-            setWelcomeSubtitle={setWelcomeSubtitle}
-            onPreviewWelcome={() => setShowWelcome(true)}
             hardwareProfile={hardwareProfile}
             hardwareProfileLoading={hardwareProfileLoading}
             hardwareProfileError={hardwareProfileError}
@@ -2048,228 +2036,15 @@ function App() {
           />
         ) : null)}
 
-        {isProcessing && (
-          <div className="processing-overlay">
-            <div className="processing-panel">
-              <div className="processing-top">
-                <div className="processing-logo">
-                  <Sparkles size={21} />
-                </div>
+        {isProcessing && <RenderProgress
+          stages={activeProcessingStages} stage={processingStage} percent={processingProgress}
+          elapsed={timeLabel(elapsedSeconds)}
+          remaining={estimatedSeconds === null ? "Calculating…" : elapsedSeconds < estimatedSeconds ? `About ${timeLabel(estimatedSeconds - elapsedSeconds)}` : "Still working…"}
+          detail={processingDetail} videoName={videoName} count={requestedClips} format={format}
+          batch={captionBatch} stopping={isCanceling} onStop={cancelCurrentProcessing}
+        />}
 
-                <div className="processing-heading">
-                  <span>SNIP AI</span>
-
-                  <h2>
-                    Creating your clips
-                  </h2>
-
-                  <p>
-                    Snip AI is processing your
-                    video locally on your
-                    computer.
-                  </p>
-                </div>
-
-                <div className="processing-percent">
-                  {processingProgress}%
-                </div>
-
-
-              </div>
-
-              <div className="processing-progress">
-                <div
-                  className="processing-progress-fill"
-                  style={{
-                    width: `${processingProgress}%`,
-                  }}
-                />
-              </div>
-
-              <div className="processing-current">
-                <div className="processing-current-icon">
-                  {(() => {
-                    const Icon =
-                      activeProcessingStages[
-                        Math.min(processingStage, activeProcessingStages.length - 1)
-                      ].icon;
-
-                    return <Icon size={19} />;
-                  })()}
-                </div>
-
-                <div>
-                  <strong>
-                    {
-                      activeProcessingStages[
-                        Math.min(processingStage, activeProcessingStages.length - 1)
-                      ].title
-                    }
-                  </strong>
-
-                  <span>
-                    {processingDetail ||
-                      activeProcessingStages[
-                        Math.min(processingStage, activeProcessingStages.length - 1)
-                      ].description
-                    }
-                  </span>
-                </div>
-
-                <LoaderCircle
-                  size={17}
-                  className="stage-spinner"
-                />
-              </div>
-
-              <div className="processing-stages">
-                {activeProcessingStages.map(
-                  (stage, index) => {
-                    const StageIcon =
-                      stage.icon;
-
-                    const completed =
-                      index <
-                      processingStage;
-
-                    const active =
-                      index ===
-                      processingStage;
-
-                    return (
-                      <div
-                        className={`processing-stage ${
-                          completed
-                            ? "completed"
-                            : ""
-                        } ${
-                          active
-                            ? "active"
-                            : ""
-                        }`}
-                        key={stage.title}
-                      >
-                        <div className="stage-icon">
-                          {completed ? (
-                            <Check size={13} />
-                          ) : (
-                            <StageIcon
-                              size={13}
-                            />
-                          )}
-                        </div>
-
-                        <span>
-                          {stage.title}
-                        </span>
-
-                        {index !==
-                          activeProcessingStages.length -
-                            1 && (
-                          <div className="stage-line" />
-                        )}
-                      </div>
-                    );
-                  },
-                )}
-              </div>
-
-              <div className="processing-stop-row">
-                <button
-                  className="processing-cancel"
-                  onClick={cancelCurrentProcessing}
-                  disabled={isCanceling}
-                  aria-label={isCanceling ? "Stopping processing" : "Stop generation"}
-                >
-                  <X size={13} /> {isCanceling ? "Stopping…" : "Stop"}
-                </button>
-              </div>
-              <div className="processing-footer">
-                <span>
-                  <ShieldCheck size={13} />
-                  Processing locally on your
-                  computer
-                </span>
-
-                <span>{videoName}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {processingComplete && (
-          <div className="processing-overlay complete-overlay">
-            <div className="complete-panel">
-              <div className="complete-icon">
-                <Check size={30} />
-              </div>
-
-              <span className="complete-eyebrow">
-                ALL DONE
-              </span>
-
-              <h2>
-                {outputKind === "caption" ? "Your captioned video is ready." : "Your clips are ready."}
-              </h2>
-
-              <p>
-                {outputKind === "caption" ? "The complete video has been captioned." : <>Snip AI generated <strong>{outputPaths.length}</strong> real clip{outputPaths.length === 1 ? "" : "s"} in <strong>{format}</strong> format.</>}
-              </p>
-
-              <div className="complete-stats">
-                <div>
-                  <strong>
-                    {outputPaths.length}
-                  </strong>
-                  <span>
-                    {outputKind === "caption" ? "captioned video" : "clips generated"}
-                  </span>
-                </div>
-
-                <div>
-                  <strong>{outputKind === "caption" ? "Full video" : format}</strong>
-                  <span>{outputKind === "caption" ? "original aspect preserved" : "video format"}</span>
-                </div>
-
-                <div>
-                  <strong>
-                    {selectedTemplate.name}
-                  </strong>
-                  <span>caption style</span>
-                </div>
-              </div>
-
-              <div className="output-path-box">
-                <span>Saved locally</span>
-
-                <strong>
-                  {outputKind === "caption" ? "Your full-length captioned video is ready to preview." : "Your generated clips are ready to preview."}
-                </strong>
-              </div>
-
-              <div className="complete-actions">
-                <button
-                  className="secondary-complete-button"
-                  onClick={createAnother}
-                >
-                  <RotateCcw size={16} />
-                  Create another
-                </button>
-
-                <button
-                  className="primary-complete-button"
-                  onClick={openGallery}
-                  disabled={
-                    outputPaths.length === 0
-                  }
-                >
-                  <Play size={16} />
-                  {outputKind === "caption" ? "Preview video" : "Preview clips"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {processingComplete && <GenerationComplete count={outputPaths.length} format={outputKind === 'caption' ? 'Full video' : format} style={selectedTemplate.label} onCreate={createAnother} onPreview={openGallery}/>}
 
         {showWelcome && (
           <div className="welcome-overlay" role="dialog" aria-modal="true" aria-label="Welcome to Snip AI">

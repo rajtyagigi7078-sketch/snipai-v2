@@ -8,7 +8,7 @@
   --snip-text: #f5f4f6;
   --snip-pink: #f45bc7;
   --snip-cyan: #43d7c4;
-  --snip-orange: #ff7956;
+  --snip-orange: #a06aeb;
   --snip-accent: var(--snip-pink);
   color: var(--snip-text);
   background: var(--snip-bg);
@@ -131,7 +131,7 @@ body {
 .social-platform-mark { background: rgba(244, 91, 199, .1); color: #ff9ddd; }
 .social-platform-mark.facebook { background: rgba(67, 215, 196, .1); color: #70e4d5; }
 .social-queue-time { color: #76dacc; }
-.social-draft-status { background: rgba(255, 121, 86, .09); color: #ffad94; }
+.social-draft-status { background: rgba(160,106,235, .09); color: #c3a1f2; }
 
 .caption-appearance-editor {
   margin-top: 12px;

@@ -1,0 +1,10 @@
+.on-screen-text-preview { display:grid; place-items:center; min-height:96px; padding:14px; background:#050505; border-radius:12px; overflow:hidden; }
+.on-screen-text-preview span { font-size:clamp(20px,5vw,44px); font-weight:900; letter-spacing:.02em; text-transform:uppercase; text-align:center; }
+.on-screen-text-pop span { animation:snipTextPop 1.8s ease-in-out infinite; }
+.on-screen-text-rise span { animation:snipTextRise 1.8s ease-in-out infinite; }
+.on-screen-text-slide span { animation:snipTextSlide 1.8s ease-in-out infinite; }
+.on-screen-text-fade span { animation:snipTextFade 1.8s ease-in-out infinite; }
+@keyframes snipTextPop { 0%,100%{transform:scale(.96)} 50%{transform:scale(1.05)} }
+@keyframes snipTextRise { 0%,100%{transform:translateY(4px)} 50%{transform:translateY(-4px)} }
+@keyframes snipTextSlide { 0%,100%{transform:translateX(-4px)} 50%{transform:translateX(4px)} }
+@keyframes snipTextFade { 0%,100%{opacity:.62} 50%{opacity:1} }

@@ -4630,9 +4630,9 @@ body,
 }
 
 .caption-live-word.is-active {
-  color: #ffe500;
+  color: #6f1fe0;
   transform: scale(1.12);
-  text-shadow: 0 0 12px rgba(255, 229, 0, .3);
+  text-shadow: 0 0 12px rgba(111,31,224, .3);
 }
 
 .caption-live-demo[data-animation="bounce"] .caption-live-word.is-active {
@@ -4771,12 +4771,12 @@ body,
   border: 1px solid #25252a;
   border-radius: 10px;
   background: #080808;
-  color: #f5a400;
+  color: #6b1dd8;
 }
 .generation-hardware-status > div { min-width: 0; display: grid; gap: 3px; }
 .generation-hardware-status strong { color: #e8e8eb; font-size: 10px; font-weight: 650; }
 .generation-hardware-status span { color: #777981; font-size: 9px; }
-.generation-hardware-status.has-error { color: #e8a85a; }
+.generation-hardware-status.has-error { color: #986bd7; }
 
 .processing-stop-row { margin-top: 14px !important; }
 .processing-stop-row .processing-cancel {
@@ -4807,7 +4807,7 @@ body,
 .youtube-download-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #F59E0B, #ffd27a);
+  background: linear-gradient(90deg, #7127d9, #b48aef);
   transition: width 300ms ease;
 }
 .youtube-download-error {
@@ -4839,7 +4839,7 @@ body,
   font: 10px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 .youtube-download-preview {
-  display: flex;
+  display: grid;
   align-items: center;
   gap: 11px;
   min-width: 0;
@@ -4847,11 +4847,14 @@ body,
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
+.format-9-16 span { width: 24px; height: 42px; }
+.generation-overlays{display:grid;gap:10px;margin:14px 0;padding:14px;border:1px solid #343434;border-radius:12px}.generation-overlays label{display:flex;gap:10px;align-items:center}.generation-overlays p{font-size:12px;color:#999;margin:0;line-height:1.5}.generation-overlays button{padding:9px;border:1px solid #422c62;border-radius:8px;background:#191125;color:#9d66ea;cursor:pointer}
 .youtube-download-preview img {
   display: block;
   flex: 0 0 112px;
-  width: 112px;
-  height: 63px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, .12);
   border-radius: 7px;
@@ -4862,7 +4865,7 @@ body,
 .youtube-download-preview strong {
   overflow: hidden;
   color: #f4f4f5;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4890,7 +4893,7 @@ body,
   position: relative;
   width: min(100%, 420px);
   padding: 24px;
-  border: 1px solid rgba(245, 158, 11, .28);
+  border: 1px solid rgba(113,39,217, .28);
   border-radius: 18px;
   background: linear-gradient(155deg, #171717, #0a0a0a 72%);
   box-shadow: 0 24px 90px rgba(0, 0, 0, .6), inset 0 1px rgba(255, 255, 255, .04);
@@ -4902,12 +4905,12 @@ body,
   height: 42px;
   margin-bottom: 16px;
   place-items: center;
-  border: 1px solid rgba(245, 158, 11, .24);
+  border: 1px solid rgba(113,39,217, .24);
   border-radius: 12px;
-  background: rgba(245, 158, 11, .1);
-  color: #f59e0b;
+  background: rgba(113,39,217, .1);
+  color: #7127d9;
 }
-.youtube-auth-eyebrow { color: #eaa423; font-size: 9px; font-weight: 750; letter-spacing: .12em; }
+.youtube-auth-eyebrow { color: #7a3bd2; font-size: 9px; font-weight: 750; letter-spacing: .12em; }
 .youtube-auth-dialog h2 { margin: 7px 0 8px; font-size: 21px; letter-spacing: -.035em; }
 .youtube-auth-dialog p { margin: 0 0 18px; color: #a1a1aa; font-size: 12px; line-height: 1.55; }
 .youtube-auth-dialog label { display: block; margin-bottom: 7px; color: #dedee3; font-size: 11px; font-weight: 650; }
@@ -4923,7 +4926,7 @@ body,
   font: inherit;
   font-size: 12px;
 }
-.youtube-auth-dialog select:focus { border-color: #f59e0b; }
+.youtube-auth-dialog select:focus { border-color: #7127d9; }
 .youtube-auth-warning { margin-top: 12px; color: #92929a; font-size: 10px; line-height: 1.5; }
 .youtube-auth-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 .youtube-auth-actions button {
@@ -4940,7 +4943,7 @@ body,
   cursor: pointer;
 }
 .youtube-auth-cancel { border: 1px solid #35353a; background: #101012; color: #d4d4d8; }
-.youtube-auth-retry { border: 1px solid #f59e0b; background: #f59e0b; color: #111; }
+.youtube-auth-retry { border: 1px solid #7127d9; background: #7127d9; color: #111; }
 .youtube-auth-retry:disabled { opacity: .45; cursor: not-allowed; }
 @media (max-width: 520px) {
   .youtube-auth-dialog { padding: 20px; }

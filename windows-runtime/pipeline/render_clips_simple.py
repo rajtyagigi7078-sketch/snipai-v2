@@ -69,12 +69,58 @@ def run_command(command, description):
     print()
     print(f"[RUN] {description}")
 
-    process = subprocess.run(
-        [str(x) for x in command],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    command = [str(x) for x in command]
+    is_ffmpeg = Path(command[0]).name.lower() in ("ffmpeg", "ffmpeg.exe")
+    if is_ffmpeg:
+        command[1:1] = ["-nostdin", "-progress", "pipe:1", "-stats_period", "2"]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+    messages = queue.Queue()
+    def read_stream(stream, name):
+        for line in stream:
+            messages.put((name, line))
+    for stream, name in ((process.stdout, "stdout"), (process.stderr, "stderr")):
+        threading.Thread(target=read_stream, args=(stream, name), daemon=True).start()
+    output = {"stdout": "", "stderr": ""}
+    last_tick = last_progress = time.monotonic()
+    active_elapsed = 0
+    last_frame = -1
+    try:
+        while process.poll() is None or not messages.empty():
+            try:
+                name, line = messages.get(timeout=0.5)
+                output[name] = (output[name] + line)[-16000:]
+                if name == "stdout" and line.startswith("frame="):
+                    frame = int(line.split("=", 1)[1].strip())
+                    if frame > last_frame:
+                        last_progress = time.monotonic()
+                        last_frame = frame
+                        print(f"[RENDER_PROGRESS] {Path(command[-1]).name} frame={frame}", flush=True)
+                elif not is_ffmpeg:
+                    last_progress = time.monotonic()
+            except queue.Empty:
+                pass
+            now = time.monotonic()
+            delta = now - last_tick
+            last_tick = now
+            if delta > 10:
+                last_progress = now
+            else:
+                active_elapsed += max(0, delta)
+            # A completed encoder must never time out while its final queued
+            # progress is drained after Windows resumes from standby.
+            if process.poll() is not None:
+                continue
+            if now - last_progress > 180:
+                raise RuntimeError(f"{description} stopped advancing for 3 minutes. The render was stopped; retry this clip.")
+            if active_elapsed > 3600:
+                raise RuntimeError(f"{description} exceeded the one-hour render limit.")
+        process.wait()
+    except BaseException:
+        process.kill()
+        process.wait()
+        raise
+    process.stdout = output["stdout"]
+    process.stderr = output["stderr"]
 
     # --------------------------------------------------------
     # FONT DIAGNOSTIC
@@ -338,6 +384,7 @@ def get_video_info(source):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        timeout=30,
     )
 
     if result.returncode != 0:
@@ -535,7 +582,10 @@ def build_filter(framing):
             "pad=1080:1920:0:440"
         )
 
-    if framing in ("9:16", "16:9"):
+    if framing == "9:16":
+        return "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1"
+
+    if framing == "16:9":
         return (
             "scale=1080:-2:"
             "force_original_aspect_ratio=decrease,"
@@ -1745,29 +1795,31 @@ def render_ffmpeg_captioned_clip(video_path, transcript_path, start, end, theme,
             ])
         if logo_path:
             command.extend(["-loop", "1", "-framerate", "30", "-i", logo_path])
+        partial_output = output_path.with_name(output_path.stem + ".partial.mp4")
         command.extend([
             "-t", f"{end - start:.3f}",
             "-/filter_complex", str(filter_script),
             "-map", "[vout]", "-map", "0:a?",
             *video_encoder_args,
             "-c:a", "aac", "-b:a", "192k",
-            "-movflags", "+faststart", str(output_path),
+            "-movflags", "+faststart", str(partial_output),
         ])
         run_command(command, render_description)
-        valid, info = validate_mp4(output_path)
+        valid, info = validate_mp4(partial_output)
         if not valid:
             raise RuntimeError(f"Captioned MP4 failed validation: {info}")
+        os.replace(partial_output, output_path)
         # Confirm audio remains present when the framed source had audio.
         probe = subprocess.run(
             [FFPROBE, "-v", "error", "-show_entries", "stream=codec_type", "-of", "json", str(output_path)],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
         )
         if probe.returncode != 0:
             raise RuntimeError("ffprobe could not inspect captioned output: " + probe.stderr[-2000:])
         stream_types = [item.get("codec_type") for item in json.loads(probe.stdout).get("streams", [])]
         source_probe = subprocess.run(
             [FFPROBE, "-v", "error", "-show_entries", "stream=codec_type", "-of", "json", str(video_path)],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
         )
         source_types = [item.get("codec_type") for item in json.loads(source_probe.stdout).get("streams", [])] if source_probe.returncode == 0 else []
         if "audio" in source_types and "audio" not in stream_types:
@@ -1954,7 +2006,7 @@ def main():
 
     # Preserve clips from earlier runs; never delete prior user outputs automatically.
 
-    transcript = source.with_suffix(".transcript.json")
+    transcript = Path(os.environ.get("SNIP_AI_TRANSCRIPT_PATH") or data.get("transcript") or source.with_suffix(".transcript.json"))
 
     if not transcript.exists():
         print(

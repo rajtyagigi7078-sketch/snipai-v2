@@ -107,7 +107,7 @@ main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { pad
 }
 .caption-preview-fallback { position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; gap:.2em; padding:8px; color:#f4f4f4; background:#000; font-size:clamp(12px,1vw,18px); font-weight:900; letter-spacing:-.045em; white-space:nowrap; }
 .caption-preview-fallback b { color:#f4f4f4; }
-.caption-preview-fallback b:first-child { color:#ffd400; }
+.caption-preview-fallback b:first-child { color:#6f1fe0; }
 .caption-preview-fallback.theme-highlight-box b:nth-child(3) { padding:.06em .16em; color:#fff; background:#0d817d; border-radius:3px; }
 .caption-preview-fallback.theme-violet-pill b:nth-child(3) { padding:.06em .16em; background:#7544d9; border-radius:5px; }
 .caption-preview-fallback.theme-dual-line, .caption-preview-fallback.theme-yellow-stack { flex-wrap:wrap; white-space:normal; text-align:center; }
@@ -171,14 +171,14 @@ main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { pad
 .clip-folder-button { grid-column: 2 !important; grid-row: 1 !important; align-self: start !important; }
 
 /* Warm processing indicator and restrained connected-node glow. */
-.processing-panel { background-image: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,.12), transparent 58%) !important; }
-.processing-progress-fill { background: linear-gradient(90deg,#b96b00,#ffb52e,#f59e0b) !important; background-size: 220% 100% !important; animation: snipAmberFlow 1.8s linear infinite !important; }
-.processing-current-icon { color: #ffae19 !important; background: radial-gradient(circle,rgba(245,158,11,.24),rgba(245,158,11,.06) 70%) !important; box-shadow: 0 0 16px rgba(245,158,11,.22), inset 0 0 0 1px rgba(245,158,11,.2) !important; }
-.processing-stage.active .stage-icon { color: #ffae19 !important; border-color: rgba(245,158,11,.72) !important; animation: snipAmberPulse 1.8s ease-in-out infinite !important; }
-.processing-stage.completed .stage-icon { color: #f59e0b !important; border-color: rgba(245,158,11,.5) !important; }
-.processing-stage.active .stage-line { background: linear-gradient(90deg,rgba(245,158,11,.8),#35302a) !important; }
+.processing-panel { background-image: radial-gradient(ellipse at 50% 0%, rgba(113,39,217,.12), transparent 58%) !important; }
+.processing-progress-fill { background: linear-gradient(90deg,#5116a3,#8947e6,#7127d9) !important; background-size: 220% 100% !important; animation: snipAmberFlow 1.8s linear infinite !important; }
+.processing-current-icon { color: #7d35e3 !important; background: radial-gradient(circle,rgba(113,39,217,.24),rgba(113,39,217,.06) 70%) !important; box-shadow: 0 0 16px rgba(113,39,217,.22), inset 0 0 0 1px rgba(113,39,217,.2) !important; }
+.processing-stage.active .stage-icon { color: #7d35e3 !important; border-color: rgba(113,39,217,.72) !important; animation: snipAmberPulse 1.8s ease-in-out infinite !important; }
+.processing-stage.completed .stage-icon { color: #7127d9 !important; border-color: rgba(113,39,217,.5) !important; }
+.processing-stage.active .stage-line { background: linear-gradient(90deg,rgba(113,39,217,.8),#2f2b34) !important; }
 @keyframes snipAmberFlow { to { background-position: 220% 0; } }
-@keyframes snipAmberPulse { 0%,100% { box-shadow: 0 0 2px rgba(245,158,11,.12); } 50% { box-shadow: 0 0 12px rgba(245,158,11,.34); } }
+@keyframes snipAmberPulse { 0%,100% { box-shadow: 0 0 2px rgba(113,39,217,.12); } 50% { box-shadow: 0 0 12px rgba(113,39,217,.34); } }
 @media (max-width: 850px) {
   main.main-content:has(.auto-clipping-workspace) > .topbar,
   main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { width: 100% !important; max-width: none !important; padding-left: 14px !important; padding-right: 14px !important; }
@@ -202,24 +202,24 @@ main.main-content:has(.auto-clipping-workspace) > .auto-clipping-workspace { pad
 /* Make the current choices immediately visible against the black cards. */
 .main-content:has(.auto-clipping-workspace.video-loaded) .format-button.selected,
 .main-content:has(.auto-clipping-workspace.video-loaded) .remotion-create-template-card.selected {
-  border: 2px solid #F59E0B !important;
-  background-color: rgba(245,158,11,.09) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,190,65,.3), 0 0 16px rgba(245,158,11,.28) !important;
+  border: 2px solid #7127d9 !important;
+  background-color: rgba(113,39,217,.09) !important;
+  box-shadow: inset 0 0 0 1px rgba(148,88,232,.3), 0 0 16px rgba(113,39,217,.28) !important;
 }
 .main-content:has(.auto-clipping-workspace.video-loaded) .format-button.selected .format-preview {
-  border-color: rgba(255,190,65,.72) !important;
+  border-color: rgba(148,88,232,.72) !important;
 }
 .main-content:has(.auto-clipping-workspace.video-loaded) .clip-count-button.active {
-  border: 2px solid #ffc04a !important;
-  background: #F59E0B !important;
+  border: 2px solid #9960e9 !important;
+  background: #7127d9 !important;
   color: #090909 !important;
-  box-shadow: 0 0 0 2px rgba(245,158,11,.25), 0 0 14px rgba(245,158,11,.42) !important;
+  box-shadow: 0 0 0 2px rgba(113,39,217,.25), 0 0 14px rgba(113,39,217,.42) !important;
 }
 .main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-trigger:hover,
 .main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-trigger:focus-visible,
 .main-content:has(.auto-clipping-workspace.video-loaded) .audio-language-picker.is-open .audio-language-trigger {
-  border: 2px solid #F59E0B !important;
-  box-shadow: 0 0 0 2px rgba(245,158,11,.18), 0 0 13px rgba(245,158,11,.28) !important;
+  border: 2px solid #7127d9 !important;
+  box-shadow: 0 0 0 2px rgba(113,39,217,.18), 0 0 13px rgba(113,39,217,.28) !important;
 }
 
 /* Keep the results gallery to four compact clips per row. */
