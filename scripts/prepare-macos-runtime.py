@@ -30,15 +30,20 @@ shutil.move(str(root / node_name), str(root / 'node'))
 node_archive.unlink()
 ffmpeg_dir = root / 'ffmpeg'
 ffmpeg_dir.mkdir(exist_ok=True)
+ffmpeg_prefix = Path(subprocess.check_output(['brew', '--prefix', 'ffmpeg-full'], text=True).strip())
 for name in ('ffmpeg', 'ffprobe'):
     target = ffmpeg_dir / name
-    shutil.copy2(shutil.which(name), target)
+    shutil.copy2(ffmpeg_prefix / 'bin' / name, target)
     target.chmod(0o755)
     subprocess.run(['dylibbundler', '-od', '-b', '-x', str(target), '-d', str(ffmpeg_dir / 'lib'), '-p', '@executable_path/lib/'], check=True)
     subprocess.run(['codesign', '--force', '--sign', '-', str(target)], check=True)
 for library in (ffmpeg_dir / 'lib').glob('*'):
     if library.is_file():
         subprocess.run(['codesign', '--force', '--sign', '-', str(library)], check=True)
+filters = subprocess.check_output([str(ffmpeg_dir / 'ffmpeg'), '-filters'], text=True)
+for required_filter in ('drawtext', 'subtitles', 'scale', 'crop'):
+    if required_filter not in filters:
+        raise RuntimeError('Required video filter missing: ' + required_filter)
 arch = 'aarch64' if platform.machine() == 'arm64' else 'x86_64'
 request = urllib.request.Request('https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest', headers={'User-Agent': 'Snip-AI-build'})
 with urllib.request.urlopen(request) as response:

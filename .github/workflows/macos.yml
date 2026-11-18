@@ -38,7 +38,7 @@ jobs:
       - name: Validate desktop process handling
         run: node --test scripts/process-runner.test.cjs
       - name: Prepare bundled native speech runtime
-        run: brew install ffmpeg dylibbundler
+        run: brew install ffmpeg-full dylibbundler
       - name: Bundle offline runtime
         run: python scripts/prepare-macos-runtime.py
       - name: Verify bundled engines
