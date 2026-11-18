@@ -16,10 +16,12 @@ from native_runtime import configure_native_runtime
 def check_runtime(root):
     root = Path(root).resolve()
     problems, checks = [], []
-    if sys.platform != 'win32' or struct.calcsize('P') != 8:
-        problems.append('Snip AI requires 64-bit Windows 10 or newer.')
+    if sys.platform not in ('win32', 'darwin') or struct.calcsize('P') != 8:
+        problems.append('Snip AI requires 64-bit Windows or macOS.')
     required = ['python/python.exe','node/node.exe','ffmpeg/ffmpeg.exe','ffmpeg/ffprobe.exe','pipeline/pipeline_runner.py','pipeline/swift-node/swift_hinglish.mjs','whisper-model/base/model.bin','whisper-model/base/config.json','whisper-model/base/tokenizer.json','whisper-model/base/vocabulary.txt']
     for relative in required:
+        if sys.platform == 'darwin':
+            relative = relative.replace('python/python.exe', 'python/bin/python3').replace('node/node.exe', 'node/bin/node').replace('.exe', '')
         if not (root / relative).is_file():
             problems.append(f'Missing bundled file: {relative}')
     model = root / 'models/ishaan-g/whisper-hinglish-swift_timestamped'
@@ -52,6 +54,8 @@ def check_runtime(root):
     env = {**os.environ, 'PATH': str(root/'node')+os.pathsep+str(root/'python')+os.pathsep+os.environ.get('PATH','')}
     commands = [('FFmpeg', root/'ffmpeg/ffmpeg.exe', ['-version']), ('FFprobe', root/'ffmpeg/ffprobe.exe', ['-version']), ('Node ONNX runtime',root/'node/node.exe',['-e', "const ort=require('./node_modules/onnxruntime-node');console.log(ort.env.versions);"])]
     for label, executable, args in commands:
+        if sys.platform == 'darwin':
+            executable = root / ('node/bin/node' if label == 'Node ONNX runtime' else 'ffmpeg/' + ('ffprobe' if label == 'FFprobe' else 'ffmpeg'))
         try:
             result = subprocess.run([str(executable),*args], cwd=str(root/'pipeline/swift-node'), env=env, capture_output=True, text=True, encoding='utf-8',errors='replace',timeout=35,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             if result.returncode:
