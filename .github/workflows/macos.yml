@@ -1,6 +1,8 @@
 name: macOS runtime validation
 on:
   workflow_dispatch:
+  push:
+    branches: [release/v3-macos]
 permissions:
   contents: read
 jobs:
