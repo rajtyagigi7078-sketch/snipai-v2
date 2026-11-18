@@ -45,7 +45,10 @@ for required_filter in ('drawtext', 'subtitles', 'scale', 'crop'):
     if required_filter not in filters:
         raise RuntimeError('Required video filter missing: ' + required_filter)
 arch = 'aarch64' if platform.machine() == 'arm64' else 'x86_64'
-request = urllib.request.Request('https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest', headers={'User-Agent': 'Snip-AI-build'})
+headers = {'User-Agent': 'Snip-AI-build'}
+if os.environ.get('GITHUB_TOKEN'):
+    headers['Authorization'] = 'Bearer ' + os.environ['GITHUB_TOKEN']
+request = urllib.request.Request('https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest', headers=headers)
 with urllib.request.urlopen(request) as response:
     release = json.load(response)
 asset = next(a for a in release['assets'] if a['name'].startswith('cpython-3.11.') and f'{arch}-apple-darwin-install_only.tar.gz' in a['name'])

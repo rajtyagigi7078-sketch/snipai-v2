@@ -40,6 +40,8 @@ jobs:
       - name: Prepare bundled native speech runtime
         run: brew install ffmpeg-full dylibbundler
       - name: Bundle offline runtime
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/prepare-macos-runtime.py
       - name: Verify bundled engines
         run: .build/macos-runtime/python/bin/python3 .build/macos-runtime/pipeline/runtime_check.py --runtime .build/macos-runtime --output runtime-check.json
