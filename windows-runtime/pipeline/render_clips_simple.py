@@ -2064,7 +2064,16 @@ def main():
                 except Exception:
                     pass
                 print(f"[DONE] Clip {index:02d} rendered without captions")
-                return
+                valid, metadata = validate_mp4(output)
+                if not valid:
+                    raise RuntimeError(f"Caption-free output validation failed: {metadata}")
+                return {
+                    "index": index,
+                    "output": output,
+                    "info": metadata,
+                    "elapsed": time.perf_counter() - clip_started,
+                    "error": None,
+                }
             try:
                 info = render_ffmpeg_captioned_clip(
                     source,

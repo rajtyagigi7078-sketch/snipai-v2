@@ -7,7 +7,7 @@ export function errorCause(message:string){
  if(/permission|access.*denied|EPERM|EACCES/i.test(message))return 'Windows blocked access. Choose a file and output folder you can access.';
  if(/no speech|no audio|no playable|unsupported|invalid.*video/i.test(message))return 'The selected media cannot be processed with these settings. Choose a supported video with clear speech.';
  if(/disk|ENOSPC|space/i.test(message))return 'There may not be enough free storage. Free space on the output drive before retrying.';
- if(/license|activation|key|revoked/i.test(message))return 'Check your activation key and connection. Resetting the workspace does not change license eligibility.';
+ if(/license|activation|\b(?:invalid|expired|revoked) key\b|\blicen[cs]e key\b/i.test(message))return 'Check your activation key and connection. Resetting the workspace does not change license eligibility.';
  if(/DLL|runtime|dependency|3221225477|transcription failed/i.test(message))return 'The local processing engine could not start or stopped unexpectedly. Try runtime repair, then retry.';
  if(/already running|still stopping/i.test(message))return 'Another media task is still active. Fix & restart will stop it and open a fresh workspace.';
  return 'This action could not finish. Retry it, or restart the workspace to clear temporary app state.';
