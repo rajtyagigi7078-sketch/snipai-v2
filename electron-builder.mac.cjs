@@ -8,6 +8,7 @@ module.exports = {
   asarUnpack: ['dist/assets/capsnip-typography/**/*'],
   extraResources: [{ from: '.build/macos-runtime', to: 'macos-runtime', filter: ['**/*', '!**/__pycache__/**', '!**/*.pyc'] }],
   mac: {
+    icon: 'src-tauri/icons/icon.icns',
     category: 'public.app-category.video',
     target: ['dmg', 'zip'],
     identity: null,

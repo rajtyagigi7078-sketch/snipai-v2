@@ -272,7 +272,8 @@ function createMediaBackend(options) {
     const end = Number(moment.end ?? moment.end_time ?? moment.clip_end ?? moment.end_sec);
     if (!(end > start)) throw new Error('The source clip timing is missing.');
     if (!words.length) {
-      const transcript = await readJson(path.join(path.dirname(original), `${path.parse(original).name}.transcript.json`));
+      let transcript = await readJson(path.join(outputDir, '.snip-ai-work', 'transcript.json'));
+      if (!transcript.segments?.length) transcript = await readJson(path.join(path.dirname(original), `${path.parse(original).name}.transcript.json`));
       words = (transcript.segments || []).flatMap(s => s.words || []).filter(w => Number(w.end) > start && Number(w.start) < end).map(w => ({ text: String(w.text || w.word || '').trim(), start: Math.max(0, Number(w.start) - start), end: Math.min(end - start, Number(w.end) - start) })).filter(w => w.text && w.end > w.start);
     }
     if (!words.length) throw new Error('Word timestamps are missing for this clip. Generate the clip again.');
