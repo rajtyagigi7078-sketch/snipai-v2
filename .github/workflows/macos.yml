@@ -43,13 +43,21 @@ jobs:
       - name: Build Mac installers
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --mac --config electron-builder.mac.cjs
+        run: npx electron-builder --mac --config electron-builder.mac.cjs --publish never
+      - name: Launch packaged desktop app
+        run: node scripts/macos-launch-smoke.cjs
       - name: Offline generation and export verification
         run: node scripts/macos-e2e.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: macos-installer-${{ matrix.os }}
-          path: release-mac/*
+          path: |
+            release-mac/*.dmg
+            release-mac/*.zip
+            macos-e2e-report.json
+            .build/mac-ui-smoke/*
+          include-hidden-files: true
+          compression-level: 0
       - uses: actions/upload-artifact@v4
         if: always()
         with:
