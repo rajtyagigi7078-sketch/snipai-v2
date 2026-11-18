@@ -59,18 +59,25 @@ try {
     raw.byteLength / Float32Array.BYTES_PER_ELEMENT
   );
 
+  const safeMode = process.env.SNIP_AI_SWIFT_SAFE_MODE === "1";
   const loadAsr = (device) => pipeline(
     "automatic-speech-recognition",
     "ishaan-g/whisper-hinglish-swift_timestamped",
     {
       device,
-      dtype: { encoder_model: "q8", decoder_model_merged: "q8" }
+      dtype: { encoder_model: "q8", decoder_model_merged: "q8" },
+      ...(safeMode ? { session_options: {
+        intraOpNumThreads: 1, interOpNumThreads: 1,
+        executionMode: "sequential", graphOptimizationLevel: "disabled",
+        enableCpuMemArena: false, enableMemPattern: false,
+      } } : {}),
     }
   );
   let actualDevice = ["dml", "webgpu"].includes(process.env.SNIP_AI_SWIFT_DEVICE)
     ? process.env.SNIP_AI_SWIFT_DEVICE
     : "cpu";
   console.log(`Loading timestamp-enabled Swift Hinglish model on ${actualDevice.toUpperCase()}...`);
+  console.log(`Swift CPU profile: ${safeMode ? "conservative (1 thread, graph optimizations disabled)" : "default"}`);
   let asr;
   try {
     asr = await loadAsr(actualDevice);

@@ -34,7 +34,7 @@ BEST_OF = int(
 # The production default remains the timestamp-enabled Swift Hinglish model.
 HINGLISH_ENGINE = os.environ.get("SNIP_AI_HINGLISH_ENGINE", "swift").strip().lower()
 
-WHISPER_VERSION = "swift-hinglish-word-timestamps-v3-vad-speech-windows"
+WHISPER_VERSION = "swift-hinglish-word-timestamps-v4-cpu-recovery"
 
 HINGLISH_INITIAL_PROMPT = (
     "Yeh ek Hinglish audio hai jisme Hindi aur English mix words use kiye gaye hain. "
@@ -147,15 +147,18 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
         sys.exit(1)
 
     audio_language = (audio_language or "hinglish").strip().lower()
-    if audio_language not in {"english", "hinglish"}:
-        raise ValueError("Audio language must be english or hinglish.")
+    language_codes = {
+        "english": "en", "hindi": "hi", "spanish": "es", "french": "fr",
+        "german": "de", "tamil": "ta", "telugu": "te", "bengali": "bn",
+        "marathi": "mr", "gujarati": "gu", "punjabi": "pa", "kannada": "kn",
+        "malayalam": "ml",
+    }
+    if audio_language not in {"hinglish", *language_codes.keys()}:
+        raise ValueError("Unsupported audio language. Choose one of the languages shown in the app.")
 
     if HINGLISH_ENGINE not in {"swift", "faster-whisper"}:
         raise ValueError("SNIP_AI_HINGLISH_ENGINE must be 'swift' or 'faster-whisper'.")
-    use_faster_whisper = (
-        audio_language == "english"
-        or (audio_language == "hinglish" and HINGLISH_ENGINE == "faster-whisper")
-    )
+    use_faster_whisper = audio_language != "hinglish" or HINGLISH_ENGINE == "faster-whisper"
     transcription_version = (
         f"faster-whisper-{MODEL_SIZE}-{audio_language}-prompt-v1"
         if use_faster_whisper
@@ -244,11 +247,14 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
         f"Device       : {os.environ.get('SNIP_AI_WHISPER_DEVICE', 'auto').upper() + ' (CUDA when available, CPU fallback)' if use_faster_whisper else os.environ.get('SNIP_AI_SWIFT_DEVICE', 'cpu').upper() + ' (GPU when available, CPU fallback)'}"
     )
     print(f"Compute      : {COMPUTE_TYPE + ' preferred' if use_faster_whisper else 'bundled quantized model'}")
-    print(f"CPU threads  : {CPU_THREADS}")
+    print(f"CPU threads  : {CPU_THREADS if use_faster_whisper else 'ONNX default; single thread on recovery'}")
     print(f"Beam size    : {BEAM_SIZE if use_faster_whisper else 'N/A (Swift model)'}")
     print(f"Best of      : {BEST_OF if use_faster_whisper else 'N/A (Swift model)'}")
     if audio_language == "hinglish" and use_faster_whisper:
-        print("Hinglish prompt: ON (Hindi transcription; Romanized for captions)")
+        if os.environ.get("SNIP_AI_RECOVERY_AUTO_LANGUAGE") == "1":
+            print("Recovery language: auto-detected; Hindi script Romanized for captions")
+        else:
+            print("Hinglish prompt: ON (Hindi transcription; Romanized for captions)")
     print("VAD          : ON")
     print("Word timing  : ON")
     print("Previous text: OFF")
@@ -321,7 +327,7 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
     # Use English without a language prompt. Hinglish benchmark runs force Hindi
     # recognition and pass a vocabulary/script hint; output is Romanized below.
         whisper_options = {
-            "language": "en" if audio_language == "english" else "hi",
+            "language": language_codes.get(audio_language, "hi"),
             "beam_size": BEAM_SIZE,
             "best_of": BEST_OF,
             "vad_filter": vad_filter,
@@ -331,6 +337,11 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
         }
         if audio_language == "hinglish":
             whisper_options["initial_prompt"] = HINGLISH_INITIAL_PROMPT
+        if os.environ.get("SNIP_AI_RECOVERY_AUTO_LANGUAGE") == "1":
+            # A user may choose Hinglish for an English video. Let the recovery
+            # engine detect the spoken language instead of forcing translation.
+            whisper_options["language"] = None
+            whisper_options.pop("initial_prompt", None)
         segments, info = model.transcribe(str(video), **whisper_options)
 
     # Hindi-only Swift transcription remains the production default.
@@ -421,32 +432,16 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
                 swift_env.setdefault("PYTHONUTF8", "1")
                 swift_env.setdefault("PYTHONIOENCODING", "utf-8")
 
-                subprocess_result = subprocess.Popen(
-                    [
-                        node_exe,
-                        str(helper),
-                        str(video),
-                        str(swift_json_path),
-                        str(speech_regions_path),
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    env=swift_env,
-                    bufsize=1,
+                from speech_recovery import run_swift_with_recovery, offline_whisper_fallback
+                swift_profile = run_swift_with_recovery(
+                    [node_exe, str(helper), str(video), str(swift_json_path), str(speech_regions_path)],
+                    swift_env,
                 )
-
-                if subprocess_result.stdout:
-                    for output_line in subprocess_result.stdout:
-                        print(output_line, end="", flush=True)
-                return_code = subprocess_result.wait()
-
-                if return_code != 0:
-                    raise RuntimeError(
-                        f"Swift Hinglish transcription failed with exit code {return_code}."
-                    )
+                if swift_profile is None:
+                    # Release the large VAD buffer before starting the other engine.
+                    del vad_audio
+                    offline_whisper_fallback(video, audio_language, output_path, transcription_version, swift_env)
+                    return
 
                 with open(swift_json_path, "r", encoding="utf-8") as swift_file:
                     swift_data = json.load(swift_file)
@@ -534,6 +529,7 @@ def transcribe(video_path: str, audio_language: str = "hinglish"):
             ),
             "speech_regions": len(speech_regions),
             "speech_seconds": round(speech_seconds, 3),
+            "actual_engine": "swift-cpu-conservative" if speech_regions and swift_profile == "conservative" else "swift",
             "segments": swift_segments,
         }
 

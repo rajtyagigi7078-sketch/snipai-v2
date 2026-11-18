@@ -1,4 +1,5 @@
-import GenerationError from "./GenerationError";
+import ErrorModal from './ErrorModal';
+import RecoveryPanel from './RecoveryPanel';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
@@ -38,6 +39,7 @@ import { convertFileSrc, invoke, listen, openPath, open } from "./lib/desktop";
 
 import LicenseActivation from "./LicenseActivation";
 import ClipEditor from "./editor/ClipEditor";
+import {RulerSlider} from './editor/EditorControls';
 import DeviceLogout from "./DeviceLogout";
 import { pipelineStageFromLine, generationErrorMessage, captionBatchProgress, type CaptionBatchProgress } from "./lib/pipelineStatus";
 import RenderProgress from './RenderProgress';
@@ -47,12 +49,24 @@ import { CAPSNIP_TYPOGRAPHY_THEMES } from "./editor/capsnipTypography";
 import "./NextTheme.css";
 import "./Redesign.css";
 import "./Version14Workspace.css";
+import "./CompactWorkspace.css";
+import {SplitScreen, type CropRegion} from './SplitScreen';
 
 const CaptionThemePreview = lazy(() => import("./CaptionThemePreview"));
 
 type Format = "1:1" | "16:9" | "9:16";
 
+const AUDIO_LANGUAGES = [
+  ["hinglish", "Hinglish (Hindi + English)"], ["english", "English"],
+  ["hindi", "Hindi"], ["spanish", "Spanish"], ["french", "French"],
+  ["german", "German"], ["tamil", "Tamil"], ["telugu", "Telugu"],
+  ["bengali", "Bengali"], ["marathi", "Marathi"], ["gujarati", "Gujarati"],
+  ["punjabi", "Punjabi"], ["kannada", "Kannada"], ["malayalam", "Malayalam"],
+] as const;
+type AudioLanguage = (typeof AUDIO_LANGUAGES)[number][0];
+
 const CAPTION_STYLES = [
+  { name: "none", label: "None", description: "Export clips without captions." },
   { name: "pop", label: "Pop", description: "Word-by-word pop with a quick scale-up." },
   { name: "bold-center", label: "Bold Center", description: "One bold word at a time, centered and static." },
   { name: "bounce", label: "Steady Highlight", description: "Pink active-word highlight with a soft fade; captions stay anchored." },
@@ -82,12 +96,12 @@ export function AudioLanguagePicker({
   value,
   onChange,
 }: {
-  value: "english" | "hinglish";
-  onChange: (value: "english" | "hinglish") => void;
+  value: AudioLanguage;
+  onChange: (value: AudioLanguage) => void;
 }) {
   const [open, setOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
-  const label = value === "hinglish" ? "Hinglish (Hindi + English)" : "English";
+  const label = AUDIO_LANGUAGES.find(([id]) => id === value)?.[1] ?? value;
 
   return (
     <div
@@ -116,10 +130,7 @@ export function AudioLanguagePicker({
       </button>
       {open && (
         <div className="audio-language-menu" role="menu" aria-label="Choose audio language">
-          {([
-            ["hinglish", "Hinglish (Hindi + English)"],
-            ["english", "English"],
-          ] as const).map(([option, optionLabel]) => (
+          {AUDIO_LANGUAGES.map(([option, optionLabel]) => (
             <button
               key={option}
               type="button"
@@ -256,7 +267,7 @@ function LocalVideoPreview({
       autoPlay
       loop
       muted
-      preload="auto"
+      preload="none"
       playsInline
       onLoadedMetadata={(event) => {
         const video = event.currentTarget;
@@ -453,7 +464,7 @@ export function SettingsPage({
           </div>
 
           <label className="settings-label">Default clip count <strong>{defaultClipCount}</strong></label>
-          <input className="settings-range" type="range" min="1" max="10" value={defaultClipCount} onChange={(event) => setDefaultClipCount(Number(event.target.value))} />
+          <input className="settings-range" type="range" min="1" max="20" value={defaultClipCount} onChange={(event) => setDefaultClipCount(Number(event.target.value))} />
 
           <div className="settings-switch-row">
             <div className="settings-info-note">
@@ -490,6 +501,7 @@ export function SettingsPage({
 
       <LicenseActivation />
 
+      {hardwareProfileError && <RecoveryPanel title="Hardware check needs attention" message={hardwareProfileError}/>}
       <div className="settings-footer"><span><ShieldCheck size={14} /> Settings are stored locally on this device.</span><button type="button" className="ghost-page-button" onClick={onReset}>Reset defaults</button></div>
     </section>
   );
@@ -501,6 +513,7 @@ function App() {
   const [editorBusy, setEditorBusy] = useState(false);
   const [autoScreenText, setAutoScreenText] = useState(false);
   const [generationLogo, setGenerationLogo] = useState("");
+  const [generationLogoEnabled, setGenerationLogoEnabled] = useState(false);
   const [hardwareProfile, setHardwareProfile] = useState<HardwareProfile | null>(null);
   const [hardwareProfileLoading, setHardwareProfileLoading] = useState(true);
   const [hardwareProfileError, setHardwareProfileError] = useState("");
@@ -522,6 +535,9 @@ function App() {
     void refreshHardwareProfile(false);
   }, [refreshHardwareProfile]);
 
+  const [splitEnabled,setSplitEnabled]=useState(false);
+  const [setupTool,setSetupTool]=useState('frame');
+  const [splitRegions,setSplitRegions]=useState<CropRegion[]>([{x:0,y:0,w:.4,h:.5},{x:0,y:.3,w:1,h:.7}]);
   const [format, setFormat] = useState<Format>(() => {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -532,7 +548,7 @@ function App() {
     }
   });
   const [template, setTemplate] = useState<CaptionThemeName>("pop");
-  const [audioLanguage, setAudioLanguage] = useState<"english" | "hinglish">("hinglish");
+  const [audioLanguage, setAudioLanguage] = useState<AudioLanguage>("hinglish");
   const [differentCaptions] = useState(() => {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -606,7 +622,7 @@ function App() {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       const value = Number(raw ? JSON.parse(raw).defaultClipCount : 5);
-      return Number.isFinite(value) ? Math.min(10, Math.max(1, value)) : 5;
+      return value === -1 ? -1 : Number.isFinite(value) ? Math.min(20, Math.max(1, Math.round(value))) : 5;
     } catch {
       return 5;
     }
@@ -667,7 +683,7 @@ function App() {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       const value = Number(raw ? JSON.parse(raw).defaultClipCount : 5);
-      return Number.isFinite(value) ? Math.min(10, Math.max(1, value)) : 5;
+      return Number.isFinite(value) ? Math.min(20, Math.max(1, Math.round(value))) : 5;
     } catch {
       return 5;
     }
@@ -710,6 +726,10 @@ function App() {
       }
       const renderFrame = message.match(/^\[RENDER_PROGRESS\].*clip_(\d+).*frame=(\d+)/);
       setProcessingDetail(renderFrame ? `Applying captions to clip ${Number(renderFrame[1])} · ${Number(renderFrame[2])} frames rendered` : message);
+      const selectedCount=message.match(/Selected clips:\s*(\d+)/i);
+      if(selectedCount){const elapsed=(Date.now()-processingStarted.current)/1000;setEstimatedSeconds(elapsed+Number(selectedCount[1])*20);}
+      const renderClock=message.match(/\[OK\] Clip\s+(\d+)/);
+      if(renderClock){const elapsed=(Date.now()-processingStarted.current)/1000;setEstimatedSeconds(previous=>Math.max(previous||0,elapsed+20));}
       const stage = pipelineStageFromLine(message);
       if(stage !== null){setProcessingStage(previous=>Math.max(previous,stage));setProcessingProgress(previous=>Math.max(previous,[0,10,40,60,75,95][stage]));}
     }).then((stop) => { unlisten = stop; });
@@ -795,6 +815,7 @@ function App() {
   };
 
   const clearHistory = () => {
+    if (!window.confirm('Clear generation history? Your saved video files will stay on this computer.')) return;
     setHistoryRecords([]);
   };
 
@@ -876,7 +897,7 @@ function App() {
     );
   };
 
-  const handleYoutubeLink = async () => {
+  const handleYoutubeLink = async (liveClipSeconds?: number) => {
     const link = youtubeLink.trim();
 
     if (!link || isDownloading || downloadInFlightRef.current) {
@@ -918,6 +939,7 @@ function App() {
     try {
       const downloadedPath = await invoke<string>("download_youtube", {
         url: link,
+        ...(liveClipSeconds ? { liveClipSeconds } : {}),
       });
 
       if (!downloadedPath) {
@@ -1007,13 +1029,15 @@ function App() {
     const info = await invoke<{duration: number}>("probe_video", { path: selectedInputPath });
     let rate = 0.65;
     try { const stored = Number(localStorage.getItem(`snip-ai.seconds-per-source-second:${audioLanguage}`)); if (stored > 0 && stored < 100) rate = stored; } catch { /* use initial CPU estimate */ }
-    const estimate = Math.max(15, info.duration * rate + requestedClips * 8);
+    const clipCountEstimate = requestedClips === -1 ? Math.max(1,Math.ceil(info.duration / (clipDurationSeconds || 35))) : requestedClips;
+    const estimate = Math.max(15, info.duration * rate + clipCountEstimate * 8);
     setEstimatedSeconds(estimate);
 
     const result = await invoke<GeneratedClipsResult>(
       "create_clips",
       {
         inputPath: selectedInputPath,
+        splitRegions: splitEnabled ? splitRegions : null,
         format,
         requestedClips,
         clipDurationSeconds: clipDurationSeconds || null,
@@ -1022,7 +1046,7 @@ function App() {
         audioLanguage,
         captionOverrides: "{}",
         autoScreenText,
-        logoPath: generationLogo || null,
+        logoPath: generationLogoEnabled ? generationLogo || null : null,
       },
     );
 
@@ -1031,7 +1055,7 @@ function App() {
         "The pipeline finished without generating any valid clips.",
       );
     }
-    try { localStorage.setItem(`snip-ai.seconds-per-source-second:${audioLanguage}`, String(Math.max(0.05, ((Date.now() - processingStarted.current) / 1000 - requestedClips * 8) / info.duration))); } catch { /* storage may be full */ }
+    try { localStorage.setItem(`snip-ai.seconds-per-source-second:${audioLanguage}`, String(Math.max(0.05, ((Date.now() - processingStarted.current) / 1000 - clipCountEstimate * 8) / info.duration))); } catch { /* storage may be full */ }
 
     setOutputKind("clips");
     setOutputPaths(result.paths);
@@ -1233,8 +1257,9 @@ function App() {
   return (
     <>
       <style>{downloadAnimationStyle}</style>
+      <ErrorModal message={errorMessage} onDismiss={()=>setErrorMessage('')} onPickVideo={()=>{resetVideo();void handleBrowse();}}/>
       <div className="app-shell">
-      <aside className="sidebar">
+      <aside className="sidebar" style={{ width: 76, minWidth: 76, maxWidth: 76, flex: "0 0 76px" }}>
         <div className="brand">
           <div className="brand-mark">
             <img src={`${import.meta.env.BASE_URL}snip-logo-mark.png`} alt="" />
@@ -1248,11 +1273,11 @@ function App() {
             WORKSPACE
           </p>
 
-          <button type="button" className={`nav-item ${workspacePage === "auto-clipping" ? "active" : ""}`} onClick={() => navigateTo("auto-clipping")}>
+          <button type="button" aria-label="Auto Clipping" aria-current={workspacePage==='auto-clipping'?'page':undefined} className={`nav-item ${workspacePage === "auto-clipping" ? "active" : ""}`} onClick={() => navigateTo("auto-clipping")}>
             <Clapperboard size={18} /><span>Auto Clipping</span>
           </button>
 
-          <button type="button" className={`nav-item ${workspacePage === "history" ? "active" : ""}`} onClick={() => navigateTo("history")}>
+          <button type="button" aria-label="History" aria-current={workspacePage==='history'?'page':undefined} className={`nav-item ${workspacePage === "history" ? "active" : ""}`} onClick={() => navigateTo("history")}>
             <HistoryIcon size={18} />
             <span>History</span>
           </button>
@@ -1261,7 +1286,7 @@ function App() {
         <div className="sidebar-bottom">
           <div className="sidebar-license-tag"><ShieldCheck size={14}/><span>Lifetime workspace</span></div>
           <ReportIssueButton onError={setErrorMessage}/>
-          <button type="button" className={`nav-item ${workspacePage === "settings" ? "active" : ""}`} onClick={() => navigateTo("settings")}>
+          <button type="button" aria-label="Settings" aria-current={workspacePage==='settings'?'page':undefined} className={`nav-item ${workspacePage === "settings" ? "active" : ""}`} onClick={() => navigateTo("settings")}>
             <Settings size={18} />
             <span>Settings</span>
           </button>
@@ -1269,7 +1294,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content">
+      <main className="main-content" style={{ width: "calc(100% - 76px)", minWidth: 0 }}>
         {showGallery ? (
           <section className="gallery-view">
             <header className="gallery-header">
@@ -1651,43 +1676,19 @@ function App() {
                       <FolderOpen size={15} />
                       Upload files
                     </button>
-                  </div>
-                )}
-
-
-                {!videoName && !isDownloading && errorMessage && (
-                  <div className="youtube-download-error" role="alert">
-                    <strong>Video download failed</strong>
-                    {downloadPreview && (
-                      <div className="youtube-download-preview">
-                        <img
-                          src={downloadPreview.thumbnail}
-                          alt={`Video thumbnail: ${downloadPreview.title}`}
-                          onError={(event) => { event.currentTarget.hidden = true; }}
-                        />
-                        <div>
-                          <span>Requested video</span>
-                          <strong title={downloadPreview.title}>{downloadPreview.title}</strong>
-                        </div>
-                      </div>
+                    {/(youtube\.com\/live\/|[?&]live=1)/i.test(youtubeLink) && (
+                      <button
+                        type="button"
+                        className="youtube-live-clip-button"
+                        onClick={() => void handleYoutubeLink(60)}
+                        disabled={isDownloading}
+                      >
+                        Capture last 60s
+                      </button>
                     )}
-                    <span>
-                      {errorMessage.includes("YouTube rejected the saved cookies too")
-                        ? "The saved cookie session was tried but YouTube did not accept it. Replace Downloads/cookies.txt with a fresh export from a browser signed in to YouTube."
-                        : errorMessage.includes("automatic retry with Downloads")
-                        ? "Snip AI retried with your local cookies, but the download still failed. See technical details for the exact reason."
-                        : /could not copy .*cookie database|failed to decrypt with dpapi|could not read .*cookie/i.test(errorMessage)
-                        ? "yt-dlp could not read Downloads/cookies.txt. Replace it with a fresh Netscape cookie export and retry."
-                        : errorMessage.includes("429") || /not a bot|sign in to confirm/i.test(errorMessage)
-                        ? "YouTube is rate-limiting this request or requiring sign-in. Wait a while and retry, or download the video in your browser and choose the local file."
-                        : "The link could not be downloaded. Check it and try again."}
-                    </span>
-                    <details>
-                      <summary>Technical details</summary>
-                      <pre>{errorMessage}</pre>
-                    </details>
                   </div>
                 )}
+
 
                 {videoName && !isDownloading && (
                   <button
@@ -1711,17 +1712,8 @@ function App() {
                 {isDownloading && (
                   <div
                     className="youtube-download-status"
-                    style={{
-                      width: "100%",
-                      maxWidth: "430px",
-                      margin: "14px auto 0",
-                      padding: "12px 14px",
-                      border: "1px solid rgba(181, 157, 244, 0.22)",
-                      borderRadius: "10px",
-                      background: "rgba(181, 157, 244, 0.04)",
-                      textAlign: "left",
-                      boxSizing: "border-box",
-                    }}
+                    role="region"
+                    aria-label="Video download progress"
                   >
                     {downloadPreview && (
                       <div className="youtube-download-preview">
@@ -1781,7 +1773,7 @@ function App() {
                       }}
                     >
                       {downloadProgress.percent != null ? `${Math.round(downloadProgress.percent)}% complete` : "Preparing download · video transfer has not started yet"}
-                      <span style={{display:"block", marginTop:8, fontSize:13, color:"#bdacf7"}} role="status">
+                      <span className="download-eta" role="status">
                         {downloadProgress.percent === 100 ? "Finalizing video and audio…" : downloadProgress.eta && !["NA", "N/A", "UNKNOWN"].includes(downloadProgress.eta.toUpperCase()) ? `Estimated remaining: ${downloadProgress.eta}` : "Estimated remaining: calculating…"}
                       </span>
                       {downloadProgress.downloadedBytes > 0 && (
@@ -1824,9 +1816,15 @@ function App() {
               )}
 
               {videoPath && <>
-              <div className="options-grid">
-                <div className="option-card">
-                  <div className="option-heading">
+              <div id="snip-workspace" className="options-grid">
+                <div className="option-card setup-tool-panel" data-tool={setupTool}>
+                  <nav className="setup-tool-tabs" aria-label="Video tools">{[{id:'frame',label:'Frame',Icon:LayoutTemplate},{id:'audio',label:'Audio',Icon:FileVideo},{id:'transcript',label:'Clip length',Icon:Captions},{id:'text',label:'Text',Icon:Type},{id:'logo',label:'Logo',Icon:ImagePlus}].map(({id,label,Icon})=><button key={id} type="button" aria-pressed={setupTool===id} onClick={()=>setSetupTool(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
+                  <div className="setup-tool-content">
+                  <div className="setup-tool-panel-header">
+                    <button type="button" className="setup-tool-back" onClick={()=>setSetupTool('frame')} aria-label="Back to tools">←</button>
+                    <span>{({frame:'Frame',audio:'Audio',transcript:'Clip length',text:'Text',logo:'Logo'} as Record<string,string>)[setupTool] ?? 'Frame'} settings</span>
+                  </div>
+                  {setupTool==='frame' && <><div className="option-heading">
                     <div>
                       <span className="option-title">
                         Video format
@@ -1869,9 +1867,21 @@ function App() {
                       </button>
                     ))}
                   </div>
-                  <AudioLanguagePicker value={audioLanguage} onChange={setAudioLanguage} />
+                  </>}
+                  {setupTool==='audio' && <AudioLanguagePicker value={audioLanguage} onChange={setAudioLanguage} />}
+                  {setupTool==='frame' && <label className={`split-toggle split-system-toggle ${splitEnabled?'is-enabled':''}`}><span className="split-system-icon" aria-hidden="true"><LayoutTemplate size={18}/></span><span className="split-system-copy"><strong>Split screen</strong><small>Dual frame · 9:16</small></span><span className="split-system-state" aria-hidden="true">{splitEnabled?'ON':'OFF'}</span><input aria-label="Split screen" role="switch" type="checkbox" disabled={isProcessing} checked={splitEnabled} onChange={e=>{setSplitEnabled(e.target.checked);if(e.target.checked)setFormat('9:16')}}/></label>}
+                  {splitEnabled && setupTool==='frame' && <div className="split-settings"><p>Drag either frame on the video, or fine-tune its size and position below.</p>{splitRegions.map((r,i)=><section className="split-frame-controls" key={i}><h3>{i===0?'Top frame':'Bottom frame'}</h3><RulerSlider label={`${i===0?'Top':'Bottom'} frame size`} min={5} max={Math.max(5,Math.min(90,100*r.w/r.h))} step={.5} unit="%" value={r.w*100} onChange={size=>setSplitRegions(old=>old.map((v,j)=>{if(i!==j)return v;const ratio=v.h/v.w,w=Math.min(size/100,1,1/ratio),h=w*ratio;return {...v,w,h,x:Math.min(v.x,1-w),y:Math.min(v.y,1-h)}}))}/><RulerSlider label={`${i===0?'Top':'Bottom'} horizontal position`} min={0} max={Math.max(.001,(1-r.w)*100)} step={.1} unit="%" value={r.x*100} onChange={x=>setSplitRegions(old=>old.map((v,j)=>j===i?{...v,x:Math.max(0,Math.min(1-v.w,x/100))}:v))}/><RulerSlider label={`${i===0?'Top':'Bottom'} vertical position`} min={0} max={Math.max(.001,(1-r.h)*100)} step={.1} unit="%" value={r.y*100} onChange={y=>setSplitRegions(old=>old.map((v,j)=>j===i?{...v,y:Math.max(0,Math.min(1-v.h,y/100))}:v))}/></section>)}</div>}
                   <label className="clip-length-picker"><span>Clip length <small>For each clip</small></span><select aria-label="Clip length" value={[0,15,30,45,60,90].includes(clipDurationSeconds) ? clipDurationSeconds : 'custom'} disabled={isProcessing} onChange={event=>setClipDurationSeconds(event.target.value === 'custom' ? 20 : Number(event.target.value))}><option value="0">Auto · natural moments</option>{[15,30,45,60,90].map(seconds=><option key={seconds} value={seconds}>{seconds} seconds</option>)}<option value="custom">Custom length…</option></select>{![0,15,30,45,60,90].includes(clipDurationSeconds) && <input type="number" aria-label="Custom clip length in seconds" min="10" max="120" step="1" value={clipDurationSeconds} onChange={event=>setClipDurationSeconds(Number(event.target.value))}/>}<p>{clipDurationSeconds ? `AI selects moments for ${clipDurationSeconds}-second clips.` : 'AI chooses the best start and end for each moment.'}</p></label>
-                  <div className="generation-overlays"><div className="generation-addon"><div className="addon-title"><Type size={17}/><span>On-screen text</span><input aria-label="Auto on-screen text" type="checkbox" role="switch" checked={autoScreenText} disabled={isProcessing} onChange={event=>setAutoScreenText(event.target.checked)} /></div><p>Auto heading for each clip.</p></div><div className="generation-addon"><div className="addon-title"><ImagePlus size={17}/><span>Add logo</span></div><button type="button" disabled={isProcessing} onClick={async()=>{try{const path=await open({filters:[{name:"Logo image",extensions:["png","jpg","jpeg","webp"]}]});if(typeof path==="string")setGenerationLogo(path);}catch(reason){setErrorMessage(String(reason));}}}>{generationLogo ? "Replace image" : "+ Add file"}</button>{generationLogo && <div className="generation-logo-file"><img src={convertFileSrc(generationLogo)} alt="Selected logo"/><span>{generationLogo.split(/[\\/]/).pop()}</span><button type="button" aria-label="Remove selected logo" onClick={()=>setGenerationLogo("")}><X size={12}/></button></div>}</div></div><p className="generation-edit-note">Fine-tune both in the Preview editor.</p>
+                  <div className="generation-overlays">
+                    <div className="generation-addon futuristic-addon">
+                      <label className={`split-toggle split-system-toggle ${autoScreenText?'is-enabled':''}`}><span className="split-system-icon" aria-hidden="true"><Type size={18}/></span><span className="split-system-copy"><strong>On-screen text</strong><small>Auto heading for each clip</small></span><span className="split-system-state" aria-hidden="true">{autoScreenText?'ON':'OFF'}</span><input aria-label="Auto on-screen text" type="checkbox" role="switch" checked={autoScreenText} disabled={isProcessing} onChange={event=>setAutoScreenText(event.target.checked)}/></label>
+                    </div>
+                    <div className="generation-addon futuristic-addon">
+                      <label className={`split-toggle split-system-toggle ${generationLogoEnabled?'is-enabled':''}`}><span className="split-system-icon" aria-hidden="true"><ImagePlus size={18}/></span><span className="split-system-copy"><strong>Add logo</strong><small>Your brand on every clip</small></span><span className="split-system-state" aria-hidden="true">{generationLogoEnabled?'ON':'OFF'}</span><input aria-label="Add logo" type="checkbox" role="switch" checked={generationLogoEnabled} disabled={isProcessing} onChange={event=>setGenerationLogoEnabled(event.target.checked)}/></label>
+                      <button className="logo-system-upload" type="button" disabled={isProcessing} onClick={async()=>{try{const path=await open({filters:[{name:'Logo image',extensions:['png','jpg','jpeg','webp']}]});if(typeof path==='string'){setGenerationLogo(path);setGenerationLogoEnabled(true);}}catch(reason){setErrorMessage(String(reason));}}}><span className="split-system-icon" aria-hidden="true"><Upload size={17}/></span><span><strong>{generationLogo?'Replace image':'Add file'}</strong><small>PNG · JPG · WebP</small></span><ImagePlus size={15} aria-hidden="true"/></button>
+                      {generationLogo && <div className="generation-logo-file"><img src={convertFileSrc(generationLogo)} alt="Selected logo"/><span>{generationLogo.split(/[\\/]/).pop()}</span><button type="button" disabled={isProcessing} aria-label="Remove selected logo" onClick={()=>{setGenerationLogo('');setGenerationLogoEnabled(false);}}><X size={12}/></button></div>}
+                    </div>
+                  </div><p className="generation-edit-note">Fine-tune both in the Preview editor.</p>
                   <div className={`generation-hardware-status ${hardwareProfileError ? "has-error" : ""}`} role="status" aria-live="polite">
                     <Cpu size={15} />
                     <div>
@@ -1879,7 +1889,12 @@ function App() {
                       <span>{hardwareProfileLoading ? "Detecting this computer" : hardwareProfileError ? "Will retry before processing" : "CPU processing · bundled runtime"}</span>
                     </div>
                   </div>
+                  </div>
                 </div>
+                <section className="source-player-panel" aria-label="Selected video preview">
+                  <div className="appearance-panel-heading"><span title={videoPath}>{videoPath.split(/[\\/]/).pop()}</span><small>Preview</small></div>
+                  {splitEnabled ? <SplitScreen key={videoPath} src={convertFileSrc(videoPath)} value={splitRegions} onChange={setSplitRegions}/> : <video key={videoPath} src={convertFileSrc(videoPath)} controls preload="metadata" playsInline />}
+                </section>
                 <div className="option-card caption-card remotion-caption-card">
                   <div className="option-heading">
                     <div>
@@ -1913,9 +1928,6 @@ function App() {
                 </div>
               </div>
 
-              {errorMessage && videoPath && (
-                <GenerationError key={errorMessage} message={errorMessage} onPickVideo={resetVideo}/>
-              )}
 
               <div className="generation-controls-footer">
               <div className="clip-count-selector">
@@ -1926,15 +1938,14 @@ function App() {
                   </div>
 
                   <div className="clip-count-value">
-                    {requestedClips}
+                    {requestedClips === -1 ? "All" : requestedClips}
                   </div>
                 </div>
-
                 <div className="clip-count-options">
                   {Array.from(
-                    { length: 10 },
+                    { length: 12 },
                     (_, index) => {
-                      const count = index + 1;
+                      const count = index < 10 ? index + 1 : index === 10 ? 15 : 20;
 
                       return (
                         <button
@@ -1955,6 +1966,7 @@ function App() {
                       );
                     },
                   )}
+                  <button type="button" className={requestedClips === -1 ? "clip-count-button active" : "clip-count-button"} onClick={() => setRequestedClips(-1)} disabled={isProcessing}>All</button>
                 </div>
               </div>
 
@@ -1966,7 +1978,7 @@ function App() {
 
                   <div>
                     <strong>
-                      Up to 10 clips
+                      {requestedClips === -1 ? "All detected clips" : `Up to ${requestedClips} clips`}
                     </strong>
                     <span>
                       AI-selected moments
@@ -2035,7 +2047,7 @@ function App() {
           stages={activeProcessingStages} stage={processingStage} percent={processingProgress}
           elapsed={timeLabel(elapsedSeconds)}
           remaining={estimatedSeconds === null ? "Calculating…" : elapsedSeconds < estimatedSeconds ? `About ${timeLabel(estimatedSeconds - elapsedSeconds)}` : "Still working…"}
-          detail={processingDetail} videoName={videoName} count={requestedClips} format={format}
+          detail={processingDetail} videoName={videoName} count={requestedClips === -1 ? 0 : requestedClips} format={format}
           batch={captionBatch} stopping={isCanceling} onStop={cancelCurrentProcessing}
         />}
 

@@ -11,7 +11,7 @@ for(const file of manifest.files){
   const target=path.join(runtimeRoot,file.path);
   if(!fs.existsSync(target)||crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==file.sha256)throw new Error('Bundled runtime hash mismatch: '+file.path);
 }
-for(const name of ['runtime_check.py','native_runtime.py'])if(!fs.existsSync(path.join(runtimeRoot,'pipeline',name)))throw new Error('Missing runtime verification script: '+name);
+for(const name of ['runtime_check.py','native_runtime.py','speech_recovery.py'])if(!fs.existsSync(path.join(runtimeRoot,'pipeline',name)))throw new Error('Missing runtime verification script: '+name);
 const target = require.resolve('app-builder-lib/out/targets/nsis/NsisTarget.js');
 const before = fs.readFileSync(target, 'utf8');
 const after = before.replace(/await wineVm\.exec\(installerPath, \[\], \{ env: \{ (?:\.\.\.process\.env, )?__COMPAT_LAYER: "RunAsInvoker" \} \}\);/g,

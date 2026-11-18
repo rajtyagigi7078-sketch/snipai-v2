@@ -211,6 +211,7 @@ def parse_arguments():
     )
 
     allowed_caption_templates = {
+        "none",
         "pop", "karaoke", "bold-center", "punch", "minimal",
         "highlight-box", "typewriter", "bounce", "kinetic", "podcast",
     "yellow-stack", "violet-pill", "dual-line", "bold-karaoke", "soft-lyric",
@@ -303,7 +304,7 @@ def get_moments(data):
             "zero clips."
         )
 
-    return moments[:MAX_CLIPS]
+    return moments
 
 
 def get_number(moment, keys):
@@ -1057,6 +1058,7 @@ FFMPEG_CAPTION_TEMPLATES = {
     "pop", "karaoke", "bold-center", "punch", "minimal",
     "highlight-box", "typewriter", "bounce", "kinetic", "podcast",
     "yellow-stack", "violet-pill", "dual-line", "bold-karaoke", "soft-lyric",
+    "none",
 }
 
 
@@ -2008,7 +2010,7 @@ def main():
 
     transcript = Path(os.environ.get("SNIP_AI_TRANSCRIPT_PATH") or data.get("transcript") or source.with_suffix(".transcript.json"))
 
-    if not transcript.exists():
+    if caption_template != "none" and not transcript.exists():
         print(
             "ERROR: Transcript file required for "
             "Remotion captions was not found:"
@@ -2054,6 +2056,15 @@ def main():
         )
 
         try:
+            if caption_template == "none":
+                info = render_framed_source_clip(source, start, end, output, framing, encoder_info)
+                shutil.copyfile(info, output)
+                try:
+                    Path(info).unlink()
+                except Exception:
+                    pass
+                print(f"[DONE] Clip {index:02d} rendered without captions")
+                return
             try:
                 info = render_ffmpeg_captioned_clip(
                     source,

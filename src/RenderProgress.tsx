@@ -59,7 +59,7 @@ export default function RenderProgress(p: Props) {
           <div className="render-visual" aria-hidden="true">
             <div className="render-shape render-shape-a"/><div className="render-shape render-shape-b"/>
             <span className="render-orbit-spark"><Sparkles size={19}/></span>
-            <svg className="render-ring" viewBox="0 0 240 240"><defs><linearGradient id="render-ring-gradient" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#b7a1ff"/><stop offset=".55" stopColor="#76deed"/><stop offset="1" stopColor="#efb4df"/></linearGradient></defs><circle className="render-ring-track" cx="120" cy="120" r="102"/><circle className="render-ring-fill" cx="120" cy="120" r="102" pathLength="100" strokeDasharray="100" strokeDashoffset={100-percent}/></svg>
+            <svg className="render-ring" viewBox="0 0 240 240"><defs><linearGradient id="render-ring-gradient" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#2864ff"/><stop offset=".55" stopColor="#37c6ff"/><stop offset="1" stopColor="#83baff"/></linearGradient></defs><circle className="render-ring-track" cx="120" cy="120" r="102"/><circle className="render-ring-fill" cx="120" cy="120" r="102" pathLength="100" strokeDasharray="100" strokeDashoffset={100-percent}/></svg>
             <div className="render-ring-center"><span>CREATING</span><strong>{percent}<small>%</small></strong><div className="render-wave">{Array.from({length:9},(_,i)=><i key={i} style={{animationDelay:`${i*90}ms`}}/>)}</div></div>
             <span className="render-floating-tag"><Zap size={13}/> On your device</span>
           </div>

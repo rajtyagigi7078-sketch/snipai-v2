@@ -44,6 +44,7 @@ FFMPEG_CAPTION_TEMPLATES = {
     "pop", "karaoke", "bold-center", "punch", "minimal",
     "highlight-box", "typewriter", "bounce", "kinetic", "podcast",
     "yellow-stack", "violet-pill", "dual-line", "bold-karaoke", "soft-lyric",
+    "none",
 }
 
 
@@ -1283,13 +1284,14 @@ def main():
         if len(sys.argv) >= 7
         else "hinglish"
     )
-    if audio_language not in {"english", "hinglish"}:
-        fail("Audio language must be english or hinglish.")
+    if audio_language not in {"english", "hinglish", "hindi", "spanish", "french", "german", "tamil", "telugu", "bengali", "marathi", "gujarati", "punjabi", "kannada", "malayalam"}:
+        fail("Unsupported audio language. Choose one of the languages shown in the app.")
 
     allowed_caption_templates = {
         "pop", "karaoke", "bold-center", "punch", "minimal",
         "highlight-box", "typewriter", "bounce", "kinetic", "podcast",
     "yellow-stack", "violet-pill", "dual-line", "bold-karaoke", "soft-lyric",
+    "none",
     }
 
     if caption_template not in allowed_caption_templates:
@@ -1299,10 +1301,10 @@ def main():
             f"{caption_template}"
         )
 
-    if requested_clips < 1 or requested_clips > 10:
+    if requested_clips != -1 and (requested_clips < 1 or requested_clips > 20):
 
         fail(
-            "Clip count must be between 1 and 10."
+            "Clip count must be between 1 and 20, or All."
         )
 
     if framing not in (

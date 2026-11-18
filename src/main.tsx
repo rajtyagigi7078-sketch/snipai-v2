@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import {AppErrorBoundary,UnexpectedErrorNotice} from './RecoveryPanel';
 import LicenseActivationScreen from "./LicenseActivationScreen";
 import { getStoredLicenseState, prepareLegacyDevice } from "./lib/license";
 import "./refinement.css";
@@ -8,9 +9,13 @@ import "./creative.css";
 import "./preview-workspace.css";
 import "./generation-layout.css";
 import "./ui-polish.css";
+import "./CompactWorkspace.css";
+import "./editor-layout.css";
+import "./studio-dark.css";
+import "./reference-studio.css";
 
 function LoadingScreen() {
-  return <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#000", color: "#aaa" }}>Loading Snip AI…</div>;
+  return <div className="studio-startup" role="status"><img src="./snip-logo-mark.png" alt=""/><span>Opening your studio</span><i/></div>;
 }
 
 function Root() {
@@ -36,5 +41,5 @@ function Root() {
 }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode><Root /></React.StrictMode>,
+  <React.StrictMode><AppErrorBoundary><Root /><UnexpectedErrorNotice/></AppErrorBoundary></React.StrictMode>,
 );

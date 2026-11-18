@@ -1,0 +1,60 @@
+.app-shell .sidebar{width:68px!important;min-width:68px!important;padding:18px 8px!important;align-items:center}
+.sidebar .brand-wordmark,.sidebar .section-label,.sidebar .nav-item span,.sidebar .sidebar-license-tag{display:none!important}
+.sidebar .brand{padding:0!important;margin:0 auto 26px!important;justify-content:center}
+.sidebar .sidebar-section,.sidebar .sidebar-bottom{width:100%}
+.sidebar .nav-item{width:48px!important;min-height:46px!important;padding:12px!important;justify-content:center!important;margin:6px auto!important;font-size:0!important}
+.sidebar .nav-item svg{width:21px;height:21px;flex-shrink:0}
+.app-shell .main-content{padding:14px!important;min-width:0!important;flex:1}
+.auto-clipping-workspace.video-loaded{width:100%!important;max-width:none!important;margin:0!important;gap:12px!important}
+.auto-clipping-workspace.video-loaded>header,.auto-clipping-workspace.video-loaded .workspace-header,.auto-clipping-workspace.video-loaded .page-header{display:none!important}
+.auto-clipping-workspace.video-loaded .options-grid{display:grid!important;grid-template-columns:250px minmax(280px,1fr) 390px!important;gap:12px!important;flex:1!important;min-height:0!important}
+.auto-clipping-workspace.video-loaded .option-card{padding:14px!important;min-width:0!important;overflow:auto!important}
+.source-player-panel{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;background:#09111d;border:1px solid #9bb7df30;border-radius:20px;overflow:hidden;padding:12px}
+.source-player-panel video{width:100%;height:100%;max-height:calc(100vh - 205px);object-fit:contain;border-radius:12px}
+.auto-clipping-workspace .remotion-create-template-track{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+.auto-clipping-workspace .remotion-create-template-card{min-width:0!important;width:100%!important}
+.auto-clipping-workspace .remotion-create-template-preview{height:85px!important;min-height:85px!important}
+.auto-clipping-workspace .format-options{padding:8px!important;gap:8px!important}
+.auto-clipping-workspace .generation-overlays{grid-template-columns:1fr!important;gap:8px!important}
+.auto-clipping-workspace .generation-controls-footer{margin:0!important;padding:10px 14px!important;min-height:65px!important}
+.auto-clipping-workspace .clip-count-options{gap:5px!important}
+.auto-clipping-workspace .clip-count-button{min-width:29px!important;width:29px!important;height:34px!important}
+@media(max-width:1200px){.auto-clipping-workspace.video-loaded .options-grid{grid-template-columns:220px minmax(220px,1fr) 310px!important}}
+@media(max-width:900px){.auto-clipping-workspace.video-loaded .options-grid{grid-template-columns:210px minmax(0,1fr)!important}.source-player-panel{grid-column:2;grid-row:1}.auto-clipping-workspace .caption-card{grid-column:1/-1}.source-player-panel video{max-height:360px}}
+
+.app-shell > aside.sidebar{flex:0 0 64px!important;width:64px!important;min-width:64px!important;max-width:64px!important}
+html body #root .app-shell > main.main-content{padding:12px!important;width:calc(100% - 64px)!important;max-width:none!important;align-items:stretch!important}
+html body #root main.main-content:has(.video-loaded) > header.topbar{display:none!important}
+html body #root main.main-content > section.auto-clipping-workspace.video-loaded{width:100%!important;max-width:none!important;height:calc(100dvh - 24px)!important;flex:1 1 auto!important;padding:0!important;margin:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded > .drop-zone{flex:0 0 58px!important;min-height:58px!important;margin:0!important;padding:8px 14px!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded > .options-grid{grid-template-columns:240px minmax(0,1fr) 370px!important;flex:1 1 0!important;height:0!important;min-height:0!important;overflow:hidden!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded .options-grid > .option-card{height:100%!important;max-height:none!important;grid-row:1!important;overflow:auto!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded .options-grid > .option-card:first-child{grid-column:1!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded .options-grid > .source-player-panel{grid-column:2!important;grid-row:1!important;height:100%!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded .options-grid > .caption-card{grid-column:3!important;grid-row:1!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded .remotion-create-template-track{grid-template-columns:repeat(2,minmax(0,1fr))!important;display:grid!important}
+html body #root .main-content .auto-clipping-workspace.video-loaded > .generation-controls-footer{flex:0 0 64px!important;width:100%!important;margin:0!important}
+.split-toggle{display:flex;align-items:center;gap:8px;margin:12px 0;font-weight:600}
+.split-picker{border:1px solid #98bcef50;border-radius:12px;padding:10px;margin-bottom:12px}.split-tabs{display:flex;gap:6px}.split-tabs button{flex:1;padding:8px;border-radius:8px;background:#202c3e;color:#eee;border:1px solid #859bbb}.split-tabs button[aria-pressed=true]{background:#6282af}.split-picker p,.split-picker small{font-size:11px;color:#b9c4d3}.split-source{position:relative;touch-action:none;cursor:crosshair}.split-source video{display:block;width:100%;pointer-events:none}.split-region{position:absolute;border:2px solid #a1c8ff;pointer-events:none;background:#8bbbff20;color:white;font-size:10px}.split-region.region-1{border-color:#79d9e7;background:#79d9e720}
+html body #root .main-content .auto-clipping-workspace.video-loaded .remotion-create-template-preview{height:125px!important;min-height:125px!important}
+.setup-tool-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px}.setup-tool-tabs button{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 3px;border:1px solid #9bb1d030;border-radius:10px;color:#c5d0df;background:#131e2d;font-size:10px;cursor:pointer}.setup-tool-tabs button[aria-pressed=true]{background:#96bbf02b;border-color:#abceff;color:#e7f1ff}.setup-tool-content{min-width:0}
+.setup-tool-panel:not([data-tool=frame]) .setup-tool-content>.option-heading,.setup-tool-panel:not([data-tool=frame]) .format-options,.setup-tool-panel:not([data-tool=frame]) .split-toggle,.setup-tool-panel:not([data-tool=frame]) .split-picker{display:none!important}
+.setup-tool-panel:not([data-tool=audio]) .setup-tool-content>.audio-language-picker,.setup-tool-panel:not([data-tool=audio]) .setup-tool-content>.audio-language-field{display:none!important}
+.setup-tool-panel:not([data-tool=transcript]) .clip-length-picker{display:none!important}
+.setup-tool-panel:not([data-tool=text]):not([data-tool=logo]) .generation-overlays{display:none!important}
+.setup-tool-panel[data-tool=text] .generation-addon:nth-child(2),.setup-tool-panel[data-tool=logo] .generation-addon:first-child{display:none!important}
+.setup-tool-panel .generation-hardware-status,.setup-tool-panel .generation-edit-note{display:none!important}
+html body #root .app-shell main.main-content .auto-clipping-workspace.video-loaded .options-grid .remotion-create-template-carousel .remotion-create-template-track{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-auto-flow:row!important;width:100%!important;gap:12px!important}
+html body #root .app-shell main.main-content .remotion-create-template-track>.remotion-create-template-card{width:100%!important;min-width:0!important;max-width:none!important;flex:none!important}
+.split-main-editor{width:100%;min-width:0}.split-main-editor .split-source{width:100%;position:relative;touch-action:none}.split-main-editor .split-source video{width:100%;height:auto;max-height:none;display:block;pointer-events:auto}.split-main-editor .split-region{pointer-events:auto;cursor:grab;touch-action:none;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:8px;font-weight:700;font-size:13px;user-select:none}.split-main-editor .split-region:active{cursor:grabbing}.split-main-editor .split-region span{font-size:10px;font-weight:400}.split-main-editor p{font-size:12px;text-align:center;color:#c5d0df;margin:12px 0}
+.split-size-controls{display:flex;gap:20px;margin-top:12px}.split-size-controls label{flex:1;color:#d7dee7;font-size:12px}.split-size-controls input{display:block;width:100%;margin-top:8px}
+html body #root .app-shell .main-content .remotion-create-template-preview .caption-engine-preview{position:relative!important;inset:auto!important;width:100%!important;height:100%!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;transform:none!important}
+html body #root .app-shell .main-content .remotion-create-template-preview .caption-engine-preview-video{position:static!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;transform:none!important;margin:0!important}
+html body #root .app-shell .main-content .remotion-create-template-preview{aspect-ratio:16/9!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+.app-shell > aside.sidebar{flex:0 0 76px!important;width:76px!important;min-width:76px!important;max-width:76px!important;padding:18px 10px!important;align-items:center!important}
+ .app-shell > aside.sidebar .brand-wordmark,.app-shell > aside.sidebar .section-label,.app-shell > aside.sidebar .nav-item span,.app-shell > aside.sidebar .sidebar-license-tag,.app-shell > aside.sidebar .profile-info{display:none!important}
+.app-shell > aside.sidebar .brand{width:48px!important;height:48px!important;margin:0 auto 28px!important;padding:0!important;justify-content:center!important}
+.app-shell > aside.sidebar .sidebar-section,.app-shell > aside.sidebar .sidebar-bottom{width:100%!important}
+.app-shell > aside.sidebar .nav-item{width:48px!important;min-height:48px!important;margin:7px auto!important;padding:12px!important;justify-content:center!important;font-size:0!important}
+.app-shell > aside.sidebar .nav-item svg{width:21px!important;height:21px!important}
+html body #root .app-shell > main.main-content{width:calc(100% - 76px)!important;max-width:none!important;margin-left:0!important;padding:12px 16px 12px 14px!important}

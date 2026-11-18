@@ -9,6 +9,7 @@ import {
   activateLifetimeLicense,
 } from "./lib/license";
 import "./AuthScreen.css";
+import RecoveryPanel from './RecoveryPanel';
 
 type LicenseActivationScreenProps = {
   onLicenseActivated: () => void;
@@ -157,9 +158,7 @@ export default function LicenseActivationScreen({
           </label>
 
           {error && (
-            <div className="auth-message auth-error">
-              {error}
-            </div>
+            <RecoveryPanel title="Activation needs attention" message={error}/>
           )}
 
           {message && (

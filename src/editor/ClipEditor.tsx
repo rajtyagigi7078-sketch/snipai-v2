@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent, type CSSProperties } from "react";
 import { convertFileSrc, invoke, open } from "../lib/desktop";
+import RecoveryPanel from '../RecoveryPanel';
 import { DEFAULT_EDITOR_OVERLAYS, type EditorOverlayState, type Position } from "./editorModel";
 import { ON_SCREEN_TEXT_THEMES, OnScreenTextPreview } from "./OnScreenTextPreview";
 import { CAPSNIP_TYPOGRAPHY_THEMES, drawCapsnipCaption, loadCapsnipTypographyFonts, typographyTheme } from "./capsnipTypography";
@@ -73,6 +74,16 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
     return () => observer.disconnect();
   }, []);
   const lines = useMemo(() => data?.lineGroups ?? groupsFor(data?.words ?? []), [data]);
+  const quality = useMemo(()=>{
+    if(!data)return null;
+    if(!data.words.length)return {hook:0,pacing:0,completeness:0,score:0,pace:0};
+    const words=data.words,opening=words.slice(0,18).map(w=>w.text).join(' '),duration=Math.max(1,data.duration),pace=words.length/duration*60;
+    const hook=/\?|why|how|secret|never|imagine|kya|kyun|kaise|dekho/i.test(opening)?8:5;
+    const pacing=pace>=100&&pace<=190?8:pace>=70&&pace<=230?6:4;
+    const completeness=/[.!?।]$/.test(words[words.length-1]?.text||'')?8:5;
+    const score=Math.round((hook+pacing+completeness)/3*10)/10;
+    return {hook,pacing,completeness,score,pace:Math.round(pace)};
+  },[data]);
   const currentLine = lines.find(line => time >= line.start && time <= line.end + .08);
   const line = currentLine;
   const captionPosition = line && settings.linePositions[line.id] || settings.globalCaptionPosition;
@@ -84,13 +95,14 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
   const playbackState = useRef({ data, settings, lines, isTypography, fontsReady });
   playbackState.current = { data, settings, lines, isTypography, fontsReady };
   useEffect(() => {
-    let frame = 0, lastUi = 0;
+    let frame = 0, lastUi = 0, lastPaint = 0;
     const tick = (now: number) => {
       const video = videoRef.current, canvas = captionCanvasRef.current;
       const state = playbackState.current;
-      if (video && canvas) {
+      if (video && canvas && now-lastPaint>=33) {
+        lastPaint=now;
         const clock = video.currentTime;
-        if (!video.paused && now-lastUi >= 100) { lastUi=now; setTime(clock); }
+        if (!video.paused && now-lastUi >= 200) { lastUi=now; setTime(clock); }
         const ctx=canvas.getContext("2d");
         if (ctx) {
           const bounds=canvasRef.current?.getBoundingClientRect();
@@ -173,6 +185,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
       <div className="snip-editor-content">
         <aside className="snip-editor-lines"><h3>Transcript</h3><p>Select a line to place it separately.</p>{lines.map(item => <button className={selectedLine === item.id ? "selected" : ""} key={item.id} onClick={() => { setSelectedLine(item.id); setScope("line"); setSelection("captions"); if (videoRef.current) videoRef.current.currentTime = item.start; setTime(item.start); }}><small>{item.start.toFixed(1)}s</small>{item.words.map(word => word.text).join(" ")}{settings.linePositions[item.id] && <small>Custom position</small>}</button>)}</aside>
         <section className="snip-editor-preview-column">
+          {quality && <aside className="clip-quality-card" aria-label="Selected clip quality estimate"><small>CLIP INSIGHTS</small><strong>{quality.score}<span> / 10</span></strong><p>Transcript-based estimate</p>{[['Hook',quality.hook],['Pacing',quality.pacing],['Ending',quality.completeness]].map(([name,score])=><div className="quality-metric" key={name}><span>{name}</span><b>{score}/10</b><meter min="0" max="10" value={Number(score)}/></div>)}<div className="quality-potential"><span>Share potential</span><b>{quality.score>=7?'Promising':'Needs review'}</b><small>Viral likelihood cannot be measured from the transcript alone.</small></div><p>{quality.pace} words/min · {Math.round(data?.duration||0)} seconds</p></aside>}
           <div className="snip-editor-stage"><div ref={canvasRef} className="snip-editor-canvas" style={{ aspectRatio: `${data?.width ?? mediaInfo.width}/${data?.height ?? mediaInfo.height}`, '--clip-aspect': (data?.width ?? mediaInfo.width)/(data?.height ?? mediaInfo.height) } as CSSProperties}>
             <video ref={videoRef} src={convertFileSrc(data?.sourcePath ?? path)} playsInline preload="auto" onLoadedMetadata={event => { const video=event.currentTarget; setMediaInfo({width:video.videoWidth || 1,height:video.videoHeight || 1,duration:Number.isFinite(video.duration)?video.duration:0}); video.currentTime=Math.min(time,Math.max(0,video.duration-.01)); }} onTimeUpdate={event => setTime(event.currentTarget.currentTime)} />
             <canvas className="snip-editor-caption-canvas" ref={captionCanvasRef} />
@@ -186,7 +199,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
           </div></div>
           <div className="snip-editor-transport" style={frameWidth ? {width:frameWidth} : undefined}><button aria-label="Play or pause clip" onClick={() => { const video = videoRef.current; if (!video) return; if (video.paused) void video.play(); else video.pause(); }}>▶ / Ⅱ</button><input aria-label="Seek clip" type="range" min="0" max={data?.duration || mediaInfo.duration || 1} step=".02" value={time} onChange={event => { const next = Number(event.target.value); setTime(next); if (videoRef.current) videoRef.current.currentTime = next; }} /><span>{time.toFixed(1)} / {(data?.duration ?? mediaInfo.duration).toFixed(1)}s</span></div>
           <div className="snip-editor-help">{!data && !error ? "Video ready · loading editing controls…" : "Drag the outlined caption, text or logo to position it. Changes are saved to a new MP4."}</div>
-          {error && <div className="snip-editor-error" role="alert">{error}</div>}
+          {error && <RecoveryPanel title="Clip editor needs attention" message={error}/>}
         </section>
         <aside className="snip-editor-controls">
           <div className="snip-editor-tabs">{(["captions", "transcript", "text", "logo"] as const).map(value => <button key={value} disabled={saving} className={tab === value ? "selected" : ""} onClick={() => { setTab(value); setSelection(value === "text" ? selectedText?.id ?? "text" : value); }}>{value === "text" ? "Text" : value === "logo" ? "Logo" : value === "transcript" ? "Transcript" : "Captions"}</button>)}</div>

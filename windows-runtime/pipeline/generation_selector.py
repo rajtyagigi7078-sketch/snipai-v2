@@ -55,9 +55,9 @@ def get_requested_clip_count():
         )
         return 10
 
-    if value < 1 or value > 10:
+    if value != -1 and (value < 1 or value > 20):
         print(
-            "ERROR: Clip count must be between 1 and 10. Using 10."
+            "ERROR: Clip count must be between 1 and 20, or -1 for All. Using 10."
         )
         return 10
 
@@ -113,6 +113,51 @@ def save_json(path, data):
             indent=2,
             ensure_ascii=False,
         )
+
+
+def transcript_boundaries():
+    """Return word/segment boundaries used to avoid mid-word clip cuts."""
+    raw_path = os.environ.get("SNIP_AI_TRANSCRIPT_PATH")
+    if not raw_path:
+        return []
+    try:
+        data = load_json(Path(raw_path), {})
+    except Exception:
+        return []
+    boundaries = []
+    for segment in data.get("segments", []) if isinstance(data, dict) else []:
+        words = segment.get("words") or []
+        if words:
+            for word in words:
+                try:
+                    boundaries.append((float(word["start"]), float(word["end"])))
+                except (KeyError, TypeError, ValueError):
+                    continue
+        else:
+            try:
+                boundaries.append((float(segment["start"]), float(segment["end"])))
+            except (KeyError, TypeError, ValueError):
+                continue
+    return sorted((start, end) for start, end in boundaries if end > start)
+
+
+def snap_moment_to_speech(moment, boundaries):
+    """Snap each edge to a nearby speech boundary with a tiny safety pad."""
+    if not boundaries:
+        return
+    try:
+        start = float(moment["start"])
+        end = float(moment["end"])
+    except (KeyError, TypeError, ValueError):
+        return
+    preceding = [word_start for word_start, word_end in boundaries if word_start <= start]
+    following = [word_end for word_start, word_end in boundaries if word_end >= end]
+    if preceding:
+        moment["start"] = max(0.0, round(preceding[-1] - 0.08, 3))
+    if following:
+        moment["end"] = round(following[0] + 0.08, 3)
+    if moment.get("end", end) <= moment.get("start", start):
+        moment["start"], moment["end"] = start, end
 
 
 # ============================================================
@@ -402,6 +447,13 @@ def select_generation(
 
         unused.append(moment)
 
+    # In All mode the caller raises the requested count to the complete
+    # moment-pool size. Return every unused moment; do not discard adjacent
+    # moments through the diversity/overlap heuristics.
+    if CLIPS_PER_GENERATION >= len(unused) and unused:
+        unused.sort(key=quality_score, reverse=True)
+        return unused
+
     # --------------------------------------------------------
     # Sort by quality.
     # --------------------------------------------------------
@@ -622,6 +674,7 @@ def main():
     global CLIPS_PER_GENERATION
 
     CLIPS_PER_GENERATION = get_requested_clip_count()
+    requested_all = CLIPS_PER_GENERATION == -1
 
     print("=" * 70)
     print(
@@ -687,6 +740,13 @@ def main():
         not in previously_used
     )
 
+    # “All” means every detected moment in this video, rather than the
+    # normal 1–10 clip cap. Keep the normal quality selector for bounded
+    # generations, but expose the complete pool when explicitly requested.
+    if requested_all:
+        CLIPS_PER_GENERATION = max(1, len(moments))
+        print(f"All clips requested: selecting {CLIPS_PER_GENERATION} detected moments.")
+
     print(
         f"Total moment pool: "
         f"{len(moments)}"
@@ -716,7 +776,7 @@ def main():
     # Only used_moment_ids is cleared.
     # --------------------------------------------------------
 
-    if moments and unused_count < CLIPS_PER_GENERATION:
+    if not requested_all and moments and unused_count < CLIPS_PER_GENERATION:
 
         print(
             "Not enough unused moments for a full generation."
@@ -746,10 +806,15 @@ def main():
 
         print()
 
-    selected = select_generation(
-        moments,
-        history,
-    )
+    if requested_all:
+        # “All” must remain deterministic even when this video was generated
+        # before. It is an explicit user request, so include the full pool.
+        selected = sorted((dict(moment) for moment in moments), key=quality_score, reverse=True)
+    else:
+        selected = select_generation(
+            moments,
+            history,
+        )
 
     if not selected:
 
@@ -768,6 +833,7 @@ def main():
     # --------------------------------------------------------
 
     generation_clips = []
+    boundaries = transcript_boundaries()
 
     for rank, moment in enumerate(
         selected,
@@ -775,6 +841,11 @@ def main():
     ):
 
         clip = dict(moment)
+
+        # Keep cuts on speech boundaries so a word/phrase is not chopped in
+        # half. The small pad preserves a natural lead-in/out without changing
+        # the selected moment's intent.
+        snap_moment_to_speech(clip, boundaries)
 
         clip["generation"] = (
             generation_number

@@ -1170,9 +1170,9 @@ fn create_clips_inner(
         );
     }
 
-    if requested_clips < 1 || requested_clips > 10 {
+    if requested_clips < 1 || requested_clips > 20 {
         return Err(
-            "Clip count must be between 1 and 10."
+            "Clip count must be between 1 and 20."
                 .to_string()
         );
     }

@@ -21,7 +21,7 @@ export default function CaptionThemePreview({ theme, className = "" }: Props) {
   useEffect(() => {
     const node = hostRef.current;
     if (!node || typeof IntersectionObserver === "undefined") { setVisible(true); return; }
-    const observer = new IntersectionObserver(([entry]) => setVisible(Boolean(entry?.isIntersecting)), { rootMargin: "140px 0px", threshold: 0.01 });
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "0px", threshold: 0.01 });
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
@@ -36,15 +36,15 @@ export default function CaptionThemePreview({ theme, className = "" }: Props) {
   useEffect(() => {
     const canvas=canvasRef.current;
     if (!visible || !isTypography || !canvas) return;
-    let cancelled=false,frame=0;const start=performance.now();
-    const paint=()=>{if(cancelled)return;paintCapsnipTemplateSample(canvas,theme,(performance.now()-start)/1000);frame=requestAnimationFrame(paint)};
+    let cancelled=false,frame=0,last=0;const start=performance.now();
+    const paint=(now=performance.now())=>{if(cancelled)return;if(now-last>=33){last=now;paintCapsnipTemplateSample(canvas,theme,(now-start)/1000)}frame=requestAnimationFrame(paint)};
     void loadCapsnipTypographyFonts().catch(error=>console.error("Capsnip font failed to load",error)).then(()=>{if(!cancelled)paint()});
     return()=>{cancelled=true;cancelAnimationFrame(frame)};
   }, [visible,isTypography,theme]);
 
   return (
-    <div ref={hostRef} className={`caption-engine-preview ${className}`} data-theme={theme} aria-label={`${theme} Capsnip caption preview`}>
-      {visible && isTypography ? (
+    <div ref={hostRef} style={{minHeight:140}} className={`caption-engine-preview ${className}`} data-theme={theme} aria-label={`${theme} Capsnip caption preview`}>
+      {theme === 'none' ? <div style={{display:'grid',placeContent:'center',height:'100%',color:'#d9d7ed',textAlign:'center'}}><strong style={{fontSize:24}}>None</strong><small>No captions · clean video</small></div> : visible && isTypography ? (
         <canvas ref={canvasRef} width="960" height="540" className="caption-engine-preview-video" aria-label={`${theme} live canvas preview`} />
       ) : visible && isLoop ? (
         <video ref={videoRef} className="caption-engine-preview-video" src={src} muted loop autoPlay playsInline preload="none" />

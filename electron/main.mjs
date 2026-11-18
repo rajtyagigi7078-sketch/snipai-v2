@@ -52,6 +52,12 @@ app.whenReady().then(async()=>{
   powerMonitor.on('resume',()=>{systemSuspended=false;log('System resumed; media deadlines resumed.');});
   backend = mediaModule.createMediaBackend({runtimeRoot,userData:app.getPath('userData'),downloads:app.getPath('downloads'),isSuspended:()=>systemSuspended,send:(event,payload)=>{if(win&&!win.isDestroyed())win.webContents.send(event,payload);}});
   ipcMain.handle('snipai:invoke',async(_event,command,args)=>{
+    if(command==='reset_workspace'){
+      await backend.cancel();
+      log('User requested workspace recovery restart; saved media and activation preserved.');
+      setTimeout(()=>{app.relaunch();app.exit(0);},300);
+      return true;
+    }
     if(command==='repair_runtime'){
       const installer=join(runtimeRoot,'prerequisites','VC_redist.x64.exe');
       if(!existsSync(installer))throw new Error('The bundled repair installer is missing. Reinstall the latest Snip AI.');

@@ -1,0 +1,170 @@
+/* Editor workspace layout: appearance | active tool settings | captions, with the tool dock below. */
+html body #root #snip-workspace{overflow:hidden!important;flex-shrink:0!important}
+html body #root #snip-workspace>.caption-card{height:100%!important;max-height:100%!important;overflow:hidden!important;min-height:0!important}
+html body #root #snip-workspace .remotion-create-template-carousel{height:0!important;min-height:0!important;flex:1 1 0!important;overflow-y:auto!important;overflow-x:hidden!important;position:relative!important}
+html body #root #snip-workspace .remotion-create-template-track{height:auto!important;max-height:none!important;overflow:visible!important;align-content:start!important}
+html body #root #snip-workspace .remotion-create-template-card{position:relative!important;height:auto!important;min-height:176px!important;flex-shrink:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+html body #root #snip-workspace .remotion-create-template-footer{position:relative!important;inset:auto!important;min-height:26px!important;flex-shrink:0!important}
+html body #root #snip-workspace .remotion-create-template-preview{overflow:hidden!important}
+html body #root #snip-workspace .remotion-create-template-preview video.caption-engine-preview-video{transform:translateY(-22%) scale(1.25)!important;transform-origin:center center!important}
+html body #root #snip-workspace .remotion-create-template-preview canvas.caption-engine-preview-video{transform:none!important}
+html body #root .custom-text-controls>button{display:flex;align-items:center;justify-content:center;min-height:42px;padding:10px 18px;border:1px solid #bdd8ff;border-radius:12px;background:linear-gradient(110deg,#96c2ff,#8bd4e7);color:#17212e;font-weight:700;cursor:pointer;box-shadow:0 4px 18px #8cb1e51a}
+.snip-editor-preview-column{position:relative}.clip-quality-card{position:absolute;left:12px;top:22px;width:132px;z-index:2;padding:14px 12px;border:1px solid #9bb1d035;border-radius:16px;background:#151c30;color:#e6edf7;pointer-events:none}.clip-quality-card>small{font-size:9px;letter-spacing:1.4px;color:#adc9f1}.clip-quality-card>strong{display:block;font-size:30px;margin-top:12px;color:#b1d2ff}.clip-quality-card>strong span{font-size:12px;color:#9daabd}.clip-quality-card p{font-size:10px;line-height:1.5;color:#a9b6c9}.quality-metric{display:grid;grid-template-columns:1fr auto;gap:7px;margin:17px 0;font-size:11px}.quality-metric meter{grid-column:1/-1;width:100%;height:5px;accent-color:#95b9ec}.quality-potential{display:grid;gap:6px;border-top:1px solid #ffffff15;padding-top:12px;font-size:11px}.quality-potential b{color:#92d9cf}.quality-potential small{font-size:9px;line-height:1.5;color:#9fa9c1}@media(max-width:1350px){.clip-quality-card{position:static;width:auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.clip-quality-card .quality-metric,.clip-quality-card .quality-potential,.clip-quality-card>p{display:none}.clip-quality-card>strong{margin:0;font-size:20px}}
+.custom-text-controls{display:grid;gap:12px;padding:12px}.custom-text-controls label{display:grid;gap:6px;font-size:12px}.custom-text-controls input,.custom-text-controls select{max-width:100%;min-width:0}.custom-text-controls input[type=range]{width:100%}
+html body #root .generation-controls-footer{margin-top:8px!important;margin-bottom:0!important}
+@media (min-width: 1101px) and (min-height: 800px) {
+  html body #root .auto-clipping-workspace.video-loaded > .generation-controls-footer {
+    transform: translateY(-40px);
+  }
+}
+html body #root #snip-workspace .remotion-create-template-preview{display:block!important;height:150px!important;min-height:150px!important;position:relative!important}
+html body #root #snip-workspace .caption-engine-preview{height:150px!important;min-height:150px!important}
+html body #root #snip-workspace .caption-engine-preview-video{height:150px!important;min-height:150px!important;top:0!important;left:0!important}
+html body #root #snip-workspace .setup-tool-panel:not([data-tool=transcript]) .clip-length-picker{display:none!important}
+html body #root #snip-workspace .setup-tool-panel:not([data-tool=text]):not([data-tool=logo]) .generation-overlays{display:none!important}
+html body #root #snip-workspace .setup-tool-panel[data-tool=text] .generation-addon:nth-child(2),html body #root #snip-workspace .setup-tool-panel[data-tool=logo] .generation-addon:first-child{display:none!important}
+html body #root #snip-workspace .generation-hardware-status,html body #root #snip-workspace .generation-edit-note{display:none!important}
+html body #root .auto-clipping-workspace.video-loaded>.drop-zone{position:relative!important;padding-right:calc(50% - 130px)!important}
+html body #root .auto-clipping-workspace.video-loaded>.drop-zone .change-video-button{position:absolute!important;left:54%!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;white-space:nowrap!important}
+html body #root #snip-workspace .split-toggle{display:flex!important;align-items:center!important;gap:10px!important;padding:12px 14px!important;margin:12px 0 8px!important;border:1px solid #9bb1d066!important;border-radius:12px!important;background:linear-gradient(110deg,#95baef22,#78c7db13)!important;font-size:14px!important;font-weight:600!important;cursor:pointer}
+html body #root #snip-workspace .split-toggle input{appearance:none;width:32px;height:19px;border-radius:20px;background:#454f5e;position:relative;flex-shrink:0;cursor:pointer}
+html body #root #snip-workspace .split-toggle input:checked{background:#94baef}
+html body #root #snip-workspace .split-toggle input:after{content:'';position:absolute;width:13px;height:13px;top:3px;left:3px;border-radius:50%;background:white;transition:left .15s}
+html body #root #snip-workspace .split-toggle input:checked:after{left:16px}
+html body #root #snip-workspace .split-settings{padding:10px 12px!important}.split-settings p{margin:0 0 8px!important;font-size:11px!important}.split-settings label{margin:8px 0!important;gap:5px!important;font-size:12px!important}.split-settings input{height:18px!important}
+html body #root #snip-workspace .remotion-create-template-preview .caption-engine-preview-video{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:140px!important;max-height:none!important;object-fit:contain!important;opacity:1!important;visibility:visible!important;transform:none!important}
+.split-settings{padding:14px;border:1px solid #9bb1d045;border-radius:14px;background:#202c3c}.split-settings p{font-size:12px;color:#bdcadc}.split-settings label{display:flex;flex-direction:column;gap:10px;margin:16px 0;font-size:13px}.split-settings input{width:100%;accent-color:#a0c5fa}
+html body #root #snip-workspace .caption-engine-preview{display:flex!important;align-items:center!important;justify-content:center!important;height:100%!important;width:100%!important;position:relative!important}
+html body #root #snip-workspace .caption-engine-preview-video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:none!important}
+html body #root #snip-workspace .caption-engine-preview-copy{position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;width:95%!important}
+html body #root #snip-workspace.options-grid {
+  display: grid !important;
+  grid-template-columns: minmax(320px, 1fr) 340px 290px !important;
+  grid-template-rows: minmax(360px, 1fr) 76px !important;
+  grid-template-areas: "appearance settings captions" "controls controls captions" !important;
+  gap: 14px !important;
+  height: min(70vh, 700px) !important;
+  min-height: 520px !important;
+  align-items: stretch !important;
+}
+
+html body #root #snip-workspace.options-grid > .setup-tool-panel {
+  display: contents !important;
+}
+
+html body #root #snip-workspace.options-grid > .source-player-panel {
+  grid-area: appearance !important;
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 42px 14px 14px !important;
+  border: 1px solid rgba(151,194,255, .22) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, rgba(26,40,59, .96), rgba(10, 17, 34, .96)) !important;
+}
+
+html body #root .appearance-panel-heading {
+  position: absolute !important;
+  top: 14px !important;
+  left: 16px !important;
+  right: 16px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  color: #f4f9ff !important;
+  letter-spacing: .12em !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+html body #root .appearance-panel-heading small { color: #9baec8 !important; font-size: 11px !important; font-weight: 500 !important; letter-spacing: 0 !important; }
+
+html body #root .source-player-panel > video,
+html body #root .source-player-panel video,
+html body #root .source-player-panel > .split-screen-preview {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-width: 0 !important;
+  object-fit: contain !important;
+  border-radius: 12px !important;
+}
+
+html body #root #snip-workspace.options-grid .setup-tool-content {
+  grid-area: settings !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 14px !important;
+  border: 1px solid rgba(151,194,255, .18) !important;
+  border-radius: 18px !important;
+  background: rgba(16,28,45, .82) !important;
+}
+
+html body #root #snip-workspace.options-grid .setup-tool-tabs {
+  grid-area: controls !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  align-items: stretch !important;
+  padding: 10px !important;
+  border: 1px solid rgba(151,194,255, .22) !important;
+  border-radius: 16px !important;
+  background: rgba(16,28,45, .96) !important;
+}
+html body #root #snip-workspace .setup-tool-tabs button { min-width: 0 !important; min-height: 54px !important; border-radius: 11px !important; }
+
+html body #root #snip-workspace.options-grid > .caption-card {
+  grid-area: captions !important;
+  grid-column: 3 !important;
+  grid-row: 1 / 3 !important;
+  height: 100% !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 18px !important;
+}
+html body #root #snip-workspace .caption-card .remotion-create-template-carousel { min-height: 0 !important; flex: 1 1 auto !important; overflow: auto !important; }
+html body #root #snip-workspace .caption-card .remotion-create-template-track {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 10px !important;
+  padding: 4px 8px 12px !important;
+}
+html body #root #snip-workspace .caption-card .remotion-create-template-card { width: 100% !important; min-width: 0 !important; }
+html body #root .appearance-panel-heading span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0;font-size:12px;max-width:85%}
+html body #root #snip-workspace .caption-card .remotion-create-template-preview{width:100%!important;aspect-ratio:16/9!important;height:auto!important;min-height:140px!important;overflow:hidden!important}
+html body #root #snip-workspace.options-grid .setup-tool-content{padding:12px 18px!important}
+html body #root #snip-workspace.options-grid .setup-tool-tabs{display:flex!important;justify-content:center!important;gap:14px!important}
+html body #root #snip-workspace .setup-tool-tabs button{width:100px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important}
+html body #root #snip-workspace .setup-tool-content{grid-column:2!important;grid-row:1!important;height:100%!important;max-height:none!important;margin:0!important}
+html body #root #snip-workspace .source-player-panel{grid-column:1!important;grid-row:1!important;margin:0!important;align-self:stretch!important}
+html body #root #snip-workspace .setup-tool-tabs{grid-column:1 / 3!important;grid-row:2!important;margin:0!important;height:76px!important;overflow:hidden!important}
+html body #root #snip-workspace .setup-tool-panel{padding:0!important;min-height:0!important}
+html body #root #snip-workspace .remotion-create-template-track{grid-template-columns:minmax(0,1fr)!important}
+html body #root #snip-workspace .generation-hardware-status{margin-top:18px!important}
+
+@media (max-width: 1100px) {
+  html body #root #snip-workspace.options-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 310px) !important;
+    grid-template-rows: minmax(420px, 1fr) auto auto !important;
+    grid-template-areas: "appearance captions" "settings captions" "controls controls" !important;
+    height: auto !important;
+  }
+}
+@media (max-width: 760px) {
+  html body #root #snip-workspace.options-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 360px auto auto auto !important;
+    grid-template-areas: "appearance" "captions" "settings" "controls" !important;
+    min-height: 0 !important;
+  }
+  html body #root #snip-workspace.options-grid .setup-tool-tabs { grid-template-columns: repeat(5, minmax(72px, 1fr)) !important; overflow-x: auto !important; }
+}
