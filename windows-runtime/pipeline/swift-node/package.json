@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@huggingface/transformers": "4.3.1",
-    "onnxruntime-node": "^1.22.0"
-  }
+    "onnxruntime-node": "1.22.0"
+  },
+  "overrides": { "onnxruntime-node": "1.22.0" }
 }

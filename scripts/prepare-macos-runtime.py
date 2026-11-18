@@ -1,5 +1,6 @@
 """Prepare architecture-native, relocatable Python and offline speech assets on macOS."""
 import json
+import hashlib
 import os
 import platform
 import shutil
@@ -13,6 +14,31 @@ root = project / '.build/macos-runtime'
 if platform.system() != 'Darwin':
     raise SystemExit('Run this preparation script on a macOS runner.')
 root.mkdir(parents=True, exist_ok=True)
+node_arch = 'arm64' if platform.machine() == 'arm64' else 'x64'
+node_name = f'node-v22.23.2-darwin-{node_arch}'
+node_archive = root / 'node.tar.gz'
+node_url = f'https://nodejs.org/dist/v22.23.2/{node_name}.tar.gz'
+urllib.request.urlretrieve(node_url, node_archive)
+with urllib.request.urlopen('https://nodejs.org/dist/v22.23.2/SHASUMS256.txt') as response:
+    sums = response.read().decode()
+expected = next(line.split()[0] for line in sums.splitlines() if line.endswith(node_name + '.tar.gz'))
+if hashlib.sha256(node_archive.read_bytes()).hexdigest() != expected:
+    raise RuntimeError('Node archive checksum mismatch')
+with tarfile.open(node_archive) as source:
+    source.extractall(root, filter='data')
+shutil.move(str(root / node_name), str(root / 'node'))
+node_archive.unlink()
+ffmpeg_dir = root / 'ffmpeg'
+ffmpeg_dir.mkdir(exist_ok=True)
+for name in ('ffmpeg', 'ffprobe'):
+    target = ffmpeg_dir / name
+    shutil.copy2(shutil.which(name), target)
+    target.chmod(0o755)
+    subprocess.run(['dylibbundler', '-od', '-b', '-x', str(target), '-d', str(ffmpeg_dir / 'lib'), '-p', '@executable_path/lib/'], check=True)
+    subprocess.run(['codesign', '--force', '--sign', '-', str(target)], check=True)
+for library in (ffmpeg_dir / 'lib').glob('*'):
+    if library.is_file():
+        subprocess.run(['codesign', '--force', '--sign', '-', str(library)], check=True)
 arch = 'aarch64' if platform.machine() == 'arm64' else 'x86_64'
 request = urllib.request.Request('https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest', headers={'User-Agent': 'Snip-AI-build'})
 with urllib.request.urlopen(request) as response:
