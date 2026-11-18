@@ -7,7 +7,8 @@ import { spawn } from "node:child_process";
 
 const require = createRequire(import.meta.url);
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const runtimeRoot = app.isPackaged ? join(process.resourcesPath, "windows-runtime") : join(rootDir, ".build", "windows-runtime");
+const runtimeName = process.platform === 'darwin' ? 'macos-runtime' : 'windows-runtime';
+const runtimeRoot = app.isPackaged ? join(process.resourcesPath, runtimeName) : join(rootDir, '.build', runtimeName);
 let win;
 let backend;
 let systemSuspended = false;
@@ -59,6 +60,7 @@ app.whenReady().then(async()=>{
       return true;
     }
     if(command==='repair_runtime'){
+      if(process.platform === 'darwin') return backend.invoke('check_runtime',{});
       const installer=join(runtimeRoot,'prerequisites','VC_redist.x64.exe');
       if(!existsSync(installer))throw new Error('The bundled repair installer is missing. Reinstall the latest Snip AI.');
       const literal=installer.replaceAll("'","''");

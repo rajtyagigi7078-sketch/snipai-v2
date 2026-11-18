@@ -1,0 +1,36 @@
+name: macOS runtime validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - run: npm run build
+      - run: python -m pip install numpy av onnxruntime ctranslate2 faster-whisper yt-dlp huggingface-hub
+      - run: npm ci
+        working-directory: windows-runtime/pipeline/swift-node
+      - name: Validate native speech imports
+        run: |
+          python -c "import numpy,av,onnxruntime,ctranslate2,faster_whisper; from faster_whisper.vad import get_vad_model; get_vad_model(); print('Native speech imports passed')"
+          node -e "const ort=require('./windows-runtime/pipeline/swift-node/node_modules/onnxruntime-node');console.log(ort.env.versions)"
+      - name: Validate desktop process handling
+        run: node --test scripts/process-runner.test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-ui-${{ matrix.os }}
+          path: dist/

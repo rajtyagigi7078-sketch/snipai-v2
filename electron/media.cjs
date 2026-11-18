@@ -30,13 +30,14 @@ function createMediaBackend(options) {
   let ytDlpReady = null;
   const runtimeRoot = () => {
     const candidates = [options.runtimeRoot, process.env.SNIP_AI_RUNTIME_ROOT, app.isPackaged && path.join(resourcesPath, 'windows-runtime'), path.join(rootDir, 'windows-runtime')].filter(Boolean);
-    const result = candidates.find(p => fs.existsSync(path.join(p, 'python', 'python.exe')) && fs.existsSync(path.join(p, 'pipeline', 'pipeline_runner.py')));
+    const result = candidates.find(p => fs.existsSync(path.join(p, 'python', process.platform === 'darwin' ? 'bin/python3' : 'python.exe')) && fs.existsSync(path.join(p, 'pipeline', 'pipeline_runner.py')));
     if (!result) throw new Error('The bundled Windows runtime is missing. Reinstall Snip AI; Python, FFmpeg and speech models must be included with the app.');
     return path.resolve(result);
   };
   function runtime() {
     const root = runtimeRoot();
-    const result = { root, python: path.join(root, 'python', 'python.exe'), node: path.join(root, 'node', 'node.exe'), ffmpeg: path.join(root, 'ffmpeg', 'ffmpeg.exe'), ffprobe: path.join(root, 'ffmpeg', 'ffprobe.exe'), pipeline: path.join(root, 'pipeline') };
+    const mac = process.platform === 'darwin';
+    const result = { root, python: path.join(root, 'python', mac ? 'bin/python3' : 'python.exe'), node: path.join(root, 'node', mac ? 'bin/node' : 'node.exe'), ffmpeg: path.join(root, 'ffmpeg', mac ? 'ffmpeg' : 'ffmpeg.exe'), ffprobe: path.join(root, 'ffmpeg', mac ? 'ffprobe' : 'ffprobe.exe'), pipeline: path.join(root, 'pipeline') };
     for (const key of ['python', 'node', 'ffmpeg', 'ffprobe']) if (!fs.existsSync(result[key])) throw new Error(`Bundled ${key} runtime is missing: ${result[key]}`);
     return result;
   }
@@ -99,7 +100,7 @@ function createMediaBackend(options) {
     if (force) runtimeReady = null;
     if (!runtimeReady) runtimeReady = (async () => {
       const rt = runtime();
-      for (const name of ['python/msvcp140.dll','python/vcruntime140.dll','python/vcruntime140_1.dll','node/msvcp140.dll','pipeline/runtime_check.py']) {
+      for (const name of (process.platform === 'darwin' ? ['pipeline/runtime_check.py'] : ['python/msvcp140.dll','python/vcruntime140.dll','python/vcruntime140_1.dll','node/msvcp140.dll','pipeline/runtime_check.py'])) {
         if (!fs.existsSync(path.join(rt.root,name))) throw new Error(`Bundled file is missing: ${name}`);
       }
       const logDir=path.join(app.getPath('userData'),'diagnostics');
@@ -140,6 +141,7 @@ function createMediaBackend(options) {
   async function cancel() {
     cancelled = true;
     const child = activeChild;
+    if(process.platform === 'darwin') { if(child?.pid) child.kill('SIGTERM'); return null; }
     if (child?.pid) await new Promise(resolve => {
       const killer = spawn(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
       killer.once('close', resolve); killer.once('error', () => { child.kill(); resolve(); });
