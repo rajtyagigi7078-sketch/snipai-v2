@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [release/v3-macos]
+    tags: ['v*']
 permissions:
   contents: write
 concurrency:
