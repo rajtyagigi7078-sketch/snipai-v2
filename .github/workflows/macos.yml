@@ -4,7 +4,7 @@ on:
   push:
     branches: [release/v3-macos]
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: macos-${{ github.ref }}
   cancel-in-progress: true
@@ -78,3 +78,21 @@ jobs:
         with:
           name: macos-ui-${{ matrix.os }}
           path: dist/
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: macos-installer-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish macOS release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Snip AI ${{ github.ref_name }} — macOS
+          generate_release_notes: true
+          files: release-assets/**/*.{dmg,zip}
