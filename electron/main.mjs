@@ -1,6 +1,9 @@
-import { app, BrowserWindow, dialog, ipcMain, shell, protocol, net, powerMonitor, powerSaveBlocker } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell, protocol, powerMonitor, powerSaveBlocker } from "electron";
 import { join, resolve, extname } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import { Readable } from "node:stream";
 import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { spawn } from "node:child_process";
@@ -46,7 +49,34 @@ app.whenReady().then(async()=>{
   protocol.handle('snip-media',async request=>{
     const uri=new URL(request.url), target=uri.searchParams.get('path');
     if(uri.host!=='local'||!target||!mediaExtensions.has(extname(target).toLowerCase())||!existsSync(target))return new Response('Media unavailable',{status:404});
-    return net.fetch(pathToFileURL(target).href,{headers:request.headers});
+    const file = await stat(target).catch(() => null);
+    if (!file?.isFile()) return new Response(null, { status: 404 });
+    const types = { mp4:'video/mp4', mov:'video/quicktime', mkv:'video/x-matroska', webm:'video/webm', avi:'video/x-msvideo', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', webp:'image/webp', wav:'audio/wav', mp3:'audio/mpeg' };
+    const headers = new Headers({
+      'Accept-Ranges': 'bytes',
+      'Content-Type': types[extname(target).slice(1).toLowerCase()],
+    });
+    const range = request.headers.get('range');
+    let start = 0;
+    let end = file.size - 1;
+    if (range) {
+      const match = /^bytes=(\d*)-(\d*)$/i.exec(range);
+      if (match?.[1]) {
+        start = Number(match[1]);
+        if (match[2]) end = Math.min(end, Number(match[2]));
+      } else if (match?.[2]) {
+        start = Math.max(0, file.size - Number(match[2]));
+      }
+      if (!match || (!match[1] && !match[2]) || start > end) {
+        headers.set('Content-Range', `bytes */${file.size}`);
+        return new Response(null, { status: 416, headers });
+      }
+      headers.set('Content-Range', `bytes ${start}-${end}/${file.size}`);
+    }
+    headers.set('Content-Length', String(end - start + 1));
+    const body = request.method === 'HEAD' || end < start ? null
+      : Readable.toWeb(createReadStream(target, { start, end, signal: request.signal }));
+    return new Response(body, { status: range ? 206 : 200, headers });
   });
   const mediaModule = require('./media.cjs');
   powerMonitor.on('suspend',()=>{systemSuspended=true;log('System suspended; media deadlines paused.');});

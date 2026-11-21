@@ -28,15 +28,17 @@ function createMediaBackend(options) {
   let runtimeReady = null;
   let ytDlpPath = '';
   let ytDlpReady = null;
+  let downloaderUpdateRequest = null;
+  const mac = process.platform === 'darwin';
+  const runtimeName = mac ? 'macos-runtime' : 'windows-runtime';
   const runtimeRoot = () => {
-    const candidates = [options.runtimeRoot, process.env.SNIP_AI_RUNTIME_ROOT, app.isPackaged && path.join(resourcesPath, 'windows-runtime'), path.join(rootDir, 'windows-runtime')].filter(Boolean);
-    const result = candidates.find(p => fs.existsSync(path.join(p, 'python', process.platform === 'darwin' ? 'bin/python3' : 'python.exe')) && fs.existsSync(path.join(p, 'pipeline', 'pipeline_runner.py')));
-    if (!result) throw new Error('The bundled Windows runtime is missing. Reinstall Snip AI; Python, FFmpeg and speech models must be included with the app.');
+    const candidates = [options.runtimeRoot, process.env.SNIP_AI_RUNTIME_ROOT, app.isPackaged && path.join(resourcesPath, runtimeName), path.join(rootDir, '.build', runtimeName), path.join(rootDir, runtimeName)].filter(Boolean);
+    const result = candidates.find(p => fs.existsSync(path.join(p, 'python', mac ? 'bin/python3' : 'python.exe')) && fs.existsSync(path.join(p, 'pipeline', 'pipeline_runner.py')));
+    if (!result) throw new Error('The bundled media runtime is missing. Reinstall Snip AI; Python, FFmpeg and speech models must be included with the app.');
     return path.resolve(result);
   };
   function runtime() {
     const root = runtimeRoot();
-    const mac = process.platform === 'darwin';
     const result = { root, python: path.join(root, 'python', mac ? 'bin/python3' : 'python.exe'), node: path.join(root, 'node', mac ? 'bin/node' : 'node.exe'), ffmpeg: path.join(root, 'ffmpeg', mac ? 'ffmpeg' : 'ffmpeg.exe'), ffprobe: path.join(root, 'ffmpeg', mac ? 'ffprobe' : 'ffprobe.exe'), pipeline: path.join(root, 'pipeline') };
     for (const key of ['python', 'node', 'ffmpeg', 'ffprobe']) if (!fs.existsSync(result[key])) throw new Error(`Bundled ${key} runtime is missing: ${result[key]}`);
     return result;
@@ -58,22 +60,26 @@ function createMediaBackend(options) {
       const fresh = Number(state.checkedAt) > Date.now() - 24 * 60 * 60 * 1000;
       if (fresh) return state.version || 'bundled';
       let current = '0.0.0';
-      try { current = (await run(rt.python, ['-m', 'yt_dlp', '--version'], { env: environment(rt), timeout: 20000 })).stdout.trim().split(/\s+/)[0] || current; } catch { /* bundled package may still be usable */ }
+      try { current = (await run(rt.python, ['-m', 'yt_dlp', '--version'], { env: environment(rt), timeout: 20000, track: true })).stdout.trim().split(/\s+/)[0] || current; } catch (error) { if (cancelled) throw error; }
+      downloaderUpdateRequest = new AbortController();
       try {
-        const response = await fetch('https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest', { headers: { 'User-Agent': 'Snip-AI' } });
+        const response = await fetch('https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest', { headers: { 'User-Agent': 'Snip-AI' }, signal: AbortSignal.any([downloaderUpdateRequest.signal, AbortSignal.timeout(10000)]) });
         if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
         const release = await response.json();
         const latest = String(release.tag_name || '').replace(/^v/i, '');
         if (latest && isNewerVersion(latest, current)) {
           emit('youtube-download-progress', { percent: null, downloadedBytes: 0, totalBytes: null, speed: '', eta: '', stage: 'Updating YouTube downloader' });
-          await run(rt.python, ['-m', 'pip', 'install', '--disable-pip-version-check', '--no-warn-script-location', '--upgrade', '--target', updateDir, 'yt-dlp', 'yt-dlp-ejs'], { env: { ...environment(rt), PIP_NO_INPUT: '1' }, timeout: 180000 });
+          await run(rt.python, ['-m', 'pip', 'install', '--disable-pip-version-check', '--no-warn-script-location', '--upgrade', '--target', updateDir, 'yt-dlp', 'yt-dlp-ejs'], { env: { ...environment(rt), PIP_NO_INPUT: '1' }, timeout: 180000, track: true });
           ytDlpPath = updateDir;
           current = latest;
         }
         await fsp.writeFile(statePath, JSON.stringify({ checkedAt: Date.now(), version: current, latest }, null, 2));
       } catch (error) {
+        if (cancelled) throw error;
         // Updating is best-effort: downloads must continue with the bundled version offline.
         await fsp.writeFile(statePath, JSON.stringify({ checkedAt: Date.now(), version: current, updateError: String(error.message || error) }, null, 2)).catch(() => {});
+      } finally {
+        downloaderUpdateRequest = null;
       }
       return current;
     })();
@@ -100,7 +106,7 @@ function createMediaBackend(options) {
     if (force) runtimeReady = null;
     if (!runtimeReady) runtimeReady = (async () => {
       const rt = runtime();
-      for (const name of (process.platform === 'darwin' ? ['pipeline/runtime_check.py'] : ['python/msvcp140.dll','python/vcruntime140.dll','python/vcruntime140_1.dll','node/msvcp140.dll','pipeline/runtime_check.py'])) {
+      for (const name of mac ? ['pipeline/runtime_check.py'] : ['python/msvcp140.dll','python/vcruntime140.dll','python/vcruntime140_1.dll','node/msvcp140.dll','pipeline/runtime_check.py']) {
         if (!fs.existsSync(path.join(rt.root,name))) throw new Error(`Bundled file is missing: ${name}`);
       }
       const logDir=path.join(app.getPath('userData'),'diagnostics');
@@ -140,8 +146,12 @@ function createMediaBackend(options) {
   }
   async function cancel() {
     cancelled = true;
+    downloaderUpdateRequest?.abort();
     const child = activeChild;
-    if(process.platform === 'darwin') { if(child?.pid) child.kill('SIGTERM'); return null; }
+    if (mac) {
+      child?.kill('SIGTERM');
+      return null;
+    }
     if (child?.pid) await new Promise(resolve => {
       const killer = spawn(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
       killer.once('close', resolve); killer.once('error', () => { child.kill(); resolve(); });
@@ -151,19 +161,38 @@ function createMediaBackend(options) {
   async function createClips(args) {
     await ensureRuntime();
     let input = await file(args.inputPath, ['.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v']);
+    const originalInput = input;
+    let scanRange = '';
     if (!['1:1', '16:9', '9:16'].includes(args.format)) throw new Error('Choose a supported video frame.');
     const supportedLanguages = ['english','hinglish','hindi','spanish','french','german','tamil','telugu','bengali','marathi','gujarati','punjabi','kannada','malayalam'];
     if (!supportedLanguages.includes(args.audioLanguage)) throw new Error('Choose a supported audio language.');
     const typographyTheme = String(args.captionTemplate || '').startsWith('capsnip:') ? require('./typography.cjs').catalog.find(t => t.key === args.captionTemplate) : null;
     if (args.captionTemplate !== 'none' && !THEMES.includes(args.captionTemplate) && !typographyTheme) throw new Error(`Unsupported caption template: ${args.captionTemplate}`);
     const count = Number(args.requestedClips);
-    if (!Number.isInteger(count) || (count !== -1 && (count < 1 || count > 20))) throw new Error('Choose between 1 and 20 clips, or All.');
+    if (!Number.isInteger(count) || count < 1 || count > 10) throw new Error('Choose between 1 and 10 clips.');
     const duration = args.clipDurationSeconds == null || args.clipDurationSeconds === 0 ? null : Number(args.clipDurationSeconds);
     if (duration !== null && (!Number.isInteger(duration) || duration < 10 || duration > 120)) throw new Error('Choose a clip length between 10 and 120 seconds, or Auto.');
     if (duration !== null && (await probe(input)).duration < duration) throw new Error('This video is shorter than the selected clip length. Choose a shorter length or Auto.');
     const rt = runtime();
     const outputDir = path.join(app.getPath('downloads'), 'Snip AI Clips', `run-${Date.now()}-${randomUUID().slice(0, 8)}`);
     await fsp.mkdir(outputDir, { recursive: true });
+    const trimStart = Math.max(0, Number(args.trimStart) || 0);
+    const trimEndRaw = args.trimEnd == null ? undefined : Number(args.trimEnd);
+    const hasEndTrim = Number.isFinite(trimEndRaw) && trimEndRaw > 0;
+    if (trimStart > 0 || hasEndTrim) {
+      const sourceDuration = (await probe(input)).duration;
+      const trimEnd = hasEndTrim ? Math.min(sourceDuration, trimEndRaw) : sourceDuration;
+      if (trimStart > 0 || trimEnd < sourceDuration - 0.05) {
+        if (trimEnd <= trimStart + 0.1) throw new Error('Trim end must be after trim start.');
+        if (duration !== null && trimEnd - trimStart < duration) throw new Error('The trimmed video is shorter than the selected clip length. Choose a shorter length or Auto.');
+        const trimmed = path.join(outputDir, 'trimmed-source.mp4');
+        emit('pipeline-progress', 'Trimming selected video range…');
+        await run(rt.ffmpeg, ['-hide_banner', '-loglevel', 'error', '-y', '-ss', String(trimStart), '-i', input, '-t', String(trimEnd - trimStart), '-map', '0:v:0', '-map', '0:a?', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '28', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', trimmed], { track: true, logPath: path.join(outputDir, 'trim.log') });
+        input = trimmed;
+        scanRange = `:${trimStart}:${trimEnd}`;
+      }
+    }
+    let splitRegions = null;
     if(args.splitRegions){
       if(!Array.isArray(args.splitRegions)||args.splitRegions.length!==2)throw new Error('Select two split-screen regions.');
       const regions=args.splitRegions.map(r=>{
@@ -171,20 +200,22 @@ function createMediaBackend(options) {
         if(![x,y,w,h].every(Number.isFinite)||x<0||y<0||w<.02||h<.02||x+w>1.001||y+h>1.001)throw new Error('Invalid split-screen selection.');
         return r;
       });
-      const filters=regions.map((r,i)=>`[v${i}]crop=trunc(iw*${r.w}/2)*2:trunc(ih*${r.h}/2)*2:trunc(iw*${r.x}/2)*2:trunc(ih*${r.y}/2)*2,scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960,setsar=1[s${i}]`);
-      const splitPath=path.join(outputDir,'split-source.mp4');
-      emit('pipeline-progress','Preparing split-screen video…');
-      await run(rt.ffmpeg,['-y','-i',input,'-filter_complex',`[0:v]split=2[v0][v1];${filters.join(';')};[s0][s1]vstack=inputs=2[out]`,'-map','[out]','-map','0:a?','-c:v','libx264','-preset','veryfast','-crf','20','-c:a','aac','-movflags','+faststart',splitPath],{track:true,logPath:path.join(outputDir,'split-screen.log')});
-      input=splitPath;args.format='9:16';
+      splitRegions = regions;
     }
+    const splitFilter = splitRegions ? splitScreenFilter(splitRegions) : '';
+    if (splitRegions) args.format = '9:16';
     const env = { ...environment(rt), SNIP_AI_OUTPUT_DIR: outputDir, SNIP_AI_WORK_DIR: path.join(outputDir, '.snip-ai-work'), SNIP_AI_TRANSCRIPT_CACHE_DIR: path.join(app.getPath('userData'), 'transcripts'), SNIP_AI_CLIP_DURATION_SECONDS: String(duration || 0), SNIP_AI_CAPTION_OVERRIDES_JSON: JSON.stringify(normalizeOverrides(args.captionOverrides)) };
+    env.SNIP_AI_SPLIT_FILTER = splitFilter;
+    env.SNIP_AI_PROGRESSIVE = '1';
+    env.SNIP_AI_SCAN_SOURCE = originalInput;
+    env.SNIP_AI_SCAN_RANGE = scanRange;
     await run(rt.python, [path.join(rt.pipeline, 'pipeline_runner.py'), input, args.format, String(count), typographyTheme ? 'pop' : args.captionTemplate, String(Boolean(args.differentCaptions)), args.audioLanguage], { cwd: rt.pipeline, env, track: true, logPath: path.join(outputDir, 'pipeline.log'), onLine: line => emit('pipeline-progress', line) });
     const names = (await fsp.readdir(outputDir)).filter(n => /^snip_ai_simple_clip_\d+\.mp4$/i.test(n)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     if (!names.length) throw new Error(`No clips were produced. See ${path.join(outputDir, 'pipeline.log')}`);
     let paths = names.map(n => path.join(outputDir, n));
     for (const clip of paths) await probe(clip);
     const selected = await readJson(path.join(outputDir, '.snip-ai-work', 'selected-generation.json'));
-    await fsp.writeFile(path.join(outputDir, 'electron-job.json'), JSON.stringify({ inputPath: input, format: args.format, captionTemplate: args.captionTemplate, createdAt: new Date().toISOString() }));
+    await fsp.writeFile(path.join(outputDir, 'electron-job.json'), JSON.stringify({ inputPath: input, format: args.format, splitRegions, captionTemplate: args.captionTemplate, createdAt: new Date().toISOString() }));
     if (typographyTheme || args.autoScreenText || args.customText?.text || args.logoPath) {
       const rendered = [];
       const renderStarted = Date.now();
@@ -204,6 +235,11 @@ function createMediaBackend(options) {
     const moments = selected.clips || [];
     const captions = moments.map(m => String(m.text || 'A standout moment worth sharing.').trim().slice(0, 140));
     return { paths, social_captions: paths.map((_, i) => captions[i] || 'A standout moment worth sharing.') };
+  }
+  function splitScreenFilter(regions) {
+    const crops = regions.map(({ x, y, w, h }, i) =>
+      `[split_in${i}]crop=trunc(iw*${w}/2)*2:trunc(ih*${h}/2)*2:trunc(iw*${x}/2)*2:trunc(ih*${y}/2)*2,scale=1080:960:force_original_aspect_ratio=increase,crop=1080:960,setsar=1[split_out${i}]`);
+    return `split=2[split_in0][split_in1];${crops.join(';')};[split_out0][split_out1]vstack=inputs=2`;
   }
   function normalizeOverrides(raw) {
     let candidate;
@@ -225,27 +261,28 @@ function createMediaBackend(options) {
     if (url.protocol !== 'https:' || !['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be'].includes(url.hostname)) throw new Error('Enter a valid YouTube video URL.');
     const rt = runtime();
     await ensureYtDlp(rt);
+    if (cancelled) throw new Error('Download cancelled.');
     const urlLooksLive = /(^|[?&/])live(?:=1)?(?:[&#/]|$)/i.test(`${url.pathname}${url.search}`) || /\/live\//i.test(url.pathname);
     let isLive = urlLooksLive;
-    const requestedLiveClipSeconds = Number.isFinite(Number(args.liveClipSeconds)) ? Math.max(10, Math.min(600, Number(args.liveClipSeconds))) : null;
     const outputDir = path.join(app.getPath('downloads'), 'Snip AI Downloads', `download-${Date.now()}`);
     await fsp.mkdir(outputDir, { recursive: true });
     emit('youtube-download-progress', { percent: null, downloadedBytes: 0, totalBytes: null, speed: '', eta: '', stage: 'Reading video information' });
     // Read a small metadata response before the transfer, so the preview appears immediately.
     try {
       const metadata = await run(rt.python, ['-m', 'yt_dlp', '--js-runtimes', `node:${rt.node}`, '--no-playlist', '--skip-download', '--socket-timeout', '15', '--retries', '1', '--print', '%(title)j', '--print', '%(thumbnail)j', '--print', '%(live_status)j', url.href], { env: environment(rt), track: true, timeout: 30000 });
-      const values = metadata.stdout.trim().split(/\r?\n/).flatMap(line => { try { const value = JSON.parse(line); return typeof value === 'string' ? [value] : []; } catch { return []; } });
-      if (values.some(value => value === 'is_live')) isLive = true;
-      if (values.length >= 2) emit('youtube-download-preview', { title: values[0], thumbnail: values[1] });
+      const [title, thumbnail, liveStatus] = metadata.stdout.trim().split(/\r?\n/).map(line => {
+        try { return JSON.parse(line); } catch { return null; }
+      });
+      if (typeof liveStatus === 'string') isLive = liveStatus === 'is_live';
+      if (typeof title === 'string' && typeof thumbnail === 'string') emit('youtube-download-preview', { title, thumbnail });
     } catch (error) { if (cancelled) throw error; /* A missing thumbnail must not prevent downloading. */ }
-    // Live DVR capture is opt-in only (via the explicit live-clip action).
-    const liveClipSeconds = isLive && requestedLiveClipSeconds ? requestedLiveClipSeconds : null;
     emit('youtube-download-progress', { percent: null, downloadedBytes: 0, totalBytes: null, speed: '', eta: '', stage: isLive ? 'Connecting to live stream' : 'Starting video transfer' });
-    const result = await run(rt.python, ['-m', 'yt_dlp', '--js-runtimes', `node:${rt.node}`, '--ffmpeg-location', rt.ffmpeg, '--no-playlist', '--newline', '--progress', '--socket-timeout', '20', '--retries', '2', ...(isLive ? [liveClipSeconds ? '--no-live-from-start' : '--live-from-start'] : []), ...(liveClipSeconds ? ['--download-sections', `*-${liveClipSeconds}`] : []), '--progress-template', 'download:SNIP_PROGRESS:%(progress._percent_str)s|%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.total_bytes_estimate)s|%(progress._speed_str)s|%(progress._eta_str)s', '--format', 'bv*[height<=1080]+ba/b[height<=1080]/b', '--merge-output-format', 'mp4', '--restrict-filenames', '--print', 'after_move:filepath', '--output', path.join(outputDir, '%(title).100s-%(id)s.%(ext)s'), url.href], { env: environment(rt), track: true, logPath: path.join(outputDir, 'download.log'), onLine: line => {
+    const result = await run(rt.python, ['-m', 'yt_dlp', '--js-runtimes', `node:${rt.node}`, '--ffmpeg-location', rt.ffmpeg, '--no-playlist', '--newline', '--progress', '--socket-timeout', '20', '--retries', '2', ...(isLive ? ['--live-from-start'] : []), '--progress-template', 'download:SNIP_PROGRESS:%(progress._percent_str)s|%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.total_bytes_estimate)s|%(progress._speed_str)s|%(progress._eta_str)s', '--format', 'bv*[height<=1080]+ba/b[height<=1080]/b', '--merge-output-format', 'mp4', '--restrict-filenames', '--print', 'after_move:filepath', '--output', path.join(outputDir, '%(title).100s-%(id)s.%(ext)s'), url.href], { env: environment(rt), track: true, logPath: path.join(outputDir, 'download.log'), onLine: line => {
       if (!line.includes('SNIP_PROGRESS:')) return;
       const [percent, downloaded, total, estimated, speed, eta] = line.split('SNIP_PROGRESS:')[1].split('|');
       emit('youtube-download-progress', { percent: parseFloat(percent) || 0, downloadedBytes: Number(downloaded) || 0, totalBytes: Number(total) || Number(estimated) || null, speed: speed || '', eta: eta || '', stage: isLive ? 'Recording live stream' : 'Downloading video' });
     } });
+    if (cancelled) throw new Error('Download cancelled.');
     const found = result.stdout.split(/\r?\n/).map(s => s.trim()).reverse().find(s => path.isAbsolute(s) && fs.existsSync(s));
     if (!found) throw new Error(`Downloader did not return a video. See ${outputDir}`);
     await probe(found);
@@ -282,8 +319,8 @@ function createMediaBackend(options) {
     const clean = path.join(work, `${stem}.source.mp4`);
     if (!fs.existsSync(clean)) {
       const rt = runtime();
-      const filter = job.format === '1:1' ? 'crop=min(iw\\,ih):min(iw\\,ih),scale=1080:1080,pad=1080:1920:0:440' : job.format === '9:16' ? 'scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1' : 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2';
-      await run(rt.ffmpeg, ['-hide_banner', '-loglevel', 'error', '-y', '-ss', String(start), '-i', original, '-t', String(end - start), '-vf', filter, '-map', '0:v:0', '-map', '0:a?', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-movflags', '+faststart', clean], { track: true, logPath: path.join(work, 'editor-source.log'), onLine: line => emit('pipeline-progress', line) });
+      const filter = job.format === '1:1' ? 'crop=min(iw\\,ih):min(iw\\,ih):(iw-ow)/2:(ih-oh)/2,scale=1080:1080,pad=1080:1920:0:440' : job.format === '9:16' ? 'scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:(iw-ow)/2:(ih-oh)/2,setsar=1' : 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2';
+      await run(rt.ffmpeg, ['-hide_banner', '-loglevel', 'error', '-y', '-ss', String(start), '-i', original, '-t', String(end - start), '-vf', job.splitRegions ? splitScreenFilter(job.splitRegions) : filter, '-map', '0:v:0', '-map', '0:a?', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-movflags', '+faststart', clean], { track: true, logPath: path.join(work, 'editor-source.log'), onLine: line => emit('pipeline-progress', line) });
       await probe(clean);
     }
     const theme = job.captionTemplate || 'pop';
@@ -387,6 +424,7 @@ function createMediaBackend(options) {
       case 'create_clips': return exclusive('create_clips', () => createClips(args));
       case 'download_youtube': return exclusive('download_youtube', () => downloadYoutube(args));
       case 'cancel_processing': return cancel();
+      case 'cancel_download': return activeKind === 'download_youtube' ? cancel() : null;
       case 'check_runtime': return ensureRuntime(true);
       case 'read_clip_editor': {
         const version=++editorReadVersion;

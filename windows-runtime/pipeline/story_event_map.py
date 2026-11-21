@@ -892,6 +892,10 @@ def clamp_clip(
     if end_index < start_index:
         return None
 
+    start_index, end_index = align_to_complete_thought(
+        segments, start_index, end_index
+    )
+
     start = seg_start(
         segments[start_index]
     )
@@ -914,6 +918,47 @@ def clamp_clip(
         start_index,
         end_index,
     )
+
+
+def align_to_complete_thought(segments, start_index, end_index):
+    """Prefer whole spoken thoughts over cuts in the middle of a sentence."""
+    start_index = max(0, start_index)
+    end_index = min(len(segments) - 1, end_index)
+    # Walk back across short, continuous speech until a sentence boundary.
+    while start_index > 0:
+        previous = segments[start_index - 1]
+        gap = seg_start(segments[start_index]) - seg_end(previous)
+        text = seg_text(previous).strip()
+        if gap > 1.15 or text.endswith((".", "!", "?", "।", ":")):
+            break
+        start_index -= 1
+    # Include the closing words of the thought when they are immediately after
+    # the selected event. This keeps a hook attached to its payoff.
+    while end_index < len(segments) - 1:
+        current = seg_text(segments[end_index]).strip()
+        gap = seg_start(segments[end_index + 1]) - seg_end(segments[end_index])
+        if current.endswith((".", "!", "?", "।")) or gap > 1.15:
+            break
+        end_index += 1
+    return start_index, end_index
+
+
+def clip_boundary_score(segments, first, last):
+    opening = collect_text(segments, first, last).split()[:16]
+    closing = collect_text(segments, first, last).split()[-20:]
+    hook = score_event(" ".join(opening))
+    payoff = score_event(" ".join(closing))
+    score = min(14, 4 * hook["hook"] + 4 * hook["question"] + 3 * hook["conflict"])
+    score += min(12, 4 * payoff["payoff_signal"] + 3 * payoff["payoff"])
+    if opening and opening[0].lower().strip(",.!?") in {"and", "also", "because", "aur", "toh", "kyunki", "phir"}:
+        score -= 5
+    ending = seg_text(segments[last]).rstrip()
+    if ending.endswith(("?", "...", "…", ",")):
+        score -= 7
+    if not ending.endswith((".", "!", "?", "।")) and last + 1 < len(segments):
+        if seg_start(segments[last + 1]) - seg_end(segments[last]) < 0.45:
+            score -= 8
+    return score
 
 
 def collect_text(
@@ -1083,6 +1128,7 @@ def build_candidate(
         score = (
             signals["score"]
             + anchor_event["score"] * 0.75
+            + clip_boundary_score(segments, start_index, end_index)
         )
 
         # Multi-event bonus.
@@ -1171,7 +1217,7 @@ def build_candidate(
             "text": text,
         })
 
-    return output[:MAX_CANDIDATES_PER_COMBINATION]
+    return sorted(output, key=lambda candidate: candidate["score"], reverse=True)[:MAX_CANDIDATES_PER_COMBINATION]
 
 
 # ============================================================

@@ -1,4 +1,4 @@
-import { Check, ChevronRight, CircleStop, Cpu, FileVideo2, Sparkles, Timer, Zap, type LucideIcon } from 'lucide-react';
+import { Check, ChevronRight, CircleStop, Cpu, FileVideo2, Sparkles, Zap, type LucideIcon } from 'lucide-react';
 import './render-progress.css';
 import { useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -64,7 +64,7 @@ export default function RenderProgress(p: Props) {
             <span className="render-floating-tag"><Zap size={13}/> On your device</span>
           </div>
           <div className="render-phase" key={p.stage}><span className="render-phase-icon"><Icon size={22}/></span><div><span className="render-eyebrow">{p.batch?`${p.batch.completed} OF ${p.batch.total} CLIPS READY`:`STEP ${String(p.stage+1).padStart(2,'0')} / ${String(p.stages.length).padStart(2,'0')}`}</span><h3>{active.title}</h3><p>{p.batch?`Clip ${p.batch.current} of ${p.batch.total} · ${Math.round(p.batch.fraction*100)}% of this caption render`:active.description}</p></div></div>
-          <div className="render-metrics"><div><span><Timer size={14}/> Estimated remaining</span><strong>{p.remaining}</strong></div><div><span><Cpu size={14}/> Time elapsed</span><strong>{p.elapsed}</strong></div></div>
+          <div className="render-metrics"><div><span><Cpu size={14}/> Time elapsed</span><strong>{p.elapsed}</strong></div><div><span>Estimated remaining</span><strong>{p.remaining}</strong></div></div>
           <div className="render-output"><span><FileVideo2 size={17}/> {p.count} clips</span><ChevronRight size={13}/><span>{p.format} frame</span><ChevronRight size={13}/><span>MP4 output</span></div>
         </main>
       </div>
