@@ -3,6 +3,12 @@ import RecoveryPanel from './RecoveryPanel';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
+function PreviewPlayer({src,onMetadata}:{src:string;onMetadata:(duration:number)=>void}) {
+  const ref=useRef<HTMLVideoElement>(null); const [duration,setDuration]=useState(0); const [time,setTime]=useState(0); const [playing,setPlaying]=useState(false);
+  const seek=(value:number)=>{const v=ref.current;if(!v)return;const next=Math.max(0,Math.min(duration,value));v.currentTime=next;setTime(next)};
+  return <div className="snip-preview-player"><video ref={ref} src={src} preload="auto" playsInline onLoadedMetadata={e=>{const d=Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:0;setDuration(d);onMetadata(d)}} onTimeUpdate={e=>setTime(e.currentTarget.currentTime)} onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)} onEnded={()=>setPlaying(false)} /><div className="snip-player-controls"><button type="button" onClick={()=>seek(time-10)}>-10s</button><button type="button" className="snip-player-play" onClick={()=>{const v=ref.current;if(!v)return;if(v.paused)void v.play();else v.pause()}}>{playing?'Pause':'Play'}</button><button type="button" onClick={()=>seek(time+10)}>+10s</button><input aria-label="Seek video" type="range" min="0" max={duration||1} step=".05" value={Math.min(time,duration||1)} onChange={e=>seek(Number(e.target.value))}/><span>{time.toFixed(1)} / {duration.toFixed(1)}s</span></div></div>;
+}
+
 import {
   ArrowLeft,
   ArrowRight,
@@ -464,7 +470,7 @@ export function SettingsPage({
           </div>
 
           <label className="settings-label">Default clip count <strong>{defaultClipCount}</strong></label>
-          <input className="settings-range" type="range" min="1" max="20" value={defaultClipCount} onChange={(event) => setDefaultClipCount(Number(event.target.value))} />
+          <input className="settings-range" type="range" min="1" max="10" value={defaultClipCount} onChange={(event) => setDefaultClipCount(Number(event.target.value))} />
 
           <div className="settings-switch-row">
             <div className="settings-info-note">
@@ -571,8 +577,13 @@ function App() {
     stage: string;
   }>({ percent: null, downloadedBytes: 0, totalBytes: null, speed: "", eta: "", stage: "Connecting to YouTube" });
   const downloadInFlightRef = useRef(false);
+  const cancelDownloadRef = useRef(false);
+  const [isStoppingDownload, setIsStoppingDownload] = useState(false);
   const [videoName, setVideoName] = useState("");
   const [videoPath, setVideoPath] = useState("");
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [trimStart, setTrimStart] = useState(0);
+  const [trimEnd, setTrimEnd] = useState(0);
   const [youtubeVideoSelected, setYoutubeVideoSelected] = useState(false);
   const videoPathRef = useRef("");
 
@@ -622,7 +633,7 @@ function App() {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       const value = Number(raw ? JSON.parse(raw).defaultClipCount : 5);
-      return value === -1 ? -1 : Number.isFinite(value) ? Math.min(20, Math.max(1, Math.round(value))) : 5;
+      return Number.isFinite(value) ? Math.min(10, Math.max(1, Math.round(value))) : 5;
     } catch {
       return 5;
     }
@@ -634,11 +645,15 @@ function App() {
   const [processingDetail, setProcessingDetail] = useState("");
   const [captionBatch, setCaptionBatch] = useState<CaptionBatchProgress | null>(null);
   const processingStarted = useRef(0);
-  const [estimatedSeconds, setEstimatedSeconds] = useState<number | null>(null);
+  const [generationTiming, setGenerationTiming] = useState<{ firstClip: string; seconds: number } | null>(null);
+  const [estimatedFinish, setEstimatedFinish] = useState<number | null>(null);
+  const renderStartedAt = useRef<number | null>(null);
+  const renderClipCount = useRef(0);
+  const renderedClipIds = useRef(new Set<string>());
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   useEffect(() => {
     if (!isProcessing) return;
-    const timer = window.setInterval(() => setElapsedSeconds(Math.floor((Date.now() - processingStarted.current) / 1000)), 1000);
+    const timer = window.setInterval(() => setElapsedSeconds(Math.floor((performance.now() - processingStarted.current) / 1000)), 250);
     return () => window.clearInterval(timer);
   }, [isProcessing]);
   const timeLabel = (seconds: number) => seconds < 60 ? `${Math.ceil(seconds)} sec` : `${Math.floor(seconds / 60)} min ${Math.ceil(seconds % 60)} sec`;
@@ -683,7 +698,7 @@ function App() {
     try {
       const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       const value = Number(raw ? JSON.parse(raw).defaultClipCount : 5);
-      return Number.isFinite(value) ? Math.min(20, Math.max(1, Math.round(value))) : 5;
+      return Number.isFinite(value) ? Math.min(10, Math.max(1, Math.round(value))) : 5;
     } catch {
       return 5;
     }
@@ -715,21 +730,48 @@ function App() {
     void listen<string>("pipeline-progress", (event) => {
       const message = event.payload.trim();
       if (!message) return;
+      const scan = message.match(/^SNIP_PROGRESSIVE: section (\d+)\/(\d+), .*?, (\d+)\/\d+ clips found$/);
+      if (scan) {
+        const found = Number(scan[3]);
+        const total = Number(scan[2]);
+        const elapsed = (performance.now() - processingStarted.current) / 1000;
+        if (found > 0) {
+          setEstimatedFinish(elapsed * total / found + total * 20);
+        } else {
+          setEstimatedFinish(previous => Math.max(previous ?? 0, elapsed + total * 40));
+        }
+        setProcessingStage(1);
+        setProcessingDetail(`Scanning section ${scan[1]} of ${scan[2]} · ${scan[3]} clips found`);
+        setProcessingProgress(10 + Math.round(30 * Number(scan[3]) / Number(scan[2])));
+        return;
+      }
       const batch = captionBatchProgress(message);
       if (batch) {
+        if (batch.etaSeconds !== null) {
+          setEstimatedFinish((performance.now() - processingStarted.current) / 1000 + batch.etaSeconds);
+        }
         setCaptionBatch(batch);
         setProcessingStage(previous => Math.max(previous, 4));
         setProcessingProgress(previous => Math.max(previous, Math.round(batch.percent)));
         setProcessingDetail(`Applying captions · ${batch.completed} of ${batch.total} clips ready · Clip ${batch.current}: ${Math.round(batch.fraction * 100)}%`);
-        if (batch.etaSeconds !== null) setEstimatedSeconds((Date.now()-processingStarted.current)/1000 + batch.etaSeconds);
         return;
       }
       const renderFrame = message.match(/^\[RENDER_PROGRESS\].*clip_(\d+).*frame=(\d+)/);
+      const planned = message.match(/^SNIP_PROGRESSIVE_SUMMARY:\s*(\d+)\/\d+ clips/);
+      if (planned) {
+        renderClipCount.current = Number(planned[1]);
+        renderStartedAt.current = performance.now();
+        setEstimatedFinish((renderStartedAt.current - processingStarted.current) / 1000 + renderClipCount.current * 20);
+      }
+      const renderedClip = message.match(/^\[OK\] Clip (\d+)/);
+      if (renderedClip && renderStartedAt.current !== null) {
+        renderedClipIds.current.add(renderedClip[1]);
+        const completed = renderedClipIds.current.size;
+        const elapsed = (performance.now() - processingStarted.current) / 1000;
+        const renderElapsed = (performance.now() - renderStartedAt.current) / 1000;
+        setEstimatedFinish(elapsed + Math.max(0, renderClipCount.current - completed) * renderElapsed / completed);
+      }
       setProcessingDetail(renderFrame ? `Applying captions to clip ${Number(renderFrame[1])} · ${Number(renderFrame[2])} frames rendered` : message);
-      const selectedCount=message.match(/Selected clips:\s*(\d+)/i);
-      if(selectedCount){const elapsed=(Date.now()-processingStarted.current)/1000;setEstimatedSeconds(elapsed+Number(selectedCount[1])*20);}
-      const renderClock=message.match(/\[OK\] Clip\s+(\d+)/);
-      if(renderClock){const elapsed=(Date.now()-processingStarted.current)/1000;setEstimatedSeconds(previous=>Math.max(previous||0,elapsed+20));}
       const stage = pipelineStageFromLine(message);
       if(stage !== null){setProcessingStage(previous=>Math.max(previous,stage));setProcessingProgress(previous=>Math.max(previous,[0,10,40,60,75,95][stage]));}
     }).then((stop) => { unlisten = stop; });
@@ -828,6 +870,9 @@ function App() {
     setYoutubeVideoSelected(downloadedFromYoutube);
     videoPathRef.current = path;
     setVideoPath(path);
+    setVideoDuration(0);
+    setTrimStart(0);
+    setTrimEnd(0);
     setYoutubeLink("");
     setProcessingComplete(false);
     setOutputPaths([]);
@@ -897,7 +942,7 @@ function App() {
     );
   };
 
-  const handleYoutubeLink = async (liveClipSeconds?: number) => {
+  const handleYoutubeLink = async () => {
     const link = youtubeLink.trim();
 
     if (!link || isDownloading || downloadInFlightRef.current) {
@@ -923,6 +968,7 @@ function App() {
     setPlayingClip(null);
     setSelectedClips(new Set());
     downloadInFlightRef.current = true;
+    cancelDownloadRef.current = false;
     setIsDownloading(true);
     setDownloadPreview(null);
     setDownloadProgress({ percent: null, downloadedBytes: 0, totalBytes: null, speed: "", eta: "", stage: "Connecting to YouTube" });
@@ -930,26 +976,21 @@ function App() {
     videoPathRef.current = "";
     setVideoPath("");
 
-    // Give React/Tauri time to paint the downloading state before
-    // starting the native yt-dlp process.
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 120);
-    });
-
     try {
       const downloadedPath = await invoke<string>("download_youtube", {
         url: link,
-        ...(liveClipSeconds ? { liveClipSeconds } : {}),
       });
 
       if (!downloadedPath) {
         throw new Error("YouTube download finished without returning a file.");
       }
 
+      if (cancelDownloadRef.current) {
+        setVideoName("");
+        return;
+      }
       selectVideo(downloadedPath, true);
     } catch (error) {
-      console.error("[Snip AI] YouTube download error:", error);
-
       const message =
         typeof error === "string"
           ? error
@@ -961,11 +1002,26 @@ function App() {
       setYoutubeVideoSelected(false);
       videoPathRef.current = "";
       setVideoPath("");
-      setErrorMessage(message);
+      if (!cancelDownloadRef.current) setErrorMessage(message);
     } finally {
       downloadInFlightRef.current = false;
+      cancelDownloadRef.current = false;
+      setIsStoppingDownload(false);
       setIsDownloading(false);
       setDownloadProgress({ percent: null, downloadedBytes: 0, totalBytes: null, speed: "", eta: "", stage: "Ready" });
+    }
+  };
+
+  const cancelYoutubeDownload = async () => {
+    if (!downloadInFlightRef.current || cancelDownloadRef.current) return;
+    cancelDownloadRef.current = true;
+    setIsStoppingDownload(true);
+    try {
+      await invoke(window.snipaiDesktop ? "cancel_download" : "cancel_processing");
+    } catch (error) {
+      cancelDownloadRef.current = false;
+      setIsStoppingDownload(false);
+      setErrorMessage(generationErrorMessage(error));
     }
   };
 
@@ -1012,9 +1068,20 @@ function App() {
   setOutputPaths([]);
   setShowGallery(false);
   setPlayingClip(null);
-  processingStarted.current = Date.now();
+  processingStarted.current = performance.now();
   setElapsedSeconds(0);
-  setEstimatedSeconds(null);
+  setGenerationTiming(null);
+  // Budget the first audio window for each requested clip until measured
+  // selection and rendering progress can refine the estimate.
+  const firstWindow = Math.max(75, clipDurationSeconds ? clipDurationSeconds + 20 : 0);
+  const selectedDuration = (trimEnd || videoDuration) - trimStart;
+  const initialScanSeconds = selectedDuration > 0
+    ? Math.min(selectedDuration, firstWindow * requestedClips)
+    : firstWindow * requestedClips;
+  setEstimatedFinish(Math.ceil(12 + initialScanSeconds * 0.55 + requestedClips * 20));
+  renderStartedAt.current = null;
+  renderClipCount.current = 0;
+  renderedClipIds.current.clear();
   setIsProcessing(true);
 
   try {
@@ -1025,18 +1092,12 @@ function App() {
     setIsProcessing(true);
 
     setProcessingStage(0);
-    setProcessingProgress(0);
-    const info = await invoke<{duration: number}>("probe_video", { path: selectedInputPath });
-    let rate = 0.65;
-    try { const stored = Number(localStorage.getItem(`snip-ai.seconds-per-source-second:${audioLanguage}`)); if (stored > 0 && stored < 100) rate = stored; } catch { /* use initial CPU estimate */ }
-    const clipCountEstimate = requestedClips === -1 ? Math.max(1,Math.ceil(info.duration / (clipDurationSeconds || 35))) : requestedClips;
-    const estimate = Math.max(15, info.duration * rate + clipCountEstimate * 8);
-    setEstimatedSeconds(estimate);
-
     const result = await invoke<GeneratedClipsResult>(
       "create_clips",
       {
         inputPath: selectedInputPath,
+        trimStart: trimStart > 0 ? trimStart : null,
+        trimEnd: trimEnd > 0 && trimEnd < videoDuration ? trimEnd : null,
         splitRegions: splitEnabled ? splitRegions : null,
         format,
         requestedClips,
@@ -1055,7 +1116,7 @@ function App() {
         "The pipeline finished without generating any valid clips.",
       );
     }
-    try { localStorage.setItem(`snip-ai.seconds-per-source-second:${audioLanguage}`, String(Math.max(0.05, ((Date.now() - processingStarted.current) / 1000 - clipCountEstimate * 8) / info.duration))); } catch { /* storage may be full */ }
+    setGenerationTiming({ firstClip: result.paths[0], seconds: Math.round((performance.now() - processingStarted.current) / 1000) });
 
     setOutputKind("clips");
     setOutputPaths(result.paths);
@@ -1312,6 +1373,8 @@ function App() {
                 </p>
 
                 <h1>{outputKind === "caption" ? "Your captioned video is ready." : "Your clips are ready."}</h1>
+                {generationTiming && generationTiming.firstClip === outputPaths[0] &&
+                  <p>Generated in {timeLabel(generationTiming.seconds)}</p>}
 
                 <p className="subtitle">
                   Preview your generated {outputKind === "caption" ? "video" : "clips"} directly inside Snip AI.
@@ -1662,7 +1725,7 @@ function App() {
                           if (event.key === "Enter") void handleYoutubeLink();
                         }}
                         placeholder={isDownloading ? "Preparing YouTube download…" : "Paste a YouTube link and press Enter"}
-                        aria-label="Paste a YouTube link and press Enter to start"
+                        aria-label="YouTube link"
                         disabled={isDownloading}
                       />
                     </div>
@@ -1676,18 +1739,9 @@ function App() {
                       <FolderOpen size={15} />
                       Upload files
                     </button>
-                    {/(youtube\.com\/live\/|[?&]live=1)/i.test(youtubeLink) && (
-                      <button
-                        type="button"
-                        className="youtube-live-clip-button"
-                        onClick={() => void handleYoutubeLink(60)}
-                        disabled={isDownloading}
-                      >
-                        Capture last 60s
-                      </button>
-                    )}
                   </div>
                 )}
+
 
 
                 {videoName && !isDownloading && (
@@ -1789,6 +1843,12 @@ function App() {
                         </span>
                       )}
                     </span>
+                    <div className="youtube-download-actions">
+                      <button type="button" className="primary-small"
+                        disabled={isStoppingDownload} onClick={() => void cancelYoutubeDownload()}>
+                        {isStoppingDownload ? "Stopping download…" : "Cancel download"}
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1893,7 +1953,8 @@ function App() {
                 </div>
                 <section className="source-player-panel" aria-label="Selected video preview">
                   <div className="appearance-panel-heading"><span title={videoPath}>{videoPath.split(/[\\/]/).pop()}</span><small>Preview</small></div>
-                  {splitEnabled ? <SplitScreen key={videoPath} src={convertFileSrc(videoPath)} value={splitRegions} onChange={setSplitRegions}/> : <video key={videoPath} src={convertFileSrc(videoPath)} controls preload="metadata" playsInline />}
+                  {splitEnabled ? <SplitScreen key={videoPath} src={convertFileSrc(videoPath)} value={splitRegions} onChange={setSplitRegions}/> : <PreviewPlayer key={videoPath} src={convertFileSrc(videoPath)} onMetadata={duration=>{setVideoDuration(duration);setTrimEnd(old=>old>0?Math.min(old,duration):duration)}} />}
+                  {videoDuration > 0 && <div className="clip-trimmer clip-trimmer-below-preview" aria-label="Trim source video"><div className="clip-trimmer-heading"><strong>Trim video</strong><span>{trimStart.toFixed(1)}s – {trimEnd.toFixed(1)}s</span></div><div className="clip-trimmer-track"><div className="clip-trimmer-selected" style={{left:`${trimStart/videoDuration*100}%`,right:`${(1-trimEnd/videoDuration)*100}%`}}/><input className="clip-trimmer-range clip-trimmer-start" aria-label="Trim start" type="range" min="0" max={Math.max(0,trimEnd-.1)} step=".1" value={trimStart} disabled={isProcessing} onChange={event=>setTrimStart(Math.min(Number(event.target.value),trimEnd-.1))}/><input className="clip-trimmer-range clip-trimmer-end" aria-label="Trim end" type="range" min={Math.min(videoDuration,trimStart+.1)} max={videoDuration} step=".1" value={trimEnd} disabled={isProcessing} onChange={event=>setTrimEnd(Math.max(Number(event.target.value),trimStart+.1))}/></div><div className="clip-trimmer-scale"><span>0:00</span><span>{Math.floor(videoDuration/60)}:{String(Math.floor(videoDuration%60)).padStart(2,'0')}</span></div><small>Drag either handle to cut from the beginning or end.</small></div>}
                 </section>
                 <div className="option-card caption-card remotion-caption-card">
                   <div className="option-heading">
@@ -1943,9 +2004,9 @@ function App() {
                 </div>
                 <div className="clip-count-options">
                   {Array.from(
-                    { length: 12 },
+                    { length: 10 },
                     (_, index) => {
-                      const count = index < 10 ? index + 1 : index === 10 ? 15 : 20;
+                      const count = index + 1;
 
                       return (
                         <button
@@ -1966,7 +2027,6 @@ function App() {
                       );
                     },
                   )}
-                  <button type="button" className={requestedClips === -1 ? "clip-count-button active" : "clip-count-button"} onClick={() => setRequestedClips(-1)} disabled={isProcessing}>All</button>
                 </div>
               </div>
 
@@ -2046,7 +2106,8 @@ function App() {
         {isProcessing && <RenderProgress
           stages={activeProcessingStages} stage={processingStage} percent={processingProgress}
           elapsed={timeLabel(elapsedSeconds)}
-          remaining={estimatedSeconds === null ? "Calculating…" : elapsedSeconds < estimatedSeconds ? `About ${timeLabel(estimatedSeconds - elapsedSeconds)}` : "Still working…"}
+          remaining={processingStage === 5 ? "Finalizing…" : estimatedFinish === null ? "Calculating…" : estimatedFinish > elapsedSeconds
+            ? `About ${timeLabel(Math.ceil(estimatedFinish - elapsedSeconds))}` : "Updating estimate…"}
           detail={processingDetail} videoName={videoName} count={requestedClips === -1 ? 0 : requestedClips} format={format}
           batch={captionBatch} stopping={isCanceling} onStop={cancelCurrentProcessing}
         />}

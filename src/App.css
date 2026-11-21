@@ -5161,7 +5161,6 @@ html body #root .options-grid > .setup-tool-panel .setup-tool-content {
 .youtube-signin-actions button:hover { transform: translateY(-1px); }
 .youtube-signin-button { color: #0b1420; background: linear-gradient(110deg, #8ab4ef, #8fe7f5); }
 .youtube-retry-button { color: #d6e7fe; background: rgba(39,113,217, .18); }
-.youtube-live-clip-button { border: 1px solid rgba(143, 231, 245, .42); border-radius: 999px; padding: 8px 12px; color: #d9f7fb; background: rgba(34, 151, 173, .18); font: 600 11px/1 inherit; cursor: pointer; }
 .youtube-download-error details { color: #a1a1aa; }
 .youtube-download-error summary { width: fit-content; cursor: pointer; font-size: 10px; }
 .youtube-download-error pre {
@@ -5357,4 +5356,13 @@ html body #root .app-shell .main-content .options-grid > .caption-card .remotion
     grid-template-areas: "preview" "captions" "controls" !important;
   }
   html body #root .app-shell .main-content .options-grid > .setup-tool-panel { max-height: none !important; }
+}
+.clip-trimmer{width:min(100%,680px);margin:10px auto 0;padding:10px 12px;border:1px solid #ffffff20;border-radius:12px;background:#0b1422;color:#dbeafe}.clip-trimmer-heading,.clip-trimmer-scale{display:flex;justify-content:space-between;align-items:center;font-size:11px}.clip-trimmer-heading span{color:#86b9ff;font-variant-numeric:tabular-nums}.clip-trimmer-track{position:relative;height:34px;margin:7px 0 0;border-radius:7px;background:linear-gradient(90deg,#1d2d42,#253b57);overflow:visible}.clip-trimmer-selected{position:absolute;top:0;bottom:0;background:#2f8cff;border-radius:7px;box-shadow:0 0 0 1px #79b7ff inset}.clip-trimmer-range{position:absolute;inset:0;width:100%;height:34px;margin:0;background:transparent;appearance:none;pointer-events:none}.clip-trimmer-range::-webkit-slider-runnable-track{height:34px;background:transparent}.clip-trimmer-range::-webkit-slider-thumb{appearance:none;width:12px;height:34px;border:2px solid #fff;border-radius:4px;background:#1976ff;box-shadow:0 2px 8px #0008;pointer-events:auto;cursor:ew-resize}.clip-trimmer-range::-moz-range-track{height:34px;background:transparent}.clip-trimmer-range::-moz-range-thumb{width:12px;height:30px;border:2px solid #fff;border-radius:4px;background:#1976ff;pointer-events:auto;cursor:ew-resize}.clip-trimmer-start{z-index:3}.clip-trimmer-end{z-index:2}.clip-trimmer-scale{margin-top:4px;color:#7891ad}.clip-trimmer small{display:block;margin-top:6px;color:#8fa6c0;font-size:10px}
+.source-player-panel .clip-trimmer-below-preview{width:calc(100% - 24px);margin:10px auto 0;flex:0 0 auto;order:3}.source-player-panel .appearance-panel-heading{order:1}.source-player-panel>video,.source-player-panel>.split-screen-preview{order:2}
+.source-player-panel:has(.clip-trimmer){flex-direction:column!important;align-items:center!important;justify-content:flex-start!important}.source-player-panel:has(.clip-trimmer)>video,.source-player-panel:has(.clip-trimmer)>.split-screen-preview{height:calc(100% - 104px)!important;max-height:calc(100% - 104px)!important;flex:1 1 auto!important}
+.snip-preview-player{width:100%;height:calc(100% - 104px);min-height:0;display:flex;flex-direction:column;justify-content:center}.snip-preview-player>video{width:100%;height:100%;min-height:0;object-fit:contain;border-radius:12px;background:#000}.snip-player-controls{display:grid;grid-template-columns:auto auto auto minmax(80px,1fr) auto;align-items:center;gap:7px;padding:8px 4px 0;color:#b9cee8;font-size:11px}.snip-player-controls button{border:1px solid #6d9dcc;background:#10223a;color:#e6f2ff;border-radius:6px;padding:5px 8px;cursor:pointer}.snip-player-controls button:hover{background:#1b4b78}.snip-player-controls input{width:100%;accent-color:#328bff}.snip-player-controls span{font-variant-numeric:tabular-nums;white-space:nowrap}
+.youtube-download-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }

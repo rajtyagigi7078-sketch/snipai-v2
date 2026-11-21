@@ -6,10 +6,12 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 from hardware_profile import get_or_detect
-from transcript_workspace import prepare_transcript, save_transcript_cache
+from transcript_workspace import cache_path_for, prepare_transcript, save_transcript_cache
+from clip_duration import fit_moments, requested_duration
 
 
 # ============================================================
@@ -779,6 +781,7 @@ def prepare_story_event_map(
 def run_story_event_map(
     transcript_path,
     audio_language="hinglish",
+    allow_empty=False,
 ):
 
     # The event map has a romanized Hindi vocabulary. Keep it enabled only
@@ -872,7 +875,7 @@ def run_story_event_map(
         )
 
     moments = event_map.get("moments", [])
-    if not moments:
+    if not moments and not allow_empty:
         try:
             transcript = json.loads(
                 Path(transcript_path).read_text(encoding="utf-8")
@@ -1221,6 +1224,143 @@ def prepare_workspace():
 # MAIN
 # ============================================================
 
+def windows_long_path(path):
+    if os.name != "nt":
+        return path
+    absolute = os.path.abspath(path)
+    prefix = "\\\\?\\"
+    if absolute.startswith(prefix):
+        return Path(absolute)
+    if absolute.startswith("\\\\"):
+        return Path(prefix + "UNC\\" + absolute[2:])
+    return Path(prefix + absolute)
+
+
+def save_clip_history(path, ranges):
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix="hist-", suffix=".tmp", delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(ranges, stream)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def select_progressively(video, duration, language, count):
+    cache_dir = Path(os.environ.get("SNIP_AI_TRANSCRIPT_CACHE_DIR", str(HOME_DIR / ".snip-ai" / "transcript-cache")))
+    cache_source = os.environ.get("SNIP_AI_SCAN_SOURCE") or video
+    range_key = os.environ.get("SNIP_AI_SCAN_RANGE", "")
+    audio_cache = cache_path_for(cache_source, language + range_key, cache_dir).with_suffix(".w1")
+    audio_cache.mkdir(parents=True, exist_ok=True)
+    history_path = cache_path_for(cache_source, "clip-history" + range_key, cache_dir).with_suffix(".ranges.json")
+    history_path = windows_long_path(history_path)
+    history = json.loads(history_path.read_text(encoding="utf-8")) if history_path.exists() else []
+    desired = requested_duration(os.environ.get("SNIP_AI_CLIP_DURATION_SECONDS"))
+    window_size = max(75, (desired or 0) + 20)
+    selected, segments = [], []
+    fallback = []
+    scanned = 0.0
+    fresh_audio = 0.0
+    chunks = [(i * duration / count, (i + 1) * duration / count) for i in range(count)]
+    cursors = [start for start, _ in chunks]
+
+    def overlaps(candidate, interval):
+        start, end = interval
+        intersection = min(end, candidate["end"]) - max(start, candidate["start"])
+        return intersection > 0.05
+
+    def accept(clip, transcript, offset):
+        selected.append(clip)
+        for segment in transcript["segments"]:
+            if segment["end"] + offset <= clip["start"] or segment["start"] + offset >= clip["end"]:
+                continue
+            words = [{**word, "start": word["start"] + offset, "end": word["end"] + offset}
+                     for word in segment.get("words", [])]
+            segments.append({**segment, "start": segment["start"] + offset,
+                             "end": segment["end"] + offset, "words": words})
+
+    def pick(index):
+        nonlocal scanned, fresh_audio
+        _, limit = chunks[index]
+        while cursors[index] < limit:
+            start = cursors[index]
+            end = min(limit, start + window_size)
+            cursors[index] = limit if end == limit else end - 20
+            if end - start < (desired or 10):
+                continue
+            span = end - start
+            cached = audio_cache / f"{start:.6f}-{end:.6f}.json"
+            print(f"SNIP_PROGRESSIVE: section {index + 1}/{count}, {start:.0f}–{end:.0f}s, {len(selected)}/{count} clips found", flush=True)
+            if not cached.exists():
+                audio = WORK_DIR / "scan-window.wav"
+                local = WORK_DIR / "scan-window.json"
+                local.unlink(missing_ok=True)
+                run_command([FFMPEG, "-y", "-v", "error", "-ss", str(start), "-i", video,
+                             "-t", str(span), "-vn", "-ac", "1", "-ar", "16000", audio], "EXTRACT AUDIO WINDOW")
+                PROCESS_ENV["SNIP_AI_TRANSCRIPT_PATH"] = str(local)
+                run_command([WHISPER_PYTHON, WHISPER_SCRIPT, audio, language], "WHISPER TRANSCRIPTION")
+                temporary = cached.with_suffix(".tmp")
+                shutil.copyfile(local, temporary)
+                os.replace(temporary, cached)
+                audio.unlink(missing_ok=True)
+                fresh_audio += span
+                transcript_path = cached if cached.exists() else local
+            else:
+                transcript_path = cached
+            scanned += span
+            transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
+            if not transcript.get("segments"):
+                continue
+            transcript["duration"] = span
+            STORY_EVENT_MAP_FILE.unlink(missing_ok=True)
+            run_story_event_map(transcript_path, language, allow_empty=True)
+            moments = json.loads(STORY_EVENT_MAP_FILE.read_text(encoding="utf-8")).get("moments", [])
+            for moment in sorted(fit_moments(moments, desired, transcript), key=lambda m: m["score"], reverse=True):
+                clip = {**moment, "start": round(moment["start"] + start, 3),
+                        "end": round(moment["end"] + start, 3)}
+                used = history + [[m["start"], m["end"]] for m in selected]
+                if any(overlaps(clip, interval) for interval in used):
+                    continue
+                if clip["end"] > limit + .001:
+                    continue
+                if moment["score"] < 12:
+                    if moment["score"] >= 8 and len(str(moment.get("text", "")).split()) >= 12:
+                        fallback.append((clip, transcript, start))
+                    continue
+                accept(clip, transcript, start)
+                cursors[index] = start
+                return True
+        return False
+
+    for index in range(count):
+        pick(index)
+    while len(selected) < count:
+        previous = len(selected)
+        for index in range(count):
+            if len(selected) == count:
+                break
+            pick(index)
+        if len(selected) == previous:
+            break
+    for clip, transcript, start in sorted(fallback, key=lambda entry: entry[0]["score"], reverse=True):
+        if len(selected) == count:
+            break
+        used = history + [[m["start"], m["end"]] for m in selected]
+        if not any(overlaps(clip, interval) for interval in used):
+            accept({**clip, "selection_tier": "fallback"}, transcript, start)
+    transcript_path = WORK_DIR / "transcript.json"
+    segments.sort(key=lambda segment: segment["start"])
+    transcript_path.write_text(json.dumps({"duration": duration, "segments": segments}), encoding="utf-8")
+    PROCESS_ENV["SNIP_AI_TRANSCRIPT_PATH"] = str(transcript_path)
+    SELECTED_GENERATION_FILE.write_text(json.dumps({"video": str(video), "clips": selected,
+        "transcript": str(transcript_path), "requested_count": count}), encoding="utf-8")
+    print(f"SNIP_PROGRESSIVE_SUMMARY: {len(selected)}/{count} clips, {fresh_audio:.1f}s fresh transcription, {scanned:.1f}s scanned", flush=True)
+    return history_path, history, selected
+
+
 def main():
 
     if len(sys.argv) < 2:
@@ -1452,6 +1592,17 @@ def main():
     # --------------------------------------------------------
     # 1. Whisper
     # --------------------------------------------------------
+
+    if os.environ.get("SNIP_AI_PROGRESSIVE") == "1":
+        history_path, history, selected = select_progressively(video_path, duration, audio_language, requested_clips)
+        if not selected:
+            fail("No unused clips met the quality threshold. Try another range or audio language.")
+        run_renderer(framing, caption_template, different_captions)
+        outputs = collect_outputs()
+        if len(outputs) != len(selected):
+            fail("Some selected clips could not be rendered.")
+        save_clip_history(history_path, history + [[m["start"], m["end"]] for m in selected])
+        return
 
     transcript_path, transcript_cache = prepare_transcript(
         video_path, audio_language, WORK_DIR,

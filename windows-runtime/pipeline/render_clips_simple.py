@@ -561,6 +561,9 @@ def select_encoder():
 # ============================================================
 
 def build_filter(framing):
+    split_filter = os.environ.get("SNIP_AI_SPLIT_FILTER")
+    if split_filter:
+        return split_filter
     """
     Final canvas is always 1080x1920.
 
@@ -578,13 +581,13 @@ def build_filter(framing):
             f"scale=iw*{SQUARE_ZOOM}:"
             f"ih*{SQUARE_ZOOM}:"
             "force_original_aspect_ratio=decrease,"
-            "crop='min(iw,ih)':'min(iw,ih)',"
+            "crop='min(iw,ih)':'min(iw,ih)':'(iw-ow)/2':'(ih-oh)/2',"
             "scale=1080:1080,"
             "pad=1080:1920:0:440"
         )
 
     if framing == "9:16":
-        return "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1"
+        return "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920:(iw-ow)/2:(ih-oh)/2,setsar=1"
 
     if framing == "16:9":
         return (

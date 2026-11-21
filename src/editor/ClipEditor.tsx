@@ -6,7 +6,7 @@ import { ON_SCREEN_TEXT_THEMES, OnScreenTextPreview } from "./OnScreenTextPrevie
 import { CAPSNIP_TYPOGRAPHY_THEMES, drawCapsnipCaption, loadCapsnipTypographyFonts, typographyTheme } from "./capsnipTypography";
 import "./ClipEditor.css";
 import {ColorPill,RulerSlider} from "./EditorControls";
-import {ChevronDown,Plus,Trash2} from "lucide-react";
+import {ChevronDown,LoaderCircle,Plus,Trash2} from "lucide-react";
 
 type Word = { text: string; start: number; end: number };
 type LineGroup = { id: string; words: Word[]; start: number; end: number };
@@ -33,6 +33,8 @@ function groupsFor(words: Word[]): LineGroup[] {
 export default function ClipEditor({ path, theme, onClose, onSaved, embedded = false, onDirtyChange, onBusyChange }: { path: string; theme: string; onClose: () => void; onSaved: (path: string) => void; embedded?: boolean; onDirtyChange?: (dirty: boolean) => void; onBusyChange?: (busy: boolean) => void }) {
   const [data, setData] = useState<ClipData | null>(null);
   const [mediaInfo, setMediaInfo] = useState({ width: 1, height: 1, duration: 0 });
+  const [readySource, setReadySource] = useState("");
+  const [previewError, setPreviewError] = useState(false);
   const [frameWidth, setFrameWidth] = useState(0);
   const [settings, setSettings] = useState<EditorOverlayState>(() => initialSettings(theme));
   const [tab, setTab] = useState<"captions" | "text" | "logo" | "transcript">("captions");
@@ -45,6 +47,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
   const [time, setTime] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const previewSource = data || error ? convertFileSrc(data?.sourcePath ?? path) : undefined;
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const captionCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -84,7 +87,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
     const score=Math.round((hook+pacing+completeness)/3*10)/10;
     return {hook,pacing,completeness,score,pace:Math.round(pace)};
   },[data]);
-  const currentLine = lines.find(line => time >= line.start && time <= line.end + .08);
+  const currentLine = lines.find(line => time >= line.start && time < line.end);
   const line = currentLine;
   const captionPosition = line && settings.linePositions[line.id] || settings.globalCaptionPosition;
   const textStyle = ON_SCREEN_TEXT_THEMES.find(item => item.id === settings.caption.theme) ?? ON_SCREEN_TEXT_THEMES[0];
@@ -95,14 +98,40 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
   const playbackState = useRef({ data, settings, lines, isTypography, fontsReady });
   playbackState.current = { data, settings, lines, isTypography, fontsReady };
   useEffect(() => {
-    let frame = 0, lastUi = 0, lastPaint = 0;
+    const video = videoRef.current;
+    if (!video || !previewSource || !video.requestVideoFrameCallback) return;
+    let callback = 0;
+    let previousCaption = "";
+    let previousClock = -1;
+    const update: VideoFrameRequestCallback = (_now, { mediaTime }) => {
+      const cue = playbackState.current.lines.find(item => mediaTime >= item.start && mediaTime < item.end);
+      const visible = cue?.words.filter(word => word.start <= mediaTime).length ?? 0;
+      const active = cue?.words.findIndex(word => mediaTime >= word.start && mediaTime < word.end) ?? -1;
+      const caption = `${cue?.id ?? ""}:${visible}:${active}`;
+      if (caption !== previousCaption || Math.abs(mediaTime - previousClock) >= 0.2) {
+        previousCaption = caption;
+        previousClock = mediaTime;
+        setTime(mediaTime);
+      }
+      callback = video.requestVideoFrameCallback(update);
+    };
+    callback = video.requestVideoFrameCallback(update);
+    return () => video.cancelVideoFrameCallback(callback);
+  }, [previewSource]);
+  useEffect(() => {
+    if (!data || !isTypography || !fontsReady) return;
+    let frame = 0, lastPaint = 0;
+    let lastClock = -1;
+    let lastSettings: typeof settings | undefined;
     const tick = (now: number) => {
       const video = videoRef.current, canvas = captionCanvasRef.current;
       const state = playbackState.current;
-      if (video && canvas && now-lastPaint>=33) {
+      if (video && canvas && now-lastPaint>=33 &&
+          (video.currentTime !== lastClock || state.settings !== lastSettings)) {
         lastPaint=now;
         const clock = video.currentTime;
-        if (!video.paused && now-lastUi >= 200) { lastUi=now; setTime(clock); }
+        lastClock = clock;
+        lastSettings = state.settings;
         const ctx=canvas.getContext("2d");
         if (ctx) {
           const bounds=canvasRef.current?.getBoundingClientRect();
@@ -113,7 +142,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
           if(canvas.height!==height)canvas.height=height;
           ctx.clearRect(0,0,width,height);
           if(state.data && state.isTypography && state.fontsReady){
-            const cueIndex=state.lines.findIndex(cue=>clock>=cue.start && clock<=cue.end+.08);
+            const cueIndex=state.lines.findIndex(cue=>clock>=cue.start && clock<cue.end);
             const cue=state.lines[cueIndex];
             if(cue){
               const position=state.settings.linePositions[cue.id] || state.settings.globalCaptionPosition;
@@ -126,7 +155,7 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
     };
     frame=requestAnimationFrame(tick);
     return ()=>cancelAnimationFrame(frame);
-  }, []);
+  }, [data, isTypography, fontsReady, frameWidth]);
 
   function moveSelection(position: Position, target = selection) {
     setSettings(current => {
@@ -187,11 +216,27 @@ export default function ClipEditor({ path, theme, onClose, onSaved, embedded = f
         <section className="snip-editor-preview-column">
           {quality && <aside className="clip-quality-card" aria-label="Selected clip quality estimate"><small>CLIP INSIGHTS</small><strong>{quality.score}<span> / 10</span></strong><p>Transcript-based estimate</p>{[['Hook',quality.hook],['Pacing',quality.pacing],['Ending',quality.completeness]].map(([name,score])=><div className="quality-metric" key={name}><span>{name}</span><b>{score}/10</b><meter min="0" max="10" value={Number(score)}/></div>)}<div className="quality-potential"><span>Share potential</span><b>{quality.score>=7?'Promising':'Needs review'}</b><small>Viral likelihood cannot be measured from the transcript alone.</small></div><p>{quality.pace} words/min · {Math.round(data?.duration||0)} seconds</p></aside>}
           <div className="snip-editor-stage"><div ref={canvasRef} className="snip-editor-canvas" style={{ aspectRatio: `${data?.width ?? mediaInfo.width}/${data?.height ?? mediaInfo.height}`, '--clip-aspect': (data?.width ?? mediaInfo.width)/(data?.height ?? mediaInfo.height) } as CSSProperties}>
-            <video ref={videoRef} src={convertFileSrc(data?.sourcePath ?? path)} playsInline preload="auto" onLoadedMetadata={event => { const video=event.currentTarget; setMediaInfo({width:video.videoWidth || 1,height:video.videoHeight || 1,duration:Number.isFinite(video.duration)?video.duration:0}); video.currentTime=Math.min(time,Math.max(0,video.duration-.01)); }} onTimeUpdate={event => setTime(event.currentTarget.currentTime)} />
-            <canvas className="snip-editor-caption-canvas" ref={captionCanvasRef} />
+            <video ref={videoRef} src={previewSource} playsInline preload="auto"
+              onLoadStart={() => { setReadySource(""); setPreviewError(false); }}
+              onLoadedData={() => setReadySource(previewSource ?? "")}
+              onError={() => setPreviewError(true)}
+              onLoadedMetadata={event => { const video=event.currentTarget; setMediaInfo({width:video.videoWidth || 1,height:video.videoHeight || 1,duration:Number.isFinite(video.duration)?video.duration:0}); }}
+              onSeeked={event => setTime(event.currentTarget.currentTime)}
+              onPause={event => setTime(event.currentTarget.currentTime)}
+              onTimeUpdate={event => {
+                const video = event.currentTarget;
+                if (video.paused || !video.requestVideoFrameCallback) setTime(video.currentTime);
+              }} />
+            {(!previewSource || readySource !== previewSource) && (
+              <div className="snip-preview-loading" role="status">
+                {!previewError && <LoaderCircle size={26} aria-hidden="true" />}
+                <span>{previewError ? "Preview could not be loaded." : "Loading clip preview…"}</span>
+              </div>
+            )}
+            {isTypography && <canvas className="snip-editor-caption-canvas" ref={captionCanvasRef} />}
             {line && <div className={`snip-editor-object snip-editor-captions ${selection === "captions" ? "selected" : ""}`} style={{ left: `${captionPosition.x}%`, top: `${captionPosition.y}%`, fontFamily: textStyle.font, fontSize: `${settings.caption.fontSize / 1080 * 100}cqh`, color: settings.caption.color }} onPointerDown={event => startDrag(event, "captions", captionPosition)} onPointerMove={drag} onPointerUp={stopDrag}>
               {isTypography ? <span style={{ opacity: 0 }}>Move caption</span> : <>
-              {line.words.filter(word => word.start <= time + .06).map((word, index) => <span key={index} style={{ color: time >= word.start && time <= word.end ? settings.caption.accentColor : settings.caption.color }}>{word.text}{" "}</span>)}
+              {line.words.filter(word => word.start <= time).map((word, index) => <span key={index} style={{ color: time < word.end ? settings.caption.accentColor : settings.caption.color }}>{word.text}{" "}</span>)}
               </>}
             </div>}
             {data && settings.onScreenText.map(text => { const style = ON_SCREEN_TEXT_THEMES.find(item => item.id === text.styleId) ?? ON_SCREEN_TEXT_THEMES[0]; return <div key={text.id} className={`snip-editor-object snip-editor-text text-style-${text.styleId} ${selection === text.id ? "selected" : ""}`} style={{ left: `${text.position.x}%`, top: `${text.position.y}%`, fontSize: `${5.5 * text.scale}cqw`, opacity: text.opacity, fontFamily: style.font, color: text.color }} onPointerDown={event => startDrag(event, text.id, text.position)} onPointerMove={drag} onPointerUp={stopDrag}>{text.text}</div>; })}
