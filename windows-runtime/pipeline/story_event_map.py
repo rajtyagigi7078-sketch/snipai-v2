@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import unicodedata
 from pathlib import Path
 
 
@@ -288,8 +289,19 @@ def load_json(path):
 # TEXT
 # ============================================================
 
+SPANISH_SCORING = os.environ.get("SNIP_AI_EVENT_LANGUAGE") == "spanish"
+SPANISH_HOOK_WORDS = {"increible", "imposible", "locura", "sorpresa", "secreto", "ultimo", "finalmente", "nunca", "atencion"}
+SPANISH_CONFLICT_WORDS = {"problema", "policia", "persecucion", "peligro", "fallo", "pelea", "error", "atrapado"}
+SPANISH_ACTION_WORDS = {"corre", "dispara", "salta", "escapa", "ataca", "persigue", "sube", "agarra"}
+SPANISH_PAYOFF_WORDS = {"logrado", "ganamos", "consegui", "sobrevivi", "perdimos", "funciono"}
+SPANISH_QUESTIONS = {"que", "como", "cuando", "donde", "quien", "cual", "cuanto"}
+
+
 def normalize(text):
     text = str(text or "").lower()
+    if SPANISH_SCORING:
+        text = "".join(char for char in unicodedata.normalize("NFKD", text)
+                       if not unicodedata.combining(char))
 
     text = re.sub(
         r"[^a-z0-9\s']",
@@ -464,6 +476,16 @@ def score_event(text):
         payoff_signal += phrase_count(normalized, HINGLISH_PAYOFF_PHRASES)
         question += sum(1 for word in words if word in {"kya", "kyun", "kaise", "kab", "kaun"})
 
+    if SPANISH_SCORING:
+        hook += sum(word in SPANISH_HOOK_WORDS for word in words)
+        conflict += sum(word in SPANISH_CONFLICT_WORDS for word in words)
+        action += sum(word in SPANISH_ACTION_WORDS for word in words)
+        payoff += sum(word in SPANISH_PAYOFF_WORDS for word in words)
+        setup += phrase_count(normalized, ("vamos a intentar", "el reto es", "que pasa si", "por primera vez"))
+        escalation += phrase_count(normalized, ("de repente", "cada vez mas", "justo a tiempo", "por los pelos"))
+        payoff_signal += phrase_count(normalized, ("lo conseguimos", "lo logre", "al final", "ya esta", "se acabo", "por fin"))
+        if "?" in text or "¿" in text:
+            question += sum(word in SPANISH_QUESTIONS for word in words)
     score = 0.0
 
     score += hook * 2.0

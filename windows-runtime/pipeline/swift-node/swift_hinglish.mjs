@@ -35,6 +35,16 @@ const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "snip-swift-"));
 const rawPath = path.join(tempDir, "audio-f32le.raw");
 
 try {
+  if (process.platform === "win32") {
+    const decoder = path.resolve(env.localModelPath, "ishaan-g", "whisper-hinglish-swift_timestamped",
+      "onnx", "decoder_model_merged_quantized.onnx");
+    if (decoder.length >= 260 && fs.existsSync(path.toNamespacedPath(decoder))) {
+      // ONNX opens the model itself. Pass it a short path through a local junction.
+      const alias = path.join(tempDir, "models");
+      fs.symlinkSync(path.toNamespacedPath(path.resolve(env.localModelPath)), alias, "junction");
+      env.localModelPath = alias;
+    }
+  }
   console.log("Extracting audio for Swift model...");
   const extract = spawnSync(ffmpeg, [
     "-y", "-hide_banner", "-loglevel", "error",

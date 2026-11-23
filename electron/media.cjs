@@ -19,6 +19,8 @@ function createMediaBackend(options) {
   const emit = options.emit || options.send || (() => {});
   const app = options.app || { isPackaged: Boolean(process.resourcesPath), getPath: name => name === 'downloads' ? (options.downloads || path.join(options.userData, 'Clips')) : options.userData };
   let activeChild = null;
+  let shuttingDown = false;
+  const children = new Set();
   let activeOperation = false;
   let activeKind = '';
   let activePromise = null;
@@ -93,11 +95,17 @@ function createMediaBackend(options) {
     return resolved;
   }
   function run(executable, args, { cwd, env, logPath, onLine, track = false, timeout = 0 } = {}) {
+    if (shuttingDown || (track && cancelled)) return Promise.reject(new Error('Processing cancelled.'));
     return runProcess(executable, args, { cwd, env, logPath, onLine, timeout,
       idleTimeout: track ? 15 * 60 * 1000 : 0,
       isSuspended: options.isSuspended,
       isCancelled: () => track && cancelled,
-      onChild: (child, previous) => { if (track && child) activeChild = child; else if (activeChild === previous) activeChild = null; },
+      onChild: (child, previous) => {
+        if (child) children.add(child);
+        else children.delete(previous);
+        if (track && child) activeChild = child;
+        else if (activeChild === previous) activeChild = null;
+      },
     });
   }
   async function ensureRuntime(force = false) {
@@ -116,7 +124,7 @@ function createMediaBackend(options) {
       return report;
     })();
     try { return await runtimeReady; }
-    catch(error) { runtimeReady=null; if(cancelled)throw new Error('Processing cancelled.'); throw new Error(`RUNTIME_DEPENDENCY: Snip AI could not start its bundled engines. Use Repair runtime below; if a bundled file was removed, reinstall the latest Snip AI.\n${error.message}`); }
+    catch(error) { runtimeReady=null; if(cancelled)throw new Error('Processing cancelled.'); throw new Error(`RUNTIME_DEPENDENCY: Snip AI could not start its bundled engines. If a bundled file was removed, reinstall the latest Snip AI.\n${error.message}`); }
   }
   async function probe(value) {
     const target = await file(value);
@@ -145,12 +153,23 @@ function createMediaBackend(options) {
   async function cancel() {
     cancelled = true;
     downloaderUpdateRequest?.abort();
-    const child = activeChild;
-    if (child?.pid) await new Promise(resolve => {
-      const killer = spawn(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
-      killer.once('close', resolve); killer.once('error', () => { child.kill(); resolve(); });
-    });
+    await stopChild(activeChild);
     return null;
+  }
+  async function stopChild(child) {
+    if (!child?.pid || child.exitCode !== null || child.signalCode !== null) return;
+    if (process.platform !== 'win32') { child.kill('SIGTERM'); return; }
+    await new Promise(resolve => {
+      const killer = spawn(path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
+      killer.once('close', code => { if (code !== 0) child.kill(); resolve(); });
+      killer.once('error', () => { child.kill(); resolve(); });
+    });
+  }
+  async function shutdown() {
+    shuttingDown = true;
+    cancelled = true;
+    downloaderUpdateRequest?.abort();
+    await Promise.all([...children].map(stopChild));
   }
   async function createClips(args) {
     await ensureRuntime();
@@ -206,29 +225,54 @@ function createMediaBackend(options) {
     await run(rt.python, [path.join(rt.pipeline, 'pipeline_runner.py'), input, args.format, String(count), typographyTheme ? 'pop' : args.captionTemplate, String(Boolean(args.differentCaptions)), args.audioLanguage], { cwd: rt.pipeline, env, track: true, logPath: path.join(outputDir, 'pipeline.log'), onLine: line => emit('pipeline-progress', line) });
     const names = (await fsp.readdir(outputDir)).filter(n => /^snip_ai_simple_clip_\d+\.mp4$/i.test(n)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     if (!names.length) throw new Error(`No clips were produced. See ${path.join(outputDir, 'pipeline.log')}`);
-    let paths = names.map(n => path.join(outputDir, n));
-    for (const clip of paths) await probe(clip);
+    let paths = [];
+    for (const name of names) {
+      const clip = path.join(outputDir, name);
+      try { await probe(clip); paths.push(clip); }
+      catch (error) {
+        if (cancelled || shuttingDown) throw error;
+        emit('pipeline-progress', `Could not validate ${name}: ${error.message}`);
+      }
+    }
     const selected = await readJson(path.join(outputDir, '.snip-ai-work', 'selected-generation.json'));
     await fsp.writeFile(path.join(outputDir, 'electron-job.json'), JSON.stringify({ inputPath: input, format: args.format, splitRegions, captionTemplate: args.captionTemplate, createdAt: new Date().toISOString() }));
     if (typographyTheme || args.autoScreenText || args.customText?.text || args.logoPath) {
       const rendered = [];
+      let processed = 0;
       const renderStarted = Date.now();
-      const report = fraction => emit('pipeline-progress', 'SNIP_RENDER_PROGRESS:' + JSON.stringify(require('./render-progress.cjs').renderProgress(rendered.length, paths.length, fraction, (Date.now() - renderStarted) / 1000)));
+      const report = fraction => emit('pipeline-progress', 'SNIP_RENDER_PROGRESS:' + JSON.stringify(require('./render-progress.cjs').renderProgress(processed, paths.length, fraction, (Date.now() - renderStarted) / 1000)));
       for (const clip of paths) {
         report(0);
-        const editData=await clipEditorData(clip);
-        const heading=editData.words.slice(0,6).map(word=>word.text).join(' ');
-        const palette={pop:['#FFFFFF','#FFE500',64],karaoke:['#FFFFFF','#67E8F9',62],minimal:['#FFFFFF','#FFFFFF',48]};
-        const standard=palette[args.captionTemplate] || ['#FFFFFF','#FFE500',64];
-        rendered.push(await renderClipEdit({ path: clip, onProgress: report, settings: { caption: { theme: args.captionTemplate, color: typographyTheme?.baseColor || standard[0], accentColor: typographyTheme?.accent || standard[1], fontSize: typographyTheme?.size || standard[2] }, globalCaptionPosition: { x: 50, y: typographyTheme ? 72 : 62 }, linePositions: {}, onScreenText: args.customText?.text ? [{id:randomUUID(),text:String(args.customText.text).slice(0,200),styleId:args.customText.font,color:args.customText.color,position:{x:args.customText.x,y:args.customText.y},scale:args.customText.size/100,opacity:1}] : args.autoScreenText ? [{id:randomUUID(),text:heading,styleId:'pop',color:'#FFFFFF',position:{x:50,y:16},scale:.8,opacity:1}] : [], logo: args.logoPath ? {src:args.logoPath,position:{x:86,y:10},scale:12,opacity:1} : null } }));
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const editData=await clipEditorData(clip);
+            const heading=editData.words.slice(0,6).map(word=>word.text).join(' ');
+            const palette={pop:['#FFFFFF','#FFE500',64],karaoke:['#FFFFFF','#67E8F9',62],minimal:['#FFFFFF','#FFFFFF',48]};
+            const standard=palette[args.captionTemplate] || ['#FFFFFF','#FFE500',64];
+            rendered.push(await renderClipEdit({ path: clip, onProgress: report, settings: { caption: { theme: args.captionTemplate, color: typographyTheme?.baseColor || standard[0], accentColor: typographyTheme?.accent || standard[1], fontSize: typographyTheme?.size || standard[2] }, globalCaptionPosition: { x: 50, y: typographyTheme ? 72 : 62 }, linePositions: {}, onScreenText: args.customText?.text ? [{id:randomUUID(),text:String(args.customText.text).slice(0,200),styleId:args.customText.font,color:args.customText.color,position:{x:args.customText.x,y:args.customText.y},scale:args.customText.size/100,opacity:1}] : args.autoScreenText ? [{id:randomUUID(),text:heading,styleId:'pop',color:'#FFFFFF',position:{x:50,y:16},scale:.8,opacity:1}] : [], logo: args.logoPath ? {src:args.logoPath,position:{x:86,y:10},scale:12,opacity:1} : null } }));
+            break;
+          } catch (error) {
+            if (cancelled || shuttingDown) throw error;
+            emit('pipeline-progress', `Clip ${path.basename(clip)} final render attempt ${attempt} failed: ${error.message}`);
+          }
+        }
+        processed++;
         report(0);
       }
       paths = rendered;
     }
     emit('pipeline-progress', 'SNIP_FINALIZING');
+    if (!paths.length) throw new Error(`No clips could be finalized. See ${outputDir} for logs.`);
     const moments = selected.clips || [];
     const captions = moments.map(m => String(m.text || 'A standout moment worth sharing.').trim().slice(0, 140));
-    return { paths, social_captions: paths.map((_, i) => captions[i] || 'A standout moment worth sharing.') };
+    return {
+      paths,
+      failedClips: Math.max(0, moments.length - paths.length),
+      social_captions: paths.map(clip => {
+        const index = Number(path.basename(clip).match(/clip_(\d+)/)?.[1]) - 1;
+        return captions[index] || 'A standout moment worth sharing.';
+      }),
+    };
   }
   function splitScreenFilter(regions) {
     const crops = regions.map(({ x, y, w, h }, i) =>
@@ -303,7 +347,8 @@ function createMediaBackend(options) {
     const end = Number(moment.end ?? moment.end_time ?? moment.clip_end ?? moment.end_sec);
     if (!(end > start)) throw new Error('The source clip timing is missing.');
     if (!words.length) {
-      const transcript = await readJson(path.join(path.dirname(original), `${path.parse(original).name}.transcript.json`));
+      let transcript = await readJson(path.join(outputDir, '.snip-ai-work', 'transcript.json'));
+      if (!transcript.segments?.length) transcript = await readJson(path.join(path.dirname(original), `${path.parse(original).name}.transcript.json`));
       words = (transcript.segments || []).flatMap(s => s.words || []).filter(w => Number(w.end) > start && Number(w.start) < end).map(w => ({ text: String(w.text || w.word || '').trim(), start: Math.max(0, Number(w.start) - start), end: Math.min(end - start, Number(w.end) - start) })).filter(w => w.text && w.end > w.start);
     }
     if (!words.length) throw new Error('Word timestamps are missing for this clip. Generate the clip again.');
@@ -354,7 +399,9 @@ function createMediaBackend(options) {
     const position = settings.globalCaptionPosition || caption.position || { x: 50, y: 62 };
     const options = { template: theme, width: data.width, height: data.height, fontFile: path.join(rt.pipeline, 'fonts', FONTS[theme] || 'Anton.ttf'), secondaryFontFile: theme === 'dual-line' ? path.join(rt.pipeline, 'fonts', 'Nunito.ttf') : undefined, primaryColor: color(caption.color), accentColor: color(caption.accentColor, '#FFD84A'), fontSize: clamp(caption.fontSize, 8, 300, 72) * data.height / 1080, verticalPosition: clamp(position.y, 0, 100, 62) / 100 };
     let engine;
-    if (theme.startsWith('capsnip:')) {
+    if (theme === 'none') {
+      engine = null;
+    } else if (theme.startsWith('capsnip:')) {
       engine = require('./typography.cjs');
       delete options.fontFile;
       options.fontSize = clamp(caption.fontSize, 8, 300, 72);
@@ -364,14 +411,14 @@ function createMediaBackend(options) {
       if (!THEMES.includes(theme)) throw new Error('Choose a supported caption style.');
       engine = require(path.join(rt.pipeline, 'ffmpeg-captions', 'engine.cjs'));
     }
-    let filter;
-    if (!theme.startsWith('capsnip:') && Object.keys(settings.linePositions || {}).length) {
+    let filter = '';
+    if (engine && !theme.startsWith('capsnip:') && Object.keys(settings.linePositions || {}).length) {
       filter = data.lineGroups.map(group => {
         const p = settings.linePositions[group.id] || position;
         const built = engine.buildCaptionFilter(group.words, { ...options, verticalPosition: clamp(p.y, 0, 100, 62) / 100 });
         return offsetFilter(built.filter, (clamp(p.x, 0, 100, 50) - 50) / 100 * data.width);
       }).filter(Boolean).join(',');
-    } else {
+    } else if (engine) {
       const built = engine.buildCaptionFilter(data.words, options);
       filter = theme.startsWith('capsnip:') ? built.filter : offsetFilter(built.filter, (clamp(position.x, 0, 100, 50) - 50) / 100 * data.width);
     }
@@ -413,6 +460,7 @@ function createMediaBackend(options) {
     return out;
   }
   async function invoke(command, args = {}) {
+    if (shuttingDown) throw new Error('Processing cancelled.');
     switch (command) {
       case 'create_clips': return exclusive('create_clips', () => createClips(args));
       case 'download_youtube': return exclusive('download_youtube', () => downloadYoutube(args));
@@ -458,7 +506,7 @@ function createMediaBackend(options) {
       default: throw new Error(`Unsupported desktop command: ${command}`);
     }
   }
-  return { invoke, cancel, runtime, probe };
+  return { invoke, cancel, shutdown, runtime, probe };
 }
 
 module.exports = { createMediaBackend, THEMES, FONTS };

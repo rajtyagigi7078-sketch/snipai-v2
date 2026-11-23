@@ -89,7 +89,7 @@ export default function LicenseActivationScreen({
   async function openLicenseWebsite() {
     const url =
       import.meta.env.VITE_LICENSE_WEBSITE_URL ||
-      "https://sinpai1.netlify.app/get-key.html";
+      "https://snipai.co.in/product.html?product=snip-ai";
 
     try {
       await openUrl(url);

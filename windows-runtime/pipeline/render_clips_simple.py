@@ -1170,14 +1170,16 @@ def write_relative_transcript(
                 raw_end - clip_start,
             )
 
-            if end_time <= start_time:
+            start_time = round(start_time, 3)
+            end_time = round(end_time, 3)
+            if not 0 <= start_time < end_time < float("inf"):
                 continue
 
             words.append(
                 {
                     "text": text,
-                    "start": round(start_time, 3),
-                    "end": round(end_time, 3),
+                    "start": start_time,
+                    "end": end_time,
                 }
             )
 
