@@ -48,10 +48,12 @@ jobs:
       - name: Offline generation and export verification
         run: node scripts/macos-e2e.cjs
       - name: Build Mac installers
+        id: package
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npx electron-builder --mac --config electron-builder.mac.cjs --publish never
       - name: Launch packaged desktop app
+        timeout-minutes: 3
         run: node scripts/macos-launch-smoke.cjs
       - uses: actions/upload-artifact@v4
         if: always()
@@ -64,6 +66,7 @@ jobs:
             .build/mac-e2e/**/*.log
             .build/mac-ui-smoke/*
       - uses: actions/upload-artifact@v4
+        if: always() && steps.package.outcome == 'success'
         with:
           name: macos-installer-${{ matrix.os }}
           path: |
