@@ -24,3 +24,23 @@
     ${EndIf}
   ${EndIf}
 !macroend
+
+!macro customUnInstall
+  ${IfNot} ${isUpdated}
+    release_snip_license:
+    ClearErrors
+    ExecWait '"$INSTDIR\${APP_EXECUTABLE_FILENAME}" --release-license-on-uninstall' $0
+    ${If} ${Errors}
+      StrCpy $0 1
+    ${EndIf}
+    ${If} $0 != 0
+      ${If} ${Silent}
+        SetErrorLevel 1
+        Abort
+      ${EndIf}
+      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Snip AI could not release this computer. Connect to the internet and retry. Cancel keeps Snip AI installed and your key bound to this device." IDRETRY release_snip_license
+      SetErrorLevel 1
+      Abort
+    ${EndIf}
+  ${EndIf}
+!macroend

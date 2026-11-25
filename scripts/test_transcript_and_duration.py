@@ -8,6 +8,21 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "windows-runtime" / "pipeline"))
 from transcript_workspace import prepare_transcript, save_transcript_cache, cache_path_for
 from clip_duration import requested_duration, fit_moments
+import story_event_map
+
+
+class EventScoringTests(unittest.TestCase):
+    def test_spanish_scoring_recognizes_accented_story_signals(self):
+        text = "¿Qué pasa si escapa de la policía? De repente, al final lo conseguimos."
+        with patch.object(story_event_map, "SPANISH_SCORING", False):
+            baseline = story_event_map.score_event(text)
+        with patch.object(story_event_map, "SPANISH_SCORING", True):
+            score = story_event_map.score_event(text)
+            self.assertEqual(story_event_map.score_event("dijo que venía")["question"], 0)
+        self.assertGreater(score["score"], baseline["score"])
+        self.assertGreater(score["question"], 0)
+        self.assertGreater(score["conflict"], 0)
+        self.assertGreater(score["payoff_signal"], 0)
 
 
 class TranscriptWorkspaceTests(unittest.TestCase):

@@ -784,6 +784,7 @@ def run_story_event_map(
     allow_empty=False,
 ):
 
+    PROCESS_ENV["SNIP_AI_EVENT_LANGUAGE"] = audio_language
     # The event map has a romanized Hindi vocabulary. Keep it enabled only
     # for Hinglish transcripts; the English scorer remains unchanged.
     if audio_language == "hinglish":
@@ -791,7 +792,7 @@ def run_story_event_map(
         print("Hinglish event scoring: ON")
     else:
         PROCESS_ENV.pop("SNIP_AI_HINGLISH_EVENT_SCORING", None)
-        print("Hinglish event scoring: OFF (English transcript)")
+        print(f"Event scoring language: {audio_language}")
 
     temp_script = (
         prepare_story_event_map(
@@ -1190,6 +1191,7 @@ def collect_outputs():
         path
         for path in files
         if path.is_file()
+        and path.stem.removeprefix("snip_ai_simple_clip_").isdigit()
         and path.stat().st_size > 0
     ]
 
@@ -1599,9 +1601,19 @@ def main():
             fail("No unused clips met the quality threshold. Try another range or audio language.")
         run_renderer(framing, caption_template, different_captions)
         outputs = collect_outputs()
-        if len(outputs) != len(selected):
-            fail("Some selected clips could not be rendered.")
-        save_clip_history(history_path, history + [[m["start"], m["end"]] for m in selected])
+        # Filenames keep the original selection index even if a clip fails.
+        completed = {
+            int(output.stem.rsplit("_", 1)[-1])
+            for output in outputs
+            if output.stem.rsplit("_", 1)[-1].isdigit()
+        }
+        if len(completed) != len(selected):
+            print(f"Partial render: {len(completed)}/{len(selected)} clips completed.", flush=True)
+        save_clip_history(history_path, history + [
+            [moment["start"], moment["end"]]
+            for index, moment in enumerate(selected, 1)
+            if index in completed
+        ])
         return
 
     transcript_path, transcript_cache = prepare_transcript(

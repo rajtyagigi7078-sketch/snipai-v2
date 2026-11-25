@@ -1,3 +1,4 @@
+import GenerationError from './GenerationError';
 import ErrorModal from './ErrorModal';
 import RecoveryPanel from './RecoveryPanel';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -336,6 +337,7 @@ type GenerationRecord = {
 type GeneratedClipsResult = {
   paths: string[];
   social_captions: string[];
+  failedClips?: number;
 };
 
 type HardwareProfile = {
@@ -668,6 +670,8 @@ function App() {
   const [copiedCaptionIndex, setCopiedCaptionIndex] = useState<number | null>(null);
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [generationError, setGenerationError] = useState("");
+  const [failedClips, setFailedClips] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   useEffect(() => { setEditingClip(showGallery ? outputPaths[0] ?? null : null); setEditorDirty(false); }, [showGallery]);
   const [outputKind, setOutputKind] = useState<"clips" | "caption">("clips");
@@ -877,6 +881,7 @@ function App() {
     setProcessingComplete(false);
     setOutputPaths([]);
     setErrorMessage("");
+    setGenerationError("");
     setProcessingProgress(0);
     setProcessingStage(0);
     setShowGallery(false);
@@ -1060,6 +1065,8 @@ function App() {
   }
 
   setErrorMessage("");
+  setGenerationError("");
+  setFailedClips(0);
   cancelRequestedRef.current = false;
   setIsCanceling(false);
   setProcessingDetail("");
@@ -1120,6 +1127,7 @@ function App() {
 
     setOutputKind("clips");
     setOutputPaths(result.paths);
+    setFailedClips(result.failedClips ?? 0);
     setSelectedClips(new Set(result.paths.map((_, index) => index)));
     setOutputSocialCaptions(result.social_captions ?? []);
 
@@ -1168,7 +1176,7 @@ function App() {
           ? error.message
           : "Something went wrong while generating the clips.";
 
-    setErrorMessage(generationErrorMessage(message));
+    setGenerationError(generationErrorMessage(message));
     setIsProcessing(false);
     setProcessingProgress(0);
     setProcessingStage(0);
@@ -1179,7 +1187,7 @@ function App() {
     if (isCanceling) return;
     cancelRequestedRef.current = true;
     setIsCanceling(true);
-    setProcessingDetail("Stopping the current jobâ€¦");
+    setProcessingDetail("Stopping the current job…");
     try {
       await invoke("cancel_processing");
     } catch (error) {
@@ -1954,7 +1962,7 @@ function App() {
                 <section className="source-player-panel" aria-label="Selected video preview">
                   <div className="appearance-panel-heading"><span title={videoPath}>{videoPath.split(/[\\/]/).pop()}</span><small>Preview</small></div>
                   {splitEnabled ? <SplitScreen key={videoPath} src={convertFileSrc(videoPath)} value={splitRegions} onChange={setSplitRegions}/> : <PreviewPlayer key={videoPath} src={convertFileSrc(videoPath)} onMetadata={duration=>{setVideoDuration(duration);setTrimEnd(old=>old>0?Math.min(old,duration):duration)}} />}
-                  {videoDuration > 0 && <div className="clip-trimmer clip-trimmer-below-preview" aria-label="Trim source video"><div className="clip-trimmer-heading"><strong>Trim video</strong><span>{trimStart.toFixed(1)}s – {trimEnd.toFixed(1)}s</span></div><div className="clip-trimmer-track"><div className="clip-trimmer-selected" style={{left:`${trimStart/videoDuration*100}%`,right:`${(1-trimEnd/videoDuration)*100}%`}}/><input className="clip-trimmer-range clip-trimmer-start" aria-label="Trim start" type="range" min="0" max={Math.max(0,trimEnd-.1)} step=".1" value={trimStart} disabled={isProcessing} onChange={event=>setTrimStart(Math.min(Number(event.target.value),trimEnd-.1))}/><input className="clip-trimmer-range clip-trimmer-end" aria-label="Trim end" type="range" min={Math.min(videoDuration,trimStart+.1)} max={videoDuration} step=".1" value={trimEnd} disabled={isProcessing} onChange={event=>setTrimEnd(Math.max(Number(event.target.value),trimStart+.1))}/></div><div className="clip-trimmer-scale"><span>0:00</span><span>{Math.floor(videoDuration/60)}:{String(Math.floor(videoDuration%60)).padStart(2,'0')}</span></div><small>Drag either handle to cut from the beginning or end.</small></div>}
+                  {videoDuration > 0 && <div className="clip-trimmer clip-trimmer-below-preview" aria-label="Trim source video"><div className="clip-trimmer-heading"><strong>Trim video</strong><span>{trimStart.toFixed(1)}s – {trimEnd.toFixed(1)}s</span></div><div className="clip-trimmer-track"><div className="clip-trimmer-selected" style={{left:`${trimStart/videoDuration*100}%`,right:`${(1-trimEnd/videoDuration)*100}%`}}/><input className="clip-trimmer-range clip-trimmer-start" aria-label="Trim start" type="range" min="0" max={videoDuration} step="any" value={trimStart} disabled={isProcessing} onChange={event=>setTrimStart(Math.min(Number(event.target.value),Math.max(0,trimEnd-.1)))}/><input className="clip-trimmer-range clip-trimmer-end" aria-label="Trim end" type="range" min="0" max={videoDuration} step="any" value={trimEnd} disabled={isProcessing} onChange={event=>setTrimEnd(Math.max(Number(event.target.value),Math.min(videoDuration,trimStart+.1)))}/></div><div className="clip-trimmer-scale"><span>0:00</span><span>{Math.floor(videoDuration/60)}:{String(Math.floor(videoDuration%60)).padStart(2,'0')}</span></div><small>Drag either handle to cut from the beginning or end.</small></div>}
                 </section>
                 <div className="option-card caption-card remotion-caption-card">
                   <div className="option-heading">
@@ -2103,6 +2111,14 @@ function App() {
           />
         ) : null)}
 
+        {generationError && workspacePage === "auto-clipping" && !showGallery && (
+          <GenerationError message={generationError} onDismiss={()=>setGenerationError("")} onPickVideo={()=>{
+            setGenerationError("");
+            resetVideo();
+            void handleBrowse();
+          }}/>
+        )}
+
         {isProcessing && <RenderProgress
           stages={activeProcessingStages} stage={processingStage} percent={processingProgress}
           elapsed={timeLabel(elapsedSeconds)}
@@ -2112,7 +2128,7 @@ function App() {
           batch={captionBatch} stopping={isCanceling} onStop={cancelCurrentProcessing}
         />}
 
-        {processingComplete && <GenerationComplete count={outputPaths.length} format={outputKind === 'caption' ? 'Full video' : format} style={selectedTemplate.label} onCreate={createAnother} onPreview={openGallery}/>}
+        {processingComplete && <GenerationComplete failedClips={failedClips} count={outputPaths.length} format={outputKind === 'caption' ? 'Full video' : format} style={selectedTemplate.label} onCreate={createAnother} onPreview={openGallery}/>}
 
         {showWelcome && (
           <div className="welcome-overlay" role="dialog" aria-modal="true" aria-label="Welcome to Snip AI">

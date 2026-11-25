@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell, protocol, powerMonitor, powerSaveBlocker } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell, protocol, powerMonitor, powerSaveBlocker, safeStorage } from "electron";
 import { join, resolve, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createReadStream } from "node:fs";
@@ -12,10 +12,14 @@ const require = createRequire(import.meta.url);
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const runtimeName = process.platform === 'darwin' ? 'macos-runtime' : 'windows-runtime';
 const runtimeRoot = app.isPackaged ? join(process.resourcesPath, runtimeName) : join(rootDir, '.build', runtimeName);
+const uninstalling = process.platform === 'win32' && process.argv.includes('--release-license-on-uninstall');
+const uninstallLicense = () => require('./uninstall-license.cjs').createUninstallLicense(app.getPath('userData'), safeStorage);
 let win;
 let backend;
+let shutdown;
+let readyToQuit = false;
 let systemSuspended = false;
-if(!app.requestSingleInstanceLock())app.quit();
+if(!uninstalling && !app.requestSingleInstanceLock())app.quit();
 app.on('second-instance',()=>{if(win){if(win.isMinimized())win.restore();win.focus();}});
 const mediaExtensions = new Set(['.mp4','.mov','.mkv','.webm','.avi','.png','.jpg','.jpeg','.webp','.wav','.mp3']);
 protocol.registerSchemesAsPrivileged([{scheme:'snip-media',privileges:{standard:true,secure:true,stream:true,supportFetchAPI:true,corsEnabled:true}}]);
@@ -33,11 +37,19 @@ async function createWindow() {
     backgroundColor:'#050505',show:false,icon:join(rootDir,'dist','snip-logo-mark.png'),
     webPreferences:{preload:join(rootDir,'electron','preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true},
   });
+  win.on('close', event => {
+    if (process.platform === 'darwin' || readyToQuit) return;
+    event.preventDefault();
+    app.quit();
+  });
   win.setMenuBarVisibility(false);
   win.once('ready-to-show',()=>win.show());
   win.webContents.on('did-fail-load',(_event,code,description,url)=>log(`Load failed ${code} ${description} ${url}`));
   win.webContents.on('console-message',(_event,...args)=>log(`Renderer ${args.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' ')}`));
-  win.webContents.on('render-process-gone',(_event,details)=>log(`Renderer exited ${JSON.stringify(details)}`));
+  win.webContents.on('render-process-gone',(_event,details)=>{
+    log(`Renderer exited ${JSON.stringify(details)}`);
+    if (details.reason !== 'clean-exit') app.quit();
+  });
   win.webContents.setWindowOpenHandler(({url})=>{if(/^https?:\/\//.test(url))void shell.openExternal(url);return{action:'deny'};});
   win.webContents.on('will-navigate',(event,url)=>{if(!url.startsWith('file://')&&!url.startsWith('http://localhost:1420')&&!url.startsWith('http://127.0.0.1:1420'))event.preventDefault();});
   const devUrl = !app.isPackaged && process.env.SNIPAI_DEV_SERVER_URL;
@@ -46,6 +58,11 @@ async function createWindow() {
 }
 
 app.whenReady().then(async()=>{
+  if (uninstalling) {
+    try { await uninstallLicense().release(); app.exit(0); }
+    catch { app.exit(1); }
+    return;
+  }
   protocol.handle('snip-media',async request=>{
     const uri=new URL(request.url), target=uri.searchParams.get('path');
     if(uri.host!=='local'||!target||!mediaExtensions.has(extname(target).toLowerCase())||!existsSync(target))return new Response('Media unavailable',{status:404});
@@ -86,7 +103,7 @@ app.whenReady().then(async()=>{
     if(command==='reset_workspace'){
       await backend.cancel();
       log('User requested workspace recovery restart; saved media and activation preserved.');
-      setTimeout(()=>{app.relaunch();app.exit(0);},300);
+      setTimeout(()=>{app.relaunch();app.quit();},300);
       return true;
     }
     if(command==='repair_runtime'){
@@ -102,6 +119,15 @@ app.whenReady().then(async()=>{
       });
       return backend.invoke('check_runtime',{});
     }
+    if(command==='save_uninstall_license') {
+      if (process.platform === 'win32') await uninstallLicense().save(args);
+      return null;
+    }
+    if(command==='clear_uninstall_license') {
+      if (process.platform === 'win32') await uninstallLicense().clear();
+      return null;
+    }
+    if(command==='was_license_released') return existsSync(uninstallLicense().marker);
     if(command==='legacy_license_candidate'){
       const candidate=await require('./license-migration.cjs').readLegacyLicenseCandidate();
       return candidate?{deviceId:candidate.deviceId,keyLast4:candidate.keyLast4}:null;
@@ -138,5 +164,12 @@ app.whenReady().then(async()=>{
   await createWindow();
   app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)void createWindow();});
 });
-app.on('before-quit',()=>backend?.cancel?.());
+app.on('before-quit',event=>{
+  if (!backend || readyToQuit) return;
+  event.preventDefault();
+  shutdown ??= backend.shutdown().catch(error=>log(`Shutdown failed: ${error.message}`)).finally(()=>{
+    readyToQuit = true;
+    app.quit();
+  });
+});
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});

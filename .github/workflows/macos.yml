@@ -2,7 +2,7 @@ name: macOS runtime validation
 on:
   workflow_dispatch:
   push:
-    branches: [release/v3.0.2-mac-build]
+    branches: [release/v3.5.0-mac-build]
 permissions:
   contents: read
 concurrency:

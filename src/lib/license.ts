@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase, supabasePublishableKey } from "./supabase";
 
 const STATE_KEY = "snip-ai.store-license.v1";
 const DEVICE_KEY = "snip-ai.install-id.v1";
@@ -10,8 +10,10 @@ type StoredLicense = { active: true; productSlug: "snip-ai"; keyLast4: string; a
 // Keep the former Tauri installation identity when activating the same key in
 // Electron. Existing saved activation and all old profile files remain intact.
 export async function prepareLegacyDevice() {
-  if(localStorage.getItem(DEVICE_KEY)||!window.snipaiDesktop?.invoke)return;
+  if(!window.snipaiDesktop?.invoke)return;
   try{
+    if(await window.snipaiDesktop.invoke('was_license_released'))localStorage.removeItem(STATE_KEY);
+    if(localStorage.getItem(DEVICE_KEY))return;
     const candidate=await window.snipaiDesktop.invoke<{deviceId:string;keyLast4:string}|null>('legacy_license_candidate');
     if(candidate&&/^[a-f0-9-]{32,64}$/i.test(candidate.deviceId))localStorage.setItem(DEVICE_KEY,candidate.deviceId);
   }catch{ /* Activation still works for a fresh installation. */ }
@@ -50,6 +52,7 @@ export async function activateLifetimeLicense(licenseKey: string) {
     }
     if (!data?.active || data.product_slug !== "snip-ai") throw new Error(data?.error || "This key could not activate Snip AI.");
     const stored: StoredLicense = { active: true, productSlug: "snip-ai", keyLast4: String(data.key_last4 || key.slice(-4)), activatedAt: new Date().toISOString() };
+    await window.snipaiDesktop?.invoke('save_uninstall_license',{key,deviceId:deviceId(),publishableKey:supabasePublishableKey});
     localStorage.setItem(STATE_KEY, JSON.stringify(stored));
     return data;
   } catch (error) {
@@ -65,5 +68,6 @@ export async function releaseThisDevice(licenseKey: string) {
   const {data,error}=await supabase.functions.invoke('store-release-license',{body:{product_slug:'snip-ai',license_key:key,device_id:deviceId()},signal:AbortSignal.timeout(20000)});
   if(error || !data?.released){let message=data?.error;try{message ||= (await error?.context?.json())?.error;}catch{}throw new Error(message || 'Could not release this device. Check your connection and try again.');}
   localStorage.removeItem(STATE_KEY);
+  await window.snipaiDesktop?.invoke('clear_uninstall_license');
   window.dispatchEvent(new Event('snip-license-changed'));
 }
